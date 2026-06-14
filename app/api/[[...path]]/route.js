@@ -74,13 +74,21 @@ async function handle(request, { params }) {
         loan_purpose: b.loan_purpose || null,
         credit_band: b.credit_band || 'unknown',
         recent_enquiries: b.recent_enquiries || null,
+        latest_credit_enquiries_count: b.latest_credit_enquiries_count ? Number(b.latest_credit_enquiries_count) : (b.recent_enquiries === 'yes' ? 3 : 0),
+        city_tier: b.city_tier || 'Other',
         consent_share: !!b.consent_share, consent_terms: !!b.consent_terms,
       }
       lead.foir = computeFoir(lead.existing_emi, lead.net_monthly_salary)
 
-      // 1. fetch active lenders
+      // 1. fetch active lenders + FOIR slabs
       const { data: lenders } = await sb.from('lender_criteria').select('*').eq('active', true)
-      const { eligible } = screenLenders(lead, lenders || [])
+      const lenderIds = (lenders || []).map(l => l.id)
+      let foirSlabs = []
+      if (lenderIds.length) {
+        const { data: slabs } = await sb.from('lender_foir_slabs').select('*').in('lender_id', lenderIds)
+        foirSlabs = slabs || []
+      }
+      const { eligible } = screenLenders(lead, lenders || [], foirSlabs)
 
       // 2. AI analysis
       const ai = await analyzeLeadAI(lead, eligible)

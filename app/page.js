@@ -54,7 +54,7 @@ export default function App() {
     total_experience_years: '', current_company_experience_years: '', salary_account_bank: '',
     net_monthly_salary: '', existing_emi: '', pf_deducted: null, pt_deducted: null,
     loan_type: '', loan_amount: '', loan_purpose: '',
-    credit_band: '', recent_enquiries: '',
+    credit_band: '', recent_enquiries: '', latest_credit_enquiries_count: '', city_tier: 'Metro',
     consent_share: false, consent_terms: false,
   })
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -226,6 +226,17 @@ function FormView({ form, update, step, foir, next, back, stepValid, submit, sub
               <div><Label>PAN Number</Label><Input value={form.pan} onChange={e => update('pan', e.target.value.toUpperCase().slice(0,10))} placeholder="ABCDE1234F" /></div>
               <div><Label>City</Label><Input value={form.city} onChange={e => update('city', e.target.value)} placeholder="Mumbai" /></div>
               <div><Label>Pincode</Label><Input value={form.pincode} onChange={e => update('pincode', e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="400001" /></div>
+              <div className="sm:col-span-2">
+                <Label>City Tier</Label>
+                <Select value={form.city_tier} onValueChange={v => update('city_tier', v)}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Metro">Metro (Mumbai, Delhi, Bangalore, Chennai, Kolkata, Hyderabad, Pune)</SelectItem>
+                    <SelectItem value="Tier2">Tier-2 (Other major cities)</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="sm:col-span-2"><Label>Age *</Label><Input type="number" value={form.age} onChange={e => update('age', e.target.value)} placeholder="30" /></div>
             </div>
           )}
@@ -329,6 +340,12 @@ function FormView({ form, update, step, foir, next, back, stepValid, submit, sub
                     className={`p-3 rounded-lg border-2 capitalize ${form.recent_enquiries === v ? 'border-blue-600 bg-blue-50' : 'border-slate-200'}`}>{v.replace('_',' ')}</button>
                 ))}
               </div>
+              {form.recent_enquiries === 'yes' && (
+                <div>
+                  <Label>How many credit enquiries in the last 90 days?</Label>
+                  <Input type="number" min="0" value={form.latest_credit_enquiries_count} onChange={e => update('latest_credit_enquiries_count', e.target.value)} placeholder="e.g. 2" />
+                </div>
+              )}
             </div>
           )}
 
