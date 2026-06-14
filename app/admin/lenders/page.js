@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { getSupabaseBrowser } from '@/lib/supabase-browser'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,24 +30,36 @@ export default function LendersPage() {
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(empty)
   const [error, setError] = useState('')
+  const [authHeaders, setAuthHeaders] = useState({})
+
+  useEffect(() => {
+    (async () => {
+      const sb = getSupabaseBrowser()
+      const { data: { session } } = await sb.auth.getSession()
+      if (session) setAuthHeaders({ Authorization: `Bearer ${session.access_token}` })
+      load()
+    })()
+  }, [])
 
   const load = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/lender-criteria')
+      const sb = getSupabaseBrowser()
+      const { data: { session } } = await sb.auth.getSession()
+      const headers = session ? { Authorization: `Bearer ${session.access_token}` } : {}
+      const res = await fetch('/api/lender-criteria', { headers })
       const data = await res.json()
       if (res.ok) setLenders(data.lenders || [])
       else if (res.status === 401) window.location.href = '/admin'
       else setError(data.error)
     } finally { setLoading(false) }
   }
-  useEffect(() => { load() }, [])
 
   const openNew = () => { setEditing(null); setForm(empty); setOpenDialog(true) }
   const openEdit = (l) => { setEditing(l.id); setForm({ ...empty, ...l }); setOpenDialog(true) }
   const remove = async (l) => {
     if (!confirm(`Delete ${l.name}?`)) return
-    await fetch(`/api/lender-criteria/${l.id}`, { method: 'DELETE' })
+    await fetch(`/api/lender-criteria/${l.id}`, { method: 'DELETE', headers: authHeaders })
     load()
   }
   const save = async () => {
@@ -60,13 +73,13 @@ export default function LendersPage() {
     }
     delete payload.id; delete payload.created_at
     const url = editing ? `/api/lender-criteria/${editing}` : '/api/lender-criteria'
-    const res = await fetch(url, { method: editing ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    const res = await fetch(url, { method: editing ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders }, body: JSON.stringify(payload) })
     const data = await res.json()
     if (!res.ok) { setError(data.error || 'Save failed'); return }
     setOpenDialog(false); load()
   }
   const toggleActive = async (l) => {
-    await fetch(`/api/lender-criteria/${l.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: !l.active }) })
+    await fetch(`/api/lender-criteria/${l.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders }, body: JSON.stringify({ active: !l.active }) })
     load()
   }
 

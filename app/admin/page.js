@@ -1,30 +1,58 @@
 'use client'
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { getSupabaseBrowser } from '@/lib/supabase-browser'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, LogOut, Lock, Users, TrendingUp, Download, Settings, ChevronDown } from 'lucide-react'
+import { Loader2, LogOut, Lock, Users, TrendingUp, Download, Settings, ChevronDown, Mail, ShieldCheck } from 'lucide-react'
 
-const STATUSES = ['New','Qualified','Hot','Applied','Approved','Rejected','Disbursed']
+const STATUSES = ['New','submitted','docs_pending','sent_to_lender','under_review','approved','rejected','disbursed','expired','withdrawn']
 const PRIORITIES = ['Hot','Warm','Cold']
 const LOAN_TYPES_LBL = { personal:'Personal', business:'Business', home:'Home', lap:'LAP', car:'Car' }
 const fmtINR = (n) => '₹' + Number(n || 0).toLocaleString('en-IN')
 
 export default function AdminPage() {
+  const router = useRouter()
   const [authed, setAuthed] = useState(null)
+  const [authSource, setAuthSource] = useState(null) // 'auth' | 'legacy_cookie'
+  const [session, setSession] = useState(null)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [leads, setLeads] = useState([])
   const [openLead, setOpenLead] = useState(null)
+  const [editingNote, setEditingNote] = useState(null)
+  const [noteDraft, setNoteDraft] = useState('')
   const [filters, setFilters] = useState({ status: 'all', loanType: 'all', city: '', priority: 'all', dateFrom: '', dateTo: '' })
 
-  useEffect(() => { fetch('/api/admin/check').then(r => r.json()).then(d => setAuthed(d.authenticated)) }, [])
-  useEffect(() => { if (authed) loadLeads() }, [authed])
+  // On mount: check Supabase session AND legacy cookie
+  useEffect(() => {
+    (async () => {
+      const sb = getSupabaseBrowser()
+      const { data: { session: s } } = await sb.auth.getSession()
+      if (s) {
+        setSession(s)
+        // Check if this email is in admins table
+        const res = await fetch('/api/admin/check', { headers: { Authorization: `Bearer ${s.access_token}` } })
+        const data = await res.json()
+        if (data.authenticated) { setAuthed(true); setAuthSource(data.source); return }
+      }
+      // Fallback: legacy cookie check
+      const res = await fetch('/api/admin/check')
+      const data = await res.json()
+      setAuthed(data.authenticated)
+      setAuthSource(data.source)
+    })()
+  }, [])
+
+  const authHeaders = useMemo(() => session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}, [session])
+
+  useEffect(() => { if (authed) loadLeads() }, [authed, session])
 
   const login = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
@@ -32,21 +60,34 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setAuthed(true)
+      setAuthed(true); setAuthSource('legacy_cookie')
     } catch (e) { setError(e.message) } finally { setLoading(false) }
   }
-  const logout = async () => { await fetch('/api/admin/logout', { method: 'POST' }); setAuthed(false) }
+
+  const logout = async () => {
+    if (session) { const sb = getSupabaseBrowser(); await sb.auth.signOut() }
+    await fetch('/api/admin/logout', { method: 'POST' })
+    setAuthed(false); setSession(null); setAuthSource(null)
+  }
+
   const loadLeads = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/leads')
+      const res = await fetch('/api/leads', { headers: authHeaders })
       const data = await res.json()
       if (res.ok) setLeads(data.leads || []); else setError(data.error)
     } finally { setLoading(false) }
   }
+
   const updateStatus = async (id, status) => {
-    await fetch(`/api/leads/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_status: status }) })
+    await fetch(`/api/leads/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders }, body: JSON.stringify({ lead_status: status }) })
     setLeads(prev => prev.map(l => l.id === id ? { ...l, lead_status: status } : l))
+  }
+
+  const saveNote = async (id) => {
+    await fetch(`/api/leads/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders }, body: JSON.stringify({ admin_notes: noteDraft }) })
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, admin_notes: noteDraft } : l))
+    setEditingNote(null); setNoteDraft('')
   }
 
   const filtered = useMemo(() => leads.filter(l => {
@@ -75,15 +116,23 @@ export default function AdminPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-blue-50 p-4">
         <Card className="w-full max-w-md shadow-2xl">
           <CardHeader className="text-center">
-            <div className="mx-auto bg-blue-600 text-white rounded-2xl w-14 h-14 flex items-center justify-center mb-2"><Lock /></div>
+            <div className="mx-auto bg-blue-600 text-white rounded-2xl w-14 h-14 flex items-center justify-center mb-2"><ShieldCheck /></div>
             <CardTitle className="text-2xl">LoanLaabh Admin</CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={login} className="space-y-4">
-              <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} autoFocus /></div>
+          <CardContent className="space-y-4">
+            <Link href="/login?redirect=/admin">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 h-11"><Mail className="mr-2 h-4 w-4" /> Sign in with Email OTP</Button>
+            </Link>
+            <div className="relative my-3">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
+              <div className="relative text-center text-xs text-slate-400 bg-white px-3 inline-block left-1/2 -translate-x-1/2">or use legacy password</div>
+            </div>
+            <form onSubmit={login} className="space-y-3">
+              <div><Label className="text-sm">Admin Password (legacy)</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
               {error && <div className="text-red-600 text-sm">{error}</div>}
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>{loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Sign in'}</Button>
+              <Button type="submit" variant="outline" className="w-full" disabled={loading}>{loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Sign in with password'}</Button>
             </form>
+            <p className="text-xs text-slate-500 text-center pt-2">Email OTP login requires your email to be in the admins whitelist.</p>
           </CardContent>
         </Card>
       </div>
