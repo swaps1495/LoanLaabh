@@ -1,8 +1,57 @@
--- LoanLaabh Migration v3 - SAFE (no DROPs)
--- Adds new columns to lender_criteria, creates lender_foir_slabs and lender_address_proofs
--- Reseeds with real lender data from LoanLaabh Excel
+-- LoanLaabh Self-Contained Safe Migration (v3-final)
+-- Creates tables IF NOT EXISTS, alters with ADD COLUMN IF NOT EXISTS, then seeds real Excel data.
+-- Safe to re-run.
 
--- 1. Extend lender_criteria (additive ALTERs)
+-- ========== 1. CREATE TABLES IF NEEDED ==========
+
+create table if not exists public.leads (
+  id uuid primary key default gen_random_uuid(),
+  full_name text not null, mobile text not null, pan text, city text, pincode text, age integer,
+  residence_type text,
+  employment_type text not null, company_name text, designation text,
+  total_experience_years numeric(4,1), current_company_experience_years numeric(4,1), salary_account_bank text,
+  net_monthly_salary numeric(14,2) not null, existing_emi numeric(14,2) default 0,
+  pf_deducted boolean, pt_deducted boolean, foir numeric(5,2),
+  loan_type text not null, loan_amount numeric(14,2) not null, loan_purpose text,
+  credit_band text, recent_enquiries text,
+  consent_share boolean default false, consent_terms boolean default false,
+  lead_score integer, approval_probability text, estimated_eligible_amount numeric(14,2),
+  recommended_lender_ids uuid[], risk_flags text[], sales_priority text, internal_notes text, ai_provider text,
+  lead_status text default 'New',
+  created_at timestamptz default now(), updated_at timestamptz default now()
+);
+create index if not exists leads_created_at_idx on public.leads(created_at desc);
+create index if not exists leads_status_idx on public.leads(lead_status);
+
+create table if not exists public.lender_criteria (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  loan_types text[] not null default ARRAY['personal'],
+  min_cibil integer,
+  min_age integer, max_age integer,
+  min_net_salary numeric(14,2),
+  pf_mandatory boolean default false, pt_mandatory boolean default false,
+  accepts_employment text[] not null default ARRAY['salaried'],
+  foir_max numeric(5,2) default 65, foir_max_high_income numeric(5,2) default 75,
+  high_income_threshold numeric(14,2) default 80000,
+  min_loan_amount numeric(14,2) default 50000, max_loan_amount numeric(14,2) default 5000000,
+  interest_rate_min numeric(5,2) default 10.5, interest_rate_max numeric(5,2) default 22,
+  city_restrictions text[], notes text, active boolean default true,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.matches (
+  id uuid primary key default gen_random_uuid(),
+  lead_id uuid not null references public.leads(id) on delete cascade,
+  lender_id uuid not null references public.lender_criteria(id) on delete cascade,
+  match_score numeric(5,2), estimated_emi numeric(14,2), estimated_interest_rate numeric(5,2),
+  reasons text[], created_at timestamptz default now(),
+  unique(lead_id, lender_id)
+);
+create index if not exists matches_lead_idx on public.matches(lead_id);
+
+-- ========== 2. ADD NEW COLUMNS (safe / idempotent) ==========
+
 alter table public.lender_criteria
   add column if not exists min_net_salary_general numeric(14,2),
   add column if not exists min_net_salary_metro numeric(14,2),
@@ -11,7 +60,12 @@ alter table public.lender_criteria
   add column if not exists status text default 'active',
   add column if not exists allowed_address_proofs text[];
 
--- 2. New table for income-band FOIR slabs
+alter table public.leads
+  add column if not exists city_tier text,
+  add column if not exists latest_credit_enquiries_count integer;
+
+-- ========== 3. NEW TABLE: FOIR slabs ==========
+
 create table if not exists public.lender_foir_slabs (
   id uuid primary key default gen_random_uuid(),
   lender_id uuid not null references public.lender_criteria(id) on delete cascade,
@@ -23,19 +77,14 @@ create table if not exists public.lender_foir_slabs (
 );
 create index if not exists foir_lender_idx on public.lender_foir_slabs(lender_id);
 
--- 3. Extend leads with city_tier + numeric enquiries count
-alter table public.leads
-  add column if not exists city_tier text,
-  add column if not exists latest_credit_enquiries_count integer;
+-- ========== 4. CLEAR OLD SEED DATA & RESEED FROM EXCEL ==========
 
--- 4. Clear previous seed data (keeps schema, removes rows)
 delete from public.matches;
 delete from public.lender_foir_slabs;
 delete from public.lender_criteria;
 
--- 5. Seed real lender data from LoanLaabh Excel (Personal Loan)
+-- 37 real lenders from LoanLaabh_PL_Eligibility Excel
 
--- Lenders
 insert into public.lender_criteria (name, loan_types, min_cibil, min_age, max_age, min_net_salary, min_net_salary_general, min_net_salary_metro, min_net_salary_tier2, max_latest_enquiries, pf_mandatory, pt_mandatory, accepts_employment, foir_max, foir_max_high_income, high_income_threshold, min_loan_amount, max_loan_amount, interest_rate_min, interest_rate_max, allowed_address_proofs, notes, active, status) values (
   'Aditya Birla Finance Limited', ARRAY['personal']::text[], 700, 21, 56,
   25000, 25000, NULL, NULL,
@@ -296,7 +345,7 @@ insert into public.lender_criteria (name, loan_types, min_cibil, min_age, max_ag
   ARRAY['Updated Aadhaar','Gas receipt','Light bill']::text[], NULL, false, 'need_more_info'
 );
 
--- FOIR slabs (income-band based)
+-- 127 FOIR slabs (income-band caps)
 insert into public.lender_foir_slabs (lender_id, income_min, income_max, foir_max, notes) select id, 25000, 40000, 50, NULL from public.lender_criteria where name = 'Aditya Birla Finance Limited';
 insert into public.lender_foir_slabs (lender_id, income_min, income_max, foir_max, notes) select id, 40000, 50000, 55, NULL from public.lender_criteria where name = 'Aditya Birla Finance Limited';
 insert into public.lender_foir_slabs (lender_id, income_min, income_max, foir_max, notes) select id, 50000, 60000, 60, NULL from public.lender_criteria where name = 'Aditya Birla Finance Limited';
