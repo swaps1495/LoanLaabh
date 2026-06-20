@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getSupabaseBrowser } from '@/lib/supabase-browser'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -9,6 +9,14 @@ import { Label } from '@/components/ui/label'
 import { Loader2, Mail, ShieldCheck, ArrowLeft } from 'lucide-react'
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-blue-600" /></div>}>
+      <LoginInner />
+    </Suspense>
+  )
+}
+
+function LoginInner() {
   const router = useRouter()
   const search = useSearchParams()
   const redirect = search.get('redirect') || '/dashboard'
