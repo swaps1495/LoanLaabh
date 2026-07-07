@@ -13,7 +13,7 @@ import {
   BookOpen, Scale, MessageCircle, User, Cpu, GitCompareArrows, ThumbsUp,
 } from 'lucide-react'
 
-const WHATSAPP_URL = 'https://wa.me/919999999999'
+const WHATSAPP_URL = 'https://wa.me/917770024242'
 
 const TRUST_BADGES = [
   { icon: BadgeCheck, label: 'Free Eligibility Check' },
@@ -54,11 +54,11 @@ const WHY_US = [
 ]
 
 const PRODUCTS = [
-  { icon: Briefcase, title: 'Personal Loan', desc: 'Quick financing for salaried professionals.' },
-  { icon: TrendingUp, title: 'Business Loan', desc: 'Funding for business growth and working capital.' },
-  { icon: HomeIcon, title: 'Home Loan', desc: 'Purchase, construction, and refinancing options.' },
+  { icon: Briefcase, title: 'Personal Loan', desc: 'Quick financing for salaried professionals.', img: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=600&q=80' },
+  { icon: TrendingUp, title: 'Business Loan', desc: 'Funding for business growth and working capital.', img: 'https://images.pexels.com/photos/26861411/pexels-photo-26861411.jpeg?auto=compress&cs=tinysrgb&w=600' },
+  { icon: HomeIcon, title: 'Home Loan', desc: 'Purchase, construction, and refinancing options.', img: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80' },
+  { icon: Car, title: 'Used Car Loan', desc: 'Finance for pre-owned vehicles.', img: 'https://images.unsplash.com/photo-1671719367451-7bf05ae9549c?auto=format&fit=crop&w=600&q=80' },
   { icon: Building2, title: 'Loan Against Property', desc: 'Unlock the value of your property.' },
-  { icon: Car, title: 'Used Car Loan', desc: 'Finance for pre-owned vehicles.' },
   { icon: RefreshCcw, title: 'Balance Transfer', desc: 'Transfer your existing loan to explore better terms.' },
   { icon: LineChart, title: 'Credit Improvement Guidance', desc: 'Resources to strengthen your credit profile.' },
 ]
@@ -287,16 +287,29 @@ export default function Home() {
       <section className="py-20 md:py-28 bg-white">
         <div className="container mx-auto px-4">
           <SectionHeading eyebrow="Why Us" title="Why Customers Choose LoanLaabh" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {WHY_US.map((w, i) => (
-              <div key={i} className="bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-7 border border-slate-100">
-                <div className="bg-blue-50 text-[#1A6FE8] rounded-xl w-12 h-12 flex items-center justify-center mb-5">
-                  <w.icon className="h-6 w-6" />
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-br from-[#1A6FE8]/10 to-[#22C55E]/10 blur-2xl rounded-full" />
+              <img src="https://images.pexels.com/photos/19609201/pexels-photo-19609201.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Happy Indian couple planning their finances" className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3]" />
+              <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-white rounded-xl fm-card-shadow p-4 flex items-center gap-3 border border-slate-100">
+                <div className="bg-emerald-50 text-[#22C55E] rounded-lg w-11 h-11 flex items-center justify-center"><Brain className="h-5 w-5" /></div>
+                <div>
+                  <div className="text-xs text-[#64748B]">Matched by</div>
+                  <div className="font-bold text-[#0A1628] text-sm">FinMatrix AI&trade;</div>
                 </div>
-                <h3 className="font-bold text-[#0A1628] text-lg">{w.title}</h3>
-                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{w.desc}</p>
               </div>
-            ))}
+            </div>
+            <div className="grid sm:grid-cols-2 gap-5">
+              {WHY_US.map((w, i) => (
+                <div key={i} className="bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-5 border border-slate-100">
+                  <div className="bg-blue-50 text-[#1A6FE8] rounded-xl w-11 h-11 flex items-center justify-center mb-4">
+                    <w.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-[#0A1628]">{w.title}</h3>
+                  <p className="text-[#64748B] mt-1.5 text-sm leading-relaxed">{w.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -305,24 +318,47 @@ export default function Home() {
       <section id="products" className="py-20 md:py-28 bg-[#F8FAFC] scroll-mt-16">
         <div className="container mx-auto px-4">
           <SectionHeading eyebrow="Loan Products" title="Loan Solutions for Every Need" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {PRODUCTS.map((p, i) => (
-              <Link key={i} href="/eligibility" className="group bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-7 border border-slate-100 block">
-                <div className="bg-gradient-to-br from-[#1A6FE8] to-[#0A1628] text-white rounded-xl w-12 h-12 flex items-center justify-center mb-5">
-                  <p.icon className="h-6 w-6" />
+          {/* Featured products with images */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            {PRODUCTS.filter(p => p.img).map((p, i) => (
+              <Link key={i} href="/eligibility" className="group bg-white rounded-xl fm-card-shadow fm-card-shadow-hover border border-slate-100 block overflow-hidden">
+                <div className="relative h-40 overflow-hidden">
+                  <img src={p.img} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/60 to-transparent" />
+                  <div className="absolute bottom-3 left-4 bg-white/95 text-[#1A6FE8] rounded-lg w-10 h-10 flex items-center justify-center shadow-md">
+                    <p.icon className="h-5 w-5" />
+                  </div>
                 </div>
-                <h3 className="font-bold text-[#0A1628] text-lg group-hover:text-[#1A6FE8] transition-colors">{p.title}</h3>
-                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{p.desc}</p>
-                <div className="mt-4 inline-flex items-center text-sm font-semibold text-[#1A6FE8] opacity-0 group-hover:opacity-100 transition-opacity">
-                  Check eligibility <ArrowRight className="ml-1 h-4 w-4" />
+                <div className="p-5">
+                  <h3 className="font-bold text-[#0A1628] text-lg group-hover:text-[#1A6FE8] transition-colors">{p.title}</h3>
+                  <p className="text-[#64748B] mt-1.5 text-sm leading-relaxed">{p.desc}</p>
+                  <div className="mt-3 inline-flex items-center text-sm font-semibold text-[#1A6FE8]">
+                    Check eligibility <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </Link>
             ))}
-            <div className="bg-gradient-to-br from-[#0A1628] to-[#123A6E] rounded-xl p-7 flex flex-col justify-center text-white">
-              <h3 className="font-bold text-lg">Not sure which loan fits?</h3>
-              <p className="text-slate-300 mt-2 text-sm">Let FinMatrix AI&trade; guide you to the right option.</p>
+          </div>
+          {/* Other products */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PRODUCTS.filter(p => !p.img).map((p, i) => (
+              <Link key={i} href="/eligibility" className="group bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-6 border border-slate-100 block">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gradient-to-br from-[#1A6FE8] to-[#0A1628] text-white rounded-xl w-12 h-12 flex items-center justify-center shrink-0">
+                    <p.icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[#0A1628] group-hover:text-[#1A6FE8] transition-colors">{p.title}</h3>
+                    <p className="text-[#64748B] text-sm mt-0.5">{p.desc}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            <div className="bg-gradient-to-br from-[#0A1628] to-[#123A6E] rounded-xl p-6 flex flex-col justify-center text-white">
+              <h3 className="font-bold">Not sure which loan fits?</h3>
+              <p className="text-slate-300 mt-1 text-sm">Let FinMatrix AI&trade; guide you to the right option.</p>
               <Link href="/eligibility">
-                <Button size="sm" className="mt-5 bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg font-semibold w-fit">Find My Match <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
+                <Button size="sm" className="mt-4 bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg font-semibold w-fit">Find My Match <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
               </Link>
             </div>
           </div>
@@ -386,16 +422,60 @@ export default function Home() {
       <section className="py-20 md:py-28 bg-white">
         <div className="container mx-auto px-4">
           <SectionHeading eyebrow="Trust & Compliance" title="Built for Responsible Loan Discovery" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TRUST_CARDS.map((t, i) => (
-              <div key={i} className="bg-[#F8FAFC] rounded-xl p-7 border border-slate-100 text-center fm-card-shadow-hover">
-                <div className="mx-auto bg-emerald-50 text-[#22C55E] rounded-xl w-12 h-12 flex items-center justify-center mb-5">
-                  <t.icon className="h-6 w-6" />
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid sm:grid-cols-2 gap-5 order-2 lg:order-1">
+              {TRUST_CARDS.map((t, i) => (
+                <div key={i} className="bg-[#F8FAFC] rounded-xl p-6 border border-slate-100 fm-card-shadow-hover">
+                  <div className="bg-emerald-50 text-[#22C55E] rounded-xl w-11 h-11 flex items-center justify-center mb-4">
+                    <t.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-[#0A1628]">{t.title}</h3>
+                  <p className="text-[#64748B] mt-1.5 text-sm leading-relaxed">{t.desc}</p>
                 </div>
-                <h3 className="font-bold text-[#0A1628]">{t.title}</h3>
-                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{t.desc}</p>
+              ))}
+            </div>
+            <div className="relative order-1 lg:order-2">
+              <div className="absolute -inset-4 bg-[#22C55E]/10 blur-2xl rounded-full" />
+              <img src="https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&w=900&q=80" alt="Trusted partnership handshake" className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3]" />
+              <div className="absolute -bottom-6 -left-4 sm:-left-6 bg-white rounded-xl fm-card-shadow p-4 flex items-center gap-3 border border-slate-100">
+                <div className="bg-emerald-50 text-[#22C55E] rounded-lg w-11 h-11 flex items-center justify-center"><ShieldAlert className="h-5 w-5" /></div>
+                <div>
+                  <div className="text-xs text-[#64748B]">DSA Partner</div>
+                  <div className="font-bold text-[#0A1628] text-sm">Platform</div>
+                </div>
               </div>
-            ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== ADVISOR SECTION ===== */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="bg-gradient-to-br from-[#0A1628] to-[#123A6E] rounded-3xl overflow-hidden grid lg:grid-cols-2">
+            <div className="p-10 md:p-14 flex flex-col justify-center">
+              <div className="text-sm font-semibold tracking-widest uppercase text-[#5B9BF3] mb-3">Real Humans. Real Guidance.</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Talk to a LoanLaabh Advisor</h2>
+              <p className="mt-4 text-slate-300 leading-relaxed">
+                FinMatrix AI&trade; finds your matches, and our advisors walk you through documentation, lender processes, and every step until disbursal &mdash; at no cost to you.
+              </p>
+              <div className="mt-7 flex flex-col sm:flex-row gap-4">
+                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" className="w-full sm:w-auto h-12 px-7 font-semibold bg-[#22C55E] hover:bg-emerald-600 rounded-lg">
+                    <MessageCircle className="mr-2 h-5 w-5" /> WhatsApp: +91 77700 24242
+                  </Button>
+                </a>
+                <a href="mailto:help@loanlaabh.com">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-7 font-semibold rounded-lg border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white">
+                    help@loanlaabh.com
+                  </Button>
+                </a>
+              </div>
+            </div>
+            <div className="relative min-h-[300px]">
+              <img src="https://images.pexels.com/photos/8867631/pexels-photo-8867631.jpeg?auto=compress&cs=tinysrgb&w=900" alt="LoanLaabh advisor ready to help" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/60 via-transparent to-transparent" />
+            </div>
           </div>
         </div>
       </section>

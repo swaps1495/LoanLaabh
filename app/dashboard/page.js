@@ -125,7 +125,7 @@ export default function DashboardPage() {
                 </div>
               )}
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <a href={`https://wa.me/919999999999?text=${encodeURIComponent(`Hi, I'd like an update on my application ${active.id.slice(0,8)}`)}`} target="_blank" rel="noopener noreferrer" className="flex-1">
+                <a href={`https://wa.me/917770024242?text=${encodeURIComponent(`Hi, I'd like an update on my application ${active.id.slice(0,8)}`)}`} target="_blank" rel="noopener noreferrer" className="flex-1">
                   <Button className="w-full bg-emerald-600 hover:bg-emerald-700"><MessageCircle className="mr-2 h-4 w-4" /> Chat with Loan Expert</Button>
                 </a>
               </div>

@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, Mail } from 'lucide-react'
 
-const WHATSAPP_URL = 'https://wa.me/919999999999'
+const WHATSAPP_URL = 'https://wa.me/917770024242'
 
 export default function Footer() {
   return (
@@ -15,8 +15,11 @@ export default function Footer() {
             </div>
             <p className="mt-3 text-sm font-medium text-slate-200">Apply Smarter. Borrow Better.</p>
             <p className="mt-1 text-xs text-slate-400">Powered by FinMatrix AI&trade;</p>
-            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium">
-              <MessageCircle className="h-4 w-4" /> WhatsApp: +91 99999 99999
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="mt-5 flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium w-fit">
+              <MessageCircle className="h-4 w-4" /> WhatsApp: +91 77700 24242
+            </a>
+            <a href="mailto:help@loanlaabh.com" className="mt-2 flex items-center gap-2 text-sm text-slate-300 hover:text-white font-medium w-fit">
+              <Mail className="h-4 w-4" /> help@loanlaabh.com
             </a>
           </div>
           <div>
@@ -24,6 +27,9 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
               <li><Link href="/eligibility" className="hover:text-white transition-colors">Eligibility</Link></li>
+              <li><Link href="/cibil-score" className="hover:text-white transition-colors">CIBIL Score</Link></li>
+              <li><Link href="/calculators" className="hover:text-white transition-colors">EMI Calculator</Link></li>
+              <li><Link href="/credit-cards" className="hover:text-white transition-colors">Credit Cards</Link></li>
               <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
               <li><Link href="/#insights" className="hover:text-white transition-colors">Insights</Link></li>
               <li><a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contact</a></li>

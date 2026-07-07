@@ -16,6 +16,13 @@ AI-powered loan eligibility & lender matching platform (DSA partner model, India
 4. Email OTP auth (Supabase), user dashboard (1 active application max), admin dashboard + lender management
 5. Customer result page shows NO lender names (generic "Lender Match #N" cards; names shared by advisor)
 
+## Expansion v2.1 (June 2025 — COMPLETE)
+- Contact: WhatsApp +91 77700 24242 (wa.me/917770024242) everywhere; email help@loanlaabh.com in footer + advisor banner
+- Paisabazaar-style navbar: CIBIL Score (6-item dropdown), Loans (7-item dropdown), Calculators, Credit Cards (SOON badge); mobile expandable groups
+- New pages: /cibil-score (what/range/factors/improve/loans anchor sections), /calculators (interactive EMI calculator with sliders), /credit-cards (coming soon)
+- Homepage images (via vision expert): 4 featured product cards with photos (personal/business/home/car), Why Us split w/ couple photo, Trust split w/ handshake photo, new Advisor banner section w/ support-agent photo + WhatsApp/email CTAs
+- PWA (Option A chosen): /public/manifest.json, sw.js (network-first), icon-192/512 + apple-touch-icon (generated), layout metadata (manifest, themeColor #0A1628), SW registered in providers.js. Play Store (TWA) deferred to later.
+
 ## UI Redesign v2 (June 2025 — COMPLETE)
 Brand design system: Deep Navy #0A1628, Bright Blue #1A6FE8, Green #22C55E, Amber #F59E0B, bg #F8FAFC, 12px card radius, soft shadows (0 4px 24px rgba(0,0,0,0.06)).
 - Homepage (app/page.js): 11 sections — Hero (CIBIL headline + animated FinMatrix panel + 4 trust badges), Problem (4 cards), LoanLaabh Way (5-step timeline, #how-it-works), FinMatrix AI™ (#finmatrix, 11 param chips), Why Us (6 cards), Loan Products (#products, 7 cards), Process (4 cards), Insights™ (#insights, 6 placeholder articles), Trust & Compliance (4 cards), FAQ accordion (8 Qs), Final CTA banner

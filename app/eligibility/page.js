@@ -154,7 +154,7 @@ export default function EligibilityPage() {
     const baseCat = prob === 'High' ? 0 : prob === 'Medium' ? 1 : 2
     const cardCount = Math.min(count, 3)
     const checks = ['Income Range', 'Employment Type', 'City', 'Loan Amount', 'Policy Alignment']
-    const waUrl = `https://wa.me/919999999999?text=${encodeURIComponent(`Hi, I just received my Loan Discovery Report for a ${loanLabel} (Ref: ${result.lead_id.slice(0, 8)}). I'd like to speak to a LoanLaabh advisor.`)}`
+    const waUrl = `https://wa.me/917770024242?text=${encodeURIComponent(`Hi, I just received my Loan Discovery Report for a ${loanLabel} (Ref: ${result.lead_id.slice(0, 8)}). I'd like to speak to a LoanLaabh advisor.`)}`
     return (
       <div className="min-h-screen bg-[#F8FAFC]">
         {/* Report header */}
