@@ -23,10 +23,11 @@ const TRUST_BADGES = [
 ]
 
 const PROBLEMS = [
-  { icon: Ban, title: 'Applied to Multiple Banks', desc: 'Every lender has different approval policies.' },
-  { icon: TrendingDown, title: 'CIBIL Score Impact', desc: 'Multiple loan inquiries may affect your credit profile.' },
-  { icon: HelpCircle, title: 'No Clarity', desc: "Most people don't know which lender suits their profile." },
-  { icon: Shuffle, title: 'Random Applications', desc: 'Traditional agents often submit without comparing criteria.' },
+  { icon: Shuffle, title: 'Different Rules Everywhere', desc: 'Different lenders have different approval rules.' },
+  { icon: Ban, title: 'Rejections Cause Delays', desc: 'A rejected application can delay your financial plans.' },
+  { icon: HelpCircle, title: 'No Eligibility Clarity', desc: "Customers often don't know where they are eligible." },
+  { icon: TrendingDown, title: 'CIBIL Score Drops', desc: 'Unnecessary inquiries can drop your CIBIL score.' },
+  { icon: FileSearch, title: 'Random Applications', desc: 'Traditional agents may send applications randomly.' },
 ]
 
 const TIMELINE = [
@@ -197,8 +198,8 @@ export default function Home() {
       {/* ===== SECTION 2: THE PROBLEM ===== */}
       <section className="py-20 md:py-28 bg-[#F8FAFC]">
         <div className="container mx-auto px-4">
-          <SectionHeading eyebrow="The Problem" title="Why Do So Many Loan Applications Get Rejected?" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <SectionHeading eyebrow="The Problem" title="Blind Loan Applications Can Cost You Time, CIBIL Drop and Confidence" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {PROBLEMS.map((p, i) => (
               <div key={i} className="bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-7 border border-slate-100">
                 <div className="bg-red-50 text-red-500 rounded-xl w-12 h-12 flex items-center justify-center mb-5">
