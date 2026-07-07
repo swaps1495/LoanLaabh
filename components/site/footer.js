@@ -1,0 +1,49 @@
+import Link from 'next/link'
+import { MessageCircle } from 'lucide-react'
+
+const WHATSAPP_URL = 'https://wa.me/919999999999'
+
+export default function Footer() {
+  return (
+    <footer className="bg-[#0A1628] text-slate-300">
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid md:grid-cols-4 gap-10">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2.5 font-bold text-xl text-white">
+              <span className="bg-[#1A6FE8] rounded-lg w-9 h-9 flex items-center justify-center">L</span>
+              Loan<span className="text-[#5B9BF3]">Laabh</span>
+            </div>
+            <p className="mt-3 text-sm font-medium text-slate-200">Apply Smarter. Borrow Better.</p>
+            <p className="mt-1 text-xs text-slate-400">Powered by FinMatrix AI&trade;</p>
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium">
+              <MessageCircle className="h-4 w-4" /> WhatsApp: +91 99999 99999
+            </a>
+          </div>
+          <div>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
+              <li><Link href="/eligibility" className="hover:text-white transition-colors">Eligibility</Link></li>
+              <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
+              <li><Link href="/#insights" className="hover:text-white transition-colors">Insights</Link></li>
+              <li><a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Legal</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <p className="text-xs leading-relaxed text-slate-400 max-w-4xl">
+            <strong className="text-slate-300">Disclaimer:</strong> LoanLaabh is an AI-powered loan discovery and DSA partner platform. We do not lend money directly. Loan approval, interest rates, loan amount, processing fees, and disbursal are determined solely by the lending institution after its own assessment and verification. FinMatrix AI&trade; provides eligibility insights only and does not guarantee loan approval.
+          </p>
+          <p className="text-xs text-slate-500 mt-6">&copy; 2025 LoanLaabh. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  )
+}

@@ -1,189 +1,441 @@
 'use client'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { getSupabaseBrowser } from '@/lib/supabase-browser'
+import Navbar from '@/components/site/navbar'
+import Footer from '@/components/site/footer'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { ArrowRight, CheckCircle2, Shield, Clock, TrendingUp, ChevronDown } from 'lucide-react'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import {
+  ArrowRight, CheckCircle2, ShieldCheck, Lock, BadgeCheck, Sparkles,
+  Ban, TrendingDown, HelpCircle, Shuffle,
+  Brain, Eye, Landmark, Activity, HeartHandshake, ShieldAlert,
+  Briefcase, TrendingUp, Home as HomeIcon, Building2, Car, RefreshCcw, LineChart,
+  FileSearch, ListChecks, Target, Compass,
+  BookOpen, Scale, MessageCircle, User, Cpu, GitCompareArrows, ThumbsUp,
+} from 'lucide-react'
 
-const LOAN_TYPES = [
-  { value: 'personal', label: 'Personal Loan', emoji: '💼', desc: 'Wedding, travel, medical, anything' },
-  { value: 'business', label: 'Business Loan', emoji: '📈', desc: 'Grow your enterprise' },
-  { value: 'home', label: 'Home Loan', emoji: '🏠', desc: 'Buy or build your dream home' },
-  { value: 'lap', label: 'Loan Against Property', emoji: '🏢', desc: 'Unlock property value' },
-  { value: 'car', label: 'Car Loan', emoji: '🚗', desc: 'New or used vehicle' },
+const WHATSAPP_URL = 'https://wa.me/919999999999'
+
+const TRUST_BADGES = [
+  { icon: BadgeCheck, label: 'Free Eligibility Check' },
+  { icon: Cpu, label: 'AI-Powered Lender Matching' },
+  { icon: Lock, label: 'Secure & Encrypted' },
+  { icon: ShieldCheck, label: 'DSA Partner Platform' },
+]
+
+const PROBLEMS = [
+  { icon: Ban, title: 'Applied to Multiple Banks', desc: 'Every lender has different approval policies.' },
+  { icon: TrendingDown, title: 'CIBIL Score Impact', desc: 'Multiple loan inquiries may affect your credit profile.' },
+  { icon: HelpCircle, title: 'No Clarity', desc: "Most people don't know which lender suits their profile." },
+  { icon: Shuffle, title: 'Random Applications', desc: 'Traditional agents often submit without comparing criteria.' },
+]
+
+const TIMELINE = [
+  { icon: User, title: 'Tell us about yourself' },
+  { icon: Brain, title: 'FinMatrix AI\u2122 analyzes your profile' },
+  { icon: GitCompareArrows, title: 'Compares lender policies' },
+  { icon: ListChecks, title: 'Shows suitable loan matches' },
+  { icon: ThumbsUp, title: 'Apply with confidence' },
+]
+
+const FM_PARAMS = [
+  'Income', 'Employment Type', 'Salary Mode', 'Company Category',
+  'CIBIL Score Band', 'Existing EMI', 'FOIR', 'City',
+  'Age', 'Loan Amount', 'Lender Eligibility Rules',
+]
+
+const WHY_US = [
+  { icon: Brain, title: 'AI-Powered Loan Matching', desc: 'Find lenders based on your profile, not guesswork.' },
+  { icon: Eye, title: 'Transparent Eligibility Insights', desc: 'Understand why a lender may suit your profile.' },
+  { icon: Landmark, title: 'Multiple Lending Partners', desc: 'Access loan options across banks and NBFCs.' },
+  { icon: Activity, title: 'Application Tracking', desc: 'Track every stage of your application in one place.' },
+  { icon: HeartHandshake, title: 'Expert Guidance', desc: 'Talk to a LoanLaabh advisor whenever you need help.' },
+  { icon: ShieldAlert, title: 'No False Promises', desc: 'We believe in clarity, not unrealistic guarantees.' },
+]
+
+const PRODUCTS = [
+  { icon: Briefcase, title: 'Personal Loan', desc: 'Quick financing for salaried professionals.' },
+  { icon: TrendingUp, title: 'Business Loan', desc: 'Funding for business growth and working capital.' },
+  { icon: HomeIcon, title: 'Home Loan', desc: 'Purchase, construction, and refinancing options.' },
+  { icon: Building2, title: 'Loan Against Property', desc: 'Unlock the value of your property.' },
+  { icon: Car, title: 'Used Car Loan', desc: 'Finance for pre-owned vehicles.' },
+  { icon: RefreshCcw, title: 'Balance Transfer', desc: 'Transfer your existing loan to explore better terms.' },
+  { icon: LineChart, title: 'Credit Improvement Guidance', desc: 'Resources to strengthen your credit profile.' },
+]
+
+const PROCESS = [
+  { icon: FileSearch, title: 'Profile Analysis', desc: 'Understand your financial profile.' },
+  { icon: ListChecks, title: 'Eligibility Intelligence', desc: 'Compare your details with lender criteria.' },
+  { icon: Target, title: 'Suitability Matching', desc: 'Identify lenders aligned with your profile.' },
+  { icon: Compass, title: 'Guided Application', desc: 'Proceed with confidence and support.' },
+]
+
+const INSIGHTS = [
+  { tag: 'Credit Score', title: 'How to Improve Your CIBIL Score' },
+  { tag: 'Eligibility', title: 'Understanding FOIR and Why It Matters' },
+  { tag: 'Banking', title: 'How Banks Evaluate Loan Applications' },
+  { tag: 'Approvals', title: 'Common Reasons for Loan Rejection' },
+  { tag: 'Planning', title: 'Salary Required for Different Loan Amounts' },
+  { tag: 'Guides', title: 'How to Choose the Right Loan Type' },
+]
+
+const TRUST_CARDS = [
+  { icon: Lock, title: 'Secure Data Handling', desc: 'Your information is protected and shared only as needed.' },
+  { icon: Eye, title: 'Transparent Process', desc: 'No hidden eligibility charges.' },
+  { icon: HeartHandshake, title: 'Responsible Matching', desc: 'We help you discover suitable options, not make approval promises.' },
+  { icon: Scale, title: 'Compliance', desc: 'LoanLaabh is a DSA partner platform. We do not lend money directly.' },
 ]
 
 const FAQS = [
-  { q: 'Will checking eligibility affect my CIBIL score?', a: 'No. We only do a soft enquiry based on the details you provide. Your CIBIL score is not impacted.' },
-  { q: 'How is LoanLaabh different from going to a bank directly?', a: 'We compare 15+ lenders for you instantly, match you to the ones most likely to approve, and our experts negotiate the best rate on your behalf — all at zero cost to you.' },
-  { q: 'Are you a bank or NBFC?', a: 'No. LoanLaabh is a registered DSA (Direct Selling Agent) marketplace. We connect you with our partner banks and NBFCs who provide the actual loan.' },
-  { q: 'Is there any fee?', a: 'Using LoanLaabh is 100% free for borrowers. We get paid by lenders when a loan is successfully disbursed.' },
-  { q: 'How long does the process take?', a: 'Pre-qualification is instant (~60 seconds). Final loan disbursal typically takes 24-72 hours depending on the lender and documentation.' },
-  { q: 'What documents will I need?', a: 'Typically: PAN, Aadhaar, last 3 months bank statements, last 2 salary slips, and a passport-size photo. Our team will guide you.' },
+  { q: 'Does LoanLaabh provide loans directly?', a: 'No. LoanLaabh is a DSA partner platform. We help you discover suitable lenders based on your profile. Loans are disbursed directly by the lending institution.' },
+  { q: 'Is the eligibility check free?', a: 'Yes. Checking your eligibility on LoanLaabh is completely free.' },
+  { q: 'Will checking eligibility affect my CIBIL score?', a: 'Basic eligibility checks on LoanLaabh do not impact your CIBIL score. If you proceed with a lender application, the lender may perform a credit bureau check as part of their own process.' },
+  { q: 'How does FinMatrix AI\u2122 work?', a: 'FinMatrix AI\u2122 evaluates your profile across multiple eligibility parameters such as income, employment, city, CIBIL score band, and existing obligations, and compares them with lender criteria to identify suitable loan options.' },
+  { q: 'Is loan approval guaranteed?', a: "No. LoanLaabh helps you discover suitable lenders based on your profile. Final approval depends on the lender's internal policies, documentation, and credit assessment." },
+  { q: 'How does LoanLaabh earn revenue?', a: 'LoanLaabh earns a referral fee from lending partners when a loan is successfully disbursed. This service is completely free for customers.' },
+  { q: 'How long does the application process take?', a: "The eligibility check takes under 60 seconds. The overall loan process depends on the lender's timeline and documentation requirements." },
+  { q: 'Can I track my application?', a: 'Yes. Once you submit your application, you can track its status in real time from your LoanLaabh dashboard.' },
 ]
 
-export default function Home() {
-  const router = useRouter()
-  const [authed, setAuthed] = useState(false)
-  useEffect(() => {
-    const sb = getSupabaseBrowser()
-    sb.auth.getSession().then(({ data }) => setAuthed(!!data.session))
-  }, [])
-
-  const startApp = () => router.push(authed ? '/eligibility' : '/login?redirect=/eligibility')
-
+function SectionHeading({ eyebrow, title, subtitle, dark }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50">
-      <nav className="sticky top-0 z-40 backdrop-blur bg-white/80 border-b border-slate-200">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
-            <span className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-lg w-9 h-9 flex items-center justify-center shadow">L</span>
-            <span>Loan<span className="text-blue-600">Laabh</span></span>
-          </Link>
-          <div className="flex items-center gap-3 text-sm">
-            {authed ? (
-              <Link href="/dashboard"><Button variant="ghost" size="sm">My Dashboard</Button></Link>
-            ) : (
-              <Link href="/login"><Button variant="ghost" size="sm">Sign in</Button></Link>
-            )}
-            <Button size="sm" onClick={startApp} className="bg-blue-600 hover:bg-blue-700">Check Eligibility</Button>
-          </div>
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section className="container mx-auto px-4 pt-12 pb-16 grid md:grid-cols-2 gap-10 items-center">
-        <div>
-          <Badge className="mb-4 bg-blue-100 text-blue-700 hover:bg-blue-100">🇮🇳 India&apos;s smartest loan marketplace</Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 leading-tight tracking-tight">
-            Get pre-qualified for a loan in <span className="text-blue-600">60 seconds</span>.
-          </h1>
-          <p className="mt-5 text-lg text-slate-600 max-w-xl">
-            Personal, business, home, LAP &amp; car loans. We compare 15+ lenders and match you instantly — without affecting your credit score.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            <Button size="lg" onClick={startApp} className="text-base h-12 px-8 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200">
-              Check Your Loan Eligibility <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-          <div className="mt-8 flex flex-wrap items-center gap-6 text-sm text-slate-600">
-            <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-emerald-600" /> 100% Free</div>
-            <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-emerald-600" /> 60-sec form</div>
-            <div className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> No CIBIL hit</div>
-          </div>
-        </div>
-        <div className="relative">
-          <div className="absolute -inset-4 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 blur-3xl rounded-full" />
-          <img src="https://images.unsplash.com/photo-1580893246395-52aead8960dc?auto=format&fit=crop&w=900&q=80" alt="" className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3]" />
-          <Card className="absolute -bottom-6 -left-6 shadow-xl border-blue-100 hidden md:block bg-white">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="bg-emerald-100 text-emerald-700 rounded-full w-10 h-10 flex items-center justify-center"><TrendingUp className="h-5 w-5" /></div>
-              <div>
-                <div className="text-xs text-slate-500">Lowest rate found</div>
-                <div className="font-bold text-slate-900">8.40% p.a.</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* TRUST BADGES */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { n: '15+', l: 'Partner Lenders' },
-            { n: '5', l: 'Loan Types' },
-            { n: '60s', l: 'Pre-qualification' },
-            { n: '₹1.5Cr', l: 'Max Loan' },
-          ].map((s, i) => (
-            <Card key={i} className="text-center"><CardContent className="py-6">
-              <div className="text-3xl font-bold text-blue-600">{s.n}</div>
-              <div className="text-sm text-slate-600 mt-1">{s.l}</div>
-            </CardContent></Card>
-          ))}
-        </div>
-      </section>
-
-      {/* LOAN TYPES */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold text-center text-slate-900 mb-2">Whatever you need, we&apos;ve got you</h2>
-        <p className="text-center text-slate-600 mb-10">5 loan types. 15+ lenders. One smart match.</p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {LOAN_TYPES.map(lt => (
-            <Card key={lt.value} className="hover:shadow-xl transition cursor-pointer hover:-translate-y-1 duration-200" onClick={startApp}>
-              <CardContent className="p-6 text-center">
-                <div className="text-4xl mb-3">{lt.emoji}</div>
-                <div className="font-semibold text-slate-900">{lt.label}</div>
-                <div className="text-xs text-slate-500 mt-1">{lt.desc}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold text-center text-slate-900 mb-10">How LoanLaabh works</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { n: 1, t: 'Sign in & fill 60-sec form', d: 'Verify your email with OTP, then tell us about your loan need.' },
-            { n: 2, t: 'AI matches lenders', d: 'GPT-4o + our rule engine screen 15+ lenders by your CIBIL, income, FOIR and policy.' },
-            { n: 3, t: 'Get pre-qualified', d: 'See your eligible amount &amp; approval probability — our experts handle the rest.' },
-          ].map(s => (
-            <Card key={s.n}><CardContent className="p-6">
-              <div className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">{s.n}</div>
-              <h3 className="font-semibold text-xl mt-4">{s.t}</h3>
-              <p className="text-slate-600 mt-2">{s.d}</p>
-            </CardContent></Card>
-          ))}
-        </div>
-        <div className="text-center mt-10">
-          <Button size="lg" onClick={startApp} className="bg-blue-600 hover:bg-blue-700 h-12 px-8">Check Your Loan Eligibility <ArrowRight className="ml-2" /></Button>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="container mx-auto px-4 py-12 max-w-3xl">
-        <h2 className="text-3xl font-bold text-center text-slate-900 mb-10">Frequently asked questions</h2>
-        <div className="space-y-3">{FAQS.map((f, i) => <FaqItem key={i} q={f.q} a={f.a} />)}</div>
-      </section>
-
-      <footer className="bg-slate-900 text-slate-300 py-12 mt-12">
-        <div className="container mx-auto px-4 grid md:grid-cols-3 gap-8">
-          <div>
-            <div className="flex items-center gap-2 font-bold text-xl text-white">
-              <span className="bg-blue-600 rounded-lg w-9 h-9 flex items-center justify-center">L</span>
-              LoanLaabh
-            </div>
-            <p className="mt-3 text-sm">India&apos;s smartest loan marketplace. Pre-qualify instantly with 15+ lenders.</p>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-3">Loan Types</h4>
-            <ul className="space-y-2 text-sm">{LOAN_TYPES.map(lt => <li key={lt.value}>{lt.label}</li>)}</ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-3">Important</h4>
-            <p className="text-xs leading-relaxed">LoanLaabh is a DSA (Direct Selling Agent) marketplace and does NOT directly disburse loans. All loans are provided by our partner banks and NBFCs, subject to their credit policies, verification and approval. Interest rates and processing fees are determined by the lender.</p>
-          </div>
-        </div>
-        <div className="text-center text-xs text-slate-500 mt-8 pt-6 border-t border-slate-800">© 2026 LoanLaabh. All rights reserved.</div>
-      </footer>
+    <div className="text-center max-w-3xl mx-auto mb-14">
+      {eyebrow && <div className={`text-sm font-semibold tracking-widest uppercase mb-3 ${dark ? 'text-[#5B9BF3]' : 'text-[#1A6FE8]'}`}>{eyebrow}</div>}
+      <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${dark ? 'text-white' : 'text-[#0A1628]'}`}>{title}</h2>
+      {subtitle && <p className={`mt-4 text-lg ${dark ? 'text-slate-300' : 'text-[#64748B]'}`}>{subtitle}</p>}
     </div>
   )
 }
 
-function FaqItem({ q, a }) {
-  const [open, setOpen] = useState(false)
+export default function Home() {
   return (
-    <div className="bg-white rounded-lg border">
-      <button onClick={() => setOpen(!open)} className="w-full p-4 flex justify-between items-center text-left">
-        <span className="font-medium text-slate-900">{q}</span>
-        <ChevronDown className={`h-4 w-4 text-slate-500 transition ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && <div className="px-4 pb-4 text-sm text-slate-600">{a}</div>}
+    <div className="min-h-screen bg-white">
+      <Navbar />
+
+      {/* ===== SECTION 1: HERO ===== */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0E2240] to-[#123A6E]">
+        <div className="absolute inset-0 fm-matrix-grid" />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#1A6FE8]/20 rounded-full blur-3xl" />
+        <div className="container mx-auto px-4 relative py-20 md:py-28 grid lg:grid-cols-2 gap-14 items-center">
+          <div className="fm-fade-up">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 text-sm text-blue-100 mb-6">
+              <Sparkles className="h-4 w-4 text-[#5B9BF3]" /> Powered by FinMatrix AI&trade;
+            </div>
+            <h1 className="text-4xl md:text-5xl xl:text-6xl font-extrabold text-white leading-[1.1] tracking-tight">
+              Don&apos;t Risk Your CIBIL. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5B9BF3] to-[#8BC0FF]">Find Your Best Loan Match First.</span>
+            </h1>
+            <p className="mt-6 text-lg text-slate-300 max-w-xl leading-relaxed">
+              LoanLaabh uses FinMatrix AI&trade; to analyze your profile and compare it with lender eligibility criteria &mdash; helping you discover suitable loan options before you apply.
+            </p>
+            <div className="mt-9 flex flex-col sm:flex-row gap-4">
+              <Link href="/eligibility">
+                <Button size="lg" className="w-full sm:w-auto h-13 px-8 text-base font-semibold bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg shadow-xl shadow-blue-900/40 h-12">
+                  Find My Loan Match <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <a href="#finmatrix">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-lg border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white">
+                  How FinMatrix AI&trade; Works
+                </Button>
+              </a>
+            </div>
+            <div className="mt-10 grid grid-cols-2 md:flex md:flex-wrap gap-x-6 gap-y-3 text-sm text-slate-200">
+              {TRUST_BADGES.map((b, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#22C55E] shrink-0" /> {b.label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Abstract AI dashboard visual */}
+          <div className="relative hidden lg:block fm-fade-up" style={{ animationDelay: '0.2s' }}>
+            <div className="fm-float relative bg-white/[0.06] backdrop-blur-xl border border-white/15 rounded-2xl p-6 shadow-2xl overflow-hidden">
+              <div className="fm-scanline" />
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="bg-[#1A6FE8] rounded-lg w-9 h-9 flex items-center justify-center"><Brain className="h-5 w-5 text-white" /></div>
+                  <div>
+                    <div className="text-white font-semibold text-sm">FinMatrix AI&trade;</div>
+                    <div className="text-[11px] text-slate-400">Live profile analysis</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 fm-pulse-dot" /> ANALYZING
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                {[
+                  { l: 'Income Range', d: '0.4s' },
+                  { l: 'Employment Type', d: '0.8s' },
+                  { l: 'CIBIL Score Band', d: '1.2s' },
+                  { l: 'FOIR & Obligations', d: '1.6s' },
+                  { l: 'City & Lender Policy', d: '2.0s' },
+                ].map((row, i) => (
+                  <div key={i} className="fm-pop flex items-center justify-between bg-white/[0.05] border border-white/10 rounded-lg px-4 py-2.5" style={{ animationDelay: row.d }}>
+                    <span className="text-sm text-slate-200">{row.l}</span>
+                    <CheckCircle2 className="h-4 w-4 text-[#22C55E]" />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5">
+                <div className="flex justify-between text-[11px] text-slate-400 mb-1.5">
+                  <span>Match confidence</span><span className="text-white font-semibold">87%</span>
+                </div>
+                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div className="fm-fill h-full bg-gradient-to-r from-[#1A6FE8] to-[#22C55E] rounded-full" />
+                </div>
+              </div>
+              <div className="fm-pop mt-5 flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-4 py-3" style={{ animationDelay: '2.6s' }}>
+                <BadgeCheck className="h-5 w-5 text-[#22C55E]" />
+                <span className="text-sm text-emerald-300 font-medium">3 suitable lender matches identified</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 2: THE PROBLEM ===== */}
+      <section className="py-20 md:py-28 bg-[#F8FAFC]">
+        <div className="container mx-auto px-4">
+          <SectionHeading eyebrow="The Problem" title="Why Do So Many Loan Applications Get Rejected?" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PROBLEMS.map((p, i) => (
+              <div key={i} className="bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-7 border border-slate-100">
+                <div className="bg-red-50 text-red-500 rounded-xl w-12 h-12 flex items-center justify-center mb-5">
+                  <p.icon className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-[#0A1628] text-lg">{p.title}</h3>
+                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-14">
+            <p className="text-2xl md:text-3xl font-bold text-[#0A1628]">&ldquo;There is a Smarter Way.&rdquo;</p>
+            <a href="#how-it-works">
+              <Button size="lg" className="mt-6 h-12 px-8 bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg font-semibold">
+                See How LoanLaabh Works <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 3: THE LOANLAABH WAY ===== */}
+      <section id="how-it-works" className="py-20 md:py-28 bg-white scroll-mt-16">
+        <div className="container mx-auto px-4">
+          <SectionHeading
+            eyebrow="The LoanLaabh Way"
+            title="Borrow Smarter with LoanLaabh"
+            subtitle={'Instead of applying everywhere, let FinMatrix AI\u2122 identify lenders that better match your financial profile.'}
+          />
+          <div className="relative">
+            <div className="hidden lg:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-[#1A6FE8]/20 via-[#1A6FE8] to-[#22C55E]/60" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-4">
+              {TIMELINE.map((s, i) => (
+                <div key={i} className="relative flex lg:flex-col items-start lg:items-center gap-4 lg:text-center">
+                  <div className="relative z-10 bg-white border-2 border-[#1A6FE8] text-[#1A6FE8] rounded-2xl w-16 h-16 flex items-center justify-center shrink-0 shadow-lg shadow-blue-100">
+                    <s.icon className="h-7 w-7" />
+                    <span className="absolute -top-2 -right-2 bg-[#0A1628] text-white text-[11px] font-bold rounded-full w-6 h-6 flex items-center justify-center">{i + 1}</span>
+                  </div>
+                  <div className="lg:mt-4">
+                    <div className="font-semibold text-[#0A1628] leading-snug">{s.title}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 4: FINMATRIX AI ===== */}
+      <section id="finmatrix" className="py-20 md:py-28 bg-gradient-to-br from-[#0A1628] via-[#0E2240] to-[#123A6E] relative overflow-hidden scroll-mt-16">
+        <div className="absolute inset-0 fm-matrix-grid" />
+        <div className="container mx-auto px-4 relative">
+          <div className="grid lg:grid-cols-2 gap-14 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 text-sm text-blue-100 mb-6">
+                <Sparkles className="h-4 w-4 text-[#5B9BF3]" /> Powered by LoanLaabh Intelligence&trade;
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Meet FinMatrix AI&trade;</h2>
+              <p className="mt-3 text-xl text-[#5B9BF3] font-semibold">Your Personal Loan Intelligence Engine</p>
+              <p className="mt-5 text-slate-300 leading-relaxed max-w-xl">
+                FinMatrix AI&trade; evaluates your profile across multiple eligibility parameters and compares them with lender criteria to identify loan options that may be a better fit.
+              </p>
+              <Link href="/eligibility">
+                <Button size="lg" className="mt-8 h-12 px-8 bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg font-semibold shadow-xl shadow-blue-900/40">
+                  Run My Analysis <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+            <div className="bg-white/[0.06] backdrop-blur-xl border border-white/15 rounded-2xl p-7 relative overflow-hidden">
+              <div className="fm-scanline" />
+              <div className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-5">Parameters analyzed</div>
+              <div className="flex flex-wrap gap-2.5">
+                {FM_PARAMS.map((p, i) => (
+                  <div key={p} className="fm-pop inline-flex items-center gap-2 bg-white/[0.07] border border-white/15 rounded-lg px-3.5 py-2 text-sm text-slate-100" style={{ animationDelay: `${0.15 * i}s` }}>
+                    <CheckCircle2 className="h-4 w-4 text-[#22C55E]" /> {p}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 5: WHY LOANLAABH ===== */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="container mx-auto px-4">
+          <SectionHeading eyebrow="Why Us" title="Why Customers Choose LoanLaabh" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {WHY_US.map((w, i) => (
+              <div key={i} className="bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-7 border border-slate-100">
+                <div className="bg-blue-50 text-[#1A6FE8] rounded-xl w-12 h-12 flex items-center justify-center mb-5">
+                  <w.icon className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-[#0A1628] text-lg">{w.title}</h3>
+                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{w.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 6: LOAN PRODUCTS ===== */}
+      <section id="products" className="py-20 md:py-28 bg-[#F8FAFC] scroll-mt-16">
+        <div className="container mx-auto px-4">
+          <SectionHeading eyebrow="Loan Products" title="Loan Solutions for Every Need" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {PRODUCTS.map((p, i) => (
+              <Link key={i} href="/eligibility" className="group bg-white rounded-xl fm-card-shadow fm-card-shadow-hover p-7 border border-slate-100 block">
+                <div className="bg-gradient-to-br from-[#1A6FE8] to-[#0A1628] text-white rounded-xl w-12 h-12 flex items-center justify-center mb-5">
+                  <p.icon className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-[#0A1628] text-lg group-hover:text-[#1A6FE8] transition-colors">{p.title}</h3>
+                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{p.desc}</p>
+                <div className="mt-4 inline-flex items-center text-sm font-semibold text-[#1A6FE8] opacity-0 group-hover:opacity-100 transition-opacity">
+                  Check eligibility <ArrowRight className="ml-1 h-4 w-4" />
+                </div>
+              </Link>
+            ))}
+            <div className="bg-gradient-to-br from-[#0A1628] to-[#123A6E] rounded-xl p-7 flex flex-col justify-center text-white">
+              <h3 className="font-bold text-lg">Not sure which loan fits?</h3>
+              <p className="text-slate-300 mt-2 text-sm">Let FinMatrix AI&trade; guide you to the right option.</p>
+              <Link href="/eligibility">
+                <Button size="sm" className="mt-5 bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg font-semibold w-fit">Find My Match <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 7: HOW FINMATRIX AI WORKS ===== */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="container mx-auto px-4">
+          <SectionHeading eyebrow="The Process" title={'How FinMatrix AI\u2122 Finds Better Loan Matches'} />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PROCESS.map((p, i) => (
+              <div key={i} className="relative bg-[#F8FAFC] rounded-xl p-7 border border-slate-100 fm-card-shadow-hover">
+                <div className="text-5xl font-extrabold text-[#1A6FE8]/10 absolute top-4 right-5">{i + 1}</div>
+                <div className="bg-white text-[#1A6FE8] rounded-xl w-12 h-12 flex items-center justify-center mb-5 fm-card-shadow">
+                  <p.icon className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-[#0A1628] text-lg">{p.title}</h3>
+                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link href="/eligibility">
+              <Button size="lg" className="h-12 px-8 bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg font-semibold">
+                Start Free Eligibility Check <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 8: LOANLAABH INSIGHTS ===== */}
+      <section id="insights" className="py-20 md:py-28 bg-[#F8FAFC] scroll-mt-16">
+        <div className="container mx-auto px-4">
+          <SectionHeading eyebrow={'LoanLaabh Insights\u2122'} title="Learn Before You Borrow" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {INSIGHTS.map((a, i) => (
+              <div key={i} className="group bg-white rounded-xl fm-card-shadow fm-card-shadow-hover border border-slate-100 overflow-hidden cursor-pointer">
+                <div className="h-1.5 bg-gradient-to-r from-[#1A6FE8] to-[#22C55E]" />
+                <div className="p-7">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-blue-50 text-[#1A6FE8] rounded-lg w-10 h-10 flex items-center justify-center"><BookOpen className="h-5 w-5" /></div>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[#1A6FE8] bg-blue-50 rounded-full px-3 py-1">{a.tag}</span>
+                  </div>
+                  <h3 className="font-bold text-[#0A1628] text-lg leading-snug group-hover:text-[#1A6FE8] transition-colors">{a.title}</h3>
+                  <div className="mt-4 inline-flex items-center text-sm font-semibold text-[#64748B]">Coming soon <ArrowRight className="ml-1 h-4 w-4" /></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <Button size="lg" variant="outline" className="h-12 px-8 rounded-lg font-semibold border-[#1A6FE8] text-[#1A6FE8] hover:bg-blue-50 hover:text-[#1A6FE8]">
+              Explore Insights <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 9: TRUST & COMPLIANCE ===== */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="container mx-auto px-4">
+          <SectionHeading eyebrow="Trust & Compliance" title="Built for Responsible Loan Discovery" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {TRUST_CARDS.map((t, i) => (
+              <div key={i} className="bg-[#F8FAFC] rounded-xl p-7 border border-slate-100 text-center fm-card-shadow-hover">
+                <div className="mx-auto bg-emerald-50 text-[#22C55E] rounded-xl w-12 h-12 flex items-center justify-center mb-5">
+                  <t.icon className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-[#0A1628]">{t.title}</h3>
+                <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 10: FAQ ===== */}
+      <section className="py-20 md:py-28 bg-[#F8FAFC]">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <SectionHeading eyebrow="FAQ" title="Frequently Asked Questions" />
+          <Accordion type="single" collapsible className="space-y-3">
+            {FAQS.map((f, i) => (
+              <AccordionItem key={i} value={`faq-${i}`} className="bg-white rounded-xl fm-card-shadow border border-slate-100 px-6 data-[state=open]:border-blue-200">
+                <AccordionTrigger className="text-left font-semibold text-[#0A1628] hover:no-underline py-5">{f.q}</AccordionTrigger>
+                <AccordionContent className="text-[#64748B] leading-relaxed pb-5">{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* ===== SECTION 11: FINAL CTA ===== */}
+      <section className="py-20 md:py-28 bg-gradient-to-br from-[#0A1628] via-[#0E2240] to-[#123A6E] relative overflow-hidden">
+        <div className="absolute inset-0 fm-matrix-grid" />
+        <div className="container mx-auto px-4 relative text-center max-w-3xl">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">Ready to Discover Your Best Loan Match?</h2>
+          <p className="mt-5 text-lg text-slate-300">Let FinMatrix AI&trade; analyze your profile and help you explore suitable loan options before you apply.</p>
+          <div className="mt-9 flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/eligibility">
+              <Button size="lg" className="w-full sm:w-auto h-12 px-8 text-base font-semibold bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg shadow-xl shadow-blue-900/40">
+                Find My Loan Match <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-lg border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white">
+                <MessageCircle className="mr-2 h-5 w-5" /> Talk to an Advisor
+              </Button>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   )
 }
