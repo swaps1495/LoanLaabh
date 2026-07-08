@@ -77,7 +77,7 @@ export default function DashboardPage() {
       <nav className="bg-white border-b sticky top-0 z-30">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            <span className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-lg w-8 h-8 flex items-center justify-center">L</span>
+            <img src="/logo-icon.png" alt="LoanLaabh logo" className="w-9 h-9 object-contain" />
             Loan<span className="text-blue-600">Laabh</span>
           </Link>
           <div className="flex items-center gap-3">

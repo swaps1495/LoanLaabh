@@ -50,7 +50,7 @@ export default function Navbar() {
     <header ref={navRef} className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-shadow ${scrolled ? 'shadow-[0_4px_24px_rgba(10,22,40,0.08)]' : 'border-b border-slate-100'}`}>
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" onClick={closeAll} className="flex items-center gap-2.5 font-bold text-xl text-[#0A1628]">
-          <span className="bg-gradient-to-br from-[#1A6FE8] to-[#0A1628] text-white rounded-lg w-9 h-9 flex items-center justify-center shadow-md text-lg">L</span>
+          <img src="/logo-icon.png" alt="LoanLaabh logo" className="w-10 h-10 object-contain" />
           <span className="leading-none">
             Loan<span className="text-[#1A6FE8]">Laabh</span>
             <span className="block text-[9px] font-medium tracking-wide text-[#64748B] mt-0.5">Apply Smarter. Borrow Better.</span>

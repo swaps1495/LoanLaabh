@@ -16,6 +16,11 @@ AI-powered loan eligibility & lender matching platform (DSA partner model, India
 4. Email OTP auth (Supabase), user dashboard (1 active application max), admin dashboard + lender management
 5. Customer result page shows NO lender names (generic "Lender Match #N" cards; names shared by advisor)
 
+## Branding v2.2 (June 2025 — COMPLETE)
+- User uploaded official logo (chip + rupee + AI mark, 3 orientations). Processed (white-trim, web-optimized) into /public: logo-icon.png (512px), logo-horizontal.png (1200px), logo-vertical.png (800px)
+- Replaced all "L" placeholder logos: navbar, footer (white tile on navy), eligibility nav, dashboard nav, admin nav, login card
+- PWA icons (icon-192/512, apple-touch-icon) regenerated from real logo
+
 ## Expansion v2.1 (June 2025 — COMPLETE)
 - Contact: WhatsApp +91 77700 24242 (wa.me/917770024242) everywhere; email help@loanlaabh.com in footer + advisor banner
 - Paisabazaar-style navbar: CIBIL Score (6-item dropdown), Loans (7-item dropdown), Calculators, Credit Cards (SOON badge); mobile expandable groups

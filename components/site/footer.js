@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 font-bold text-xl text-white">
-              <span className="bg-[#1A6FE8] rounded-lg w-9 h-9 flex items-center justify-center">L</span>
+              <span className="bg-white rounded-lg w-10 h-10 flex items-center justify-center p-1"><img src="/logo-icon.png" alt="LoanLaabh logo" className="w-full h-full object-contain" /></span>
               Loan<span className="text-[#5B9BF3]">Laabh</span>
             </div>
             <p className="mt-3 text-sm font-medium text-slate-200">Apply Smarter. Borrow Better.</p>

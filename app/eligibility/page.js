@@ -273,7 +273,7 @@ export default function EligibilityPage() {
       <nav className="bg-white border-b sticky top-0 z-30">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
-            <span className="bg-gradient-to-br from-[#1A6FE8] to-[#0A1628] text-white rounded-lg w-8 h-8 flex items-center justify-center">L</span>
+            <img src="/logo-icon.png" alt="LoanLaabh logo" className="w-9 h-9 object-contain" />
             <span>Loan<span className="text-[#1A6FE8]">Laabh</span></span>
           </Link>
           <Link href="/dashboard"><Button variant="ghost" size="sm">Dashboard</Button></Link>

@@ -74,9 +74,7 @@ function LoginInner() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
       <Card className="w-full max-w-md shadow-2xl border-blue-100">
         <CardHeader className="text-center">
-          <div className="mx-auto bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-2xl w-14 h-14 flex items-center justify-center mb-3 shadow-lg">
-            <ShieldCheck className="h-7 w-7" />
-          </div>
+          <img src="/logo-icon.png" alt="LoanLaabh logo" className="mx-auto w-16 h-16 object-contain mb-3" />
           <CardTitle className="text-2xl">Welcome to <span className="text-blue-600">LoanLaabh</span></CardTitle>
           <CardDescription>
             {step === 'email' ? 'Sign in with your email to continue' : `We sent a 6-digit code to ${email}`}
