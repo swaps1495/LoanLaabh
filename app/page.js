@@ -149,7 +149,7 @@ export default function Home() {
           </div>
 
           {/* Abstract AI dashboard visual */}
-          <div className="relative hidden lg:block fm-fade-up" style={{ animationDelay: '0.2s' }}>
+          <div className="relative fm-fade-up mt-2 lg:mt-0" style={{ animationDelay: '0.2s' }}>
             <div className="fm-float relative bg-white/[0.06] backdrop-blur-xl border border-white/15 rounded-2xl p-6 shadow-2xl overflow-hidden">
               <div className="fm-scanline" />
               <div className="flex items-center justify-between mb-5">
