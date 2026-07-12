@@ -14,19 +14,19 @@ export const metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'LoanLaabh',
   },
 }
 
 export const viewport = {
-  themeColor: '#0A1628',
+  themeColor: '#F7FAFF',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${jakarta.className} antialiased bg-background text-foreground`}>
+      <body className={`${jakarta.className} antialiased bg-[#F7FAFF] text-[#071E41]`}>
         <Providers>{children}</Providers>
       </body>
     </html>

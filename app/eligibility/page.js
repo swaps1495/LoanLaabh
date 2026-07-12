@@ -113,7 +113,7 @@ export default function EligibilityPage() {
     } catch (e) { setError(e.message) } finally { clearInterval(timer); setSubmitting(false) }
   }
 
-  if (!authChecked) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-blue-600" /></div>
+  if (!authChecked) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-[#1261E8]" /></div>
 
   // FinMatrix AI analysis loading screen
   if (submitting) return <FinMatrixLoading step={loadingStep} />
@@ -133,7 +133,7 @@ export default function EligibilityPage() {
               <div className="text-slate-500">Current application</div>
               <div className="font-semibold capitalize mt-1">{activeApp.loan_type} loan · {(activeApp.lead_status || '').replace(/_/g,' ')}</div>
             </div>
-            <Link href="/dashboard"><Button size="lg" className="mt-6 w-full bg-blue-600 hover:bg-blue-700">Track Application <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
+            <Link href="/dashboard"><Button size="lg" className="mt-6 w-full bg-[#1261E8] hover:bg-[#0B4FC4]">Track Application <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
           </CardContent>
         </Card>
       </div>
@@ -156,23 +156,24 @@ export default function EligibilityPage() {
     const checks = ['Income Range', 'Employment Type', 'City', 'Loan Amount', 'Policy Alignment']
     const waUrl = `https://wa.me/917770024242?text=${encodeURIComponent(`Hi, I just received my Loan Discovery Report for a ${loanLabel} (Ref: ${result.lead_id.slice(0, 8)}). I'd like to speak to a LoanLaabh advisor.`)}`
     return (
-      <div className="min-h-screen bg-[#F8FAFC]">
-        {/* Report header */}
-        <div className="bg-gradient-to-br from-[#0A1628] via-[#0E2240] to-[#123A6E] text-white">
-          <div className="container mx-auto px-4 py-12 md:py-16 text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 text-sm text-blue-100 mb-5">
-              <Brain className="h-4 w-4 text-[#5B9BF3]" /> Powered by FinMatrix AI&trade;
+      <div className="min-h-screen bg-[#F7FAFF]">
+        {/* Report header (light) */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-white via-[#F7FAFF] to-[#EAF2FF] border-b border-[#E3ECFA]">
+          <div className="absolute inset-0 fm-matrix-grid opacity-60" />
+          <div className="container mx-auto px-4 py-12 md:py-16 text-center relative">
+            <div className="inline-flex items-center gap-2 bg-white border border-[#E3ECFA] rounded-full px-4 py-1.5 text-sm text-[#1261E8] font-medium mb-5 shadow-sm">
+              <Brain className="h-4 w-4" /> Powered by FinMatrix AI&trade;
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Your Loan Discovery Report</h1>
-            <p className="mt-3 text-slate-300">Great news {result.first_name} &mdash; your {loanLabel} profile analysis is complete.</p>
-            <div className="mt-6 inline-flex flex-col items-center bg-white/[0.07] border border-white/15 rounded-2xl px-8 py-5">
-              <div className="text-xs uppercase tracking-widest text-slate-400 mb-2">Overall Match Confidence</div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#071E41]">Your Loan Discovery Report</h1>
+            <p className="mt-3 text-[#42526B]">Great news {result.first_name} &mdash; your {loanLabel} profile analysis is complete.</p>
+            <div className="mt-6 inline-flex flex-col items-center bg-white border border-[#E3ECFA] rounded-2xl px-8 py-5 shadow-[0_12px_40px_rgba(18,97,232,0.10)]">
+              <div className="text-xs uppercase tracking-widest text-[#42526B] mb-2 font-semibold">Overall Match Confidence</div>
               <div className="flex items-center gap-1.5">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <Star key={i} className={`h-7 w-7 ${i <= rating ? 'text-amber-400 fill-amber-400' : 'text-slate-600'}`} />
+                  <Star key={i} className={`h-7 w-7 ${i <= rating ? 'text-amber-400 fill-amber-400' : 'text-[#E3ECFA]'}`} />
                 ))}
               </div>
-              <div className="mt-2 text-sm font-semibold text-white">{CATS[baseCat].label}{count > 0 ? ` \u00b7 ${count} lender${count > 1 ? 's' : ''} identified` : ''}</div>
+              <div className="mt-2 text-sm font-semibold text-[#071E41]">{CATS[baseCat].label}{count > 0 ? ` \u00b7 ${count} lender${count > 1 ? 's' : ''} identified` : ''}</div>
             </div>
           </div>
         </div>
@@ -181,16 +182,16 @@ export default function EligibilityPage() {
           {/* Summary stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white rounded-xl fm-card-shadow border border-slate-100 p-5 text-center">
-              <div className="text-xs uppercase tracking-wider text-[#64748B]">Estimated Eligible</div>
-              <div className="text-xl font-bold text-[#1A6FE8] mt-1">{fmtINR(result.estimated_eligible_amount)}</div>
+              <div className="text-xs uppercase tracking-wider text-[#42526B]">Estimated Eligible</div>
+              <div className="text-xl font-bold text-[#1261E8] mt-1">{fmtINR(result.estimated_eligible_amount)}</div>
             </div>
             <div className="bg-white rounded-xl fm-card-shadow border border-slate-100 p-5 text-center">
-              <div className="text-xs uppercase tracking-wider text-[#64748B]">Match Confidence</div>
-              <div className={`text-xl font-bold mt-1 ${prob === 'High' ? 'text-[#22C55E]' : prob === 'Medium' ? 'text-[#1A6FE8]' : 'text-[#F59E0B]'}`}>{prob}</div>
+              <div className="text-xs uppercase tracking-wider text-[#42526B]">Match Confidence</div>
+              <div className={`text-xl font-bold mt-1 ${prob === 'High' ? 'text-[#16A34A]' : prob === 'Medium' ? 'text-[#1261E8]' : 'text-[#F59E0B]'}`}>{prob}</div>
             </div>
             <div className="bg-white rounded-xl fm-card-shadow border border-slate-100 p-5 text-center">
-              <div className="text-xs uppercase tracking-wider text-[#64748B]">Lender Matches</div>
-              <div className="text-xl font-bold text-[#0A1628] mt-1">{count}</div>
+              <div className="text-xs uppercase tracking-wider text-[#42526B]">Lender Matches</div>
+              <div className="text-xl font-bold text-[#071E41] mt-1">{count}</div>
             </div>
           </div>
 
@@ -203,18 +204,18 @@ export default function EligibilityPage() {
                   <div key={i} className="bg-white rounded-xl fm-card-shadow border border-slate-100 p-6 fm-fade-up" style={{ animationDelay: `${i * 0.15}s` }}>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="bg-gradient-to-br from-[#1A6FE8] to-[#0A1628] text-white rounded-xl w-11 h-11 flex items-center justify-center">
+                        <div className="bg-gradient-to-br from-[#1261E8] to-[#071E41] text-white rounded-xl w-11 h-11 flex items-center justify-center">
                           <Landmark className="h-5 w-5" />
                         </div>
                         <div>
-                          <div className="font-bold text-[#0A1628]">Lender Match #{i + 1}</div>
-                          <div className="text-xs text-[#64748B]">Partner Bank / NBFC &middot; name shared by your advisor</div>
+                          <div className="font-bold text-[#071E41]">Lender Match #{i + 1}</div>
+                          <div className="text-xs text-[#42526B]">Partner Bank / NBFC &middot; name shared by your advisor</div>
                         </div>
                       </div>
                       <span className={`text-xs font-semibold rounded-full px-3.5 py-1.5 ${cat.badge}`}>{cat.label}</span>
                     </div>
                     <div className="mt-5 pt-5 border-t border-slate-100">
-                      <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-3">Why This Match</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-[#42526B] mb-3">Why This Match</div>
                       <div className="flex flex-wrap gap-2">
                         {checks.map(c => (
                           <span key={c} className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg px-3 py-1.5 text-xs font-medium">
@@ -225,10 +226,10 @@ export default function EligibilityPage() {
                     </div>
                     <div className="mt-5 grid sm:grid-cols-2 gap-3">
                       <Link href="/dashboard">
-                        <Button className="w-full bg-[#1A6FE8] hover:bg-[#1559c4] rounded-lg h-11 font-semibold">Continue Application <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                        <Button className="w-full bg-[#1261E8] hover:bg-[#0B4FC4] rounded-lg h-11 font-semibold">Continue Application <ArrowRight className="ml-2 h-4 w-4" /></Button>
                       </Link>
                       <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" className="w-full rounded-lg h-11 font-semibold border-[#1A6FE8] text-[#1A6FE8] hover:bg-blue-50 hover:text-[#1A6FE8]"><MessageCircle className="mr-2 h-4 w-4" /> Talk to LoanLaabh Advisor</Button>
+                        <Button variant="outline" className="w-full rounded-lg h-11 font-semibold border-[#1261E8] text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]"><MessageCircle className="mr-2 h-4 w-4" /> Talk to LoanLaabh Advisor</Button>
                       </a>
                     </div>
                   </div>
@@ -238,13 +239,13 @@ export default function EligibilityPage() {
           ) : (
             <div className="bg-white rounded-xl fm-card-shadow border border-slate-100 p-8 text-center">
               <span className={`text-xs font-semibold rounded-full px-3.5 py-1.5 ${CATS[3].badge}`}>{CATS[3].label}</span>
-              <h2 className="text-xl font-bold text-[#0A1628] mt-4">We could not find a strong lender match right now</h2>
-              <p className="text-[#64748B] mt-2 text-sm leading-relaxed max-w-md mx-auto">
+              <h2 className="text-xl font-bold text-[#071E41] mt-4">We could not find a strong lender match right now</h2>
+              <p className="text-[#42526B] mt-2 text-sm leading-relaxed max-w-md mx-auto">
                 Based on your current profile, FinMatrix AI&trade; recommends a review with our advisor. Small improvements to your credit profile or obligations can open up more options.
               </p>
               <div className="mt-6 grid sm:grid-cols-2 gap-3 max-w-md mx-auto">
                 <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                  <Button className="w-full bg-[#22C55E] hover:bg-emerald-600 rounded-lg h-11 font-semibold"><MessageCircle className="mr-2 h-4 w-4" /> Talk to LoanLaabh Advisor</Button>
+                  <Button className="w-full bg-[#16A34A] hover:bg-emerald-600 rounded-lg h-11 font-semibold"><MessageCircle className="mr-2 h-4 w-4" /> Talk to LoanLaabh Advisor</Button>
                 </a>
                 <Link href="/dashboard">
                   <Button variant="outline" className="w-full rounded-lg h-11 font-semibold">Track Application <ArrowRight className="ml-2 h-4 w-4" /></Button>
@@ -254,10 +255,10 @@ export default function EligibilityPage() {
           )}
 
           {/* Disclaimer */}
-          <div className="bg-white rounded-xl border border-slate-100 fm-card-shadow p-5 text-xs text-[#64748B] leading-relaxed flex gap-3">
-            <ShieldCheck className="h-5 w-5 text-[#1A6FE8] shrink-0 mt-0.5" />
+          <div className="bg-white rounded-xl border border-slate-100 fm-card-shadow p-5 text-xs text-[#42526B] leading-relaxed flex gap-3">
+            <ShieldCheck className="h-5 w-5 text-[#1261E8] shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#0A1628]">Disclaimer:</strong> FinMatrix AI&trade; provides eligibility insights only and does not guarantee loan approval. Final loan approval, interest rates, and disbursal are determined solely by the lending institution after its own assessment and verification.
+              <strong className="text-[#071E41]">Disclaimer:</strong> FinMatrix AI&trade; provides eligibility insights only and does not guarantee loan approval. Final loan approval, interest rates, and disbursal are determined solely by the lending institution after its own assessment and verification.
             </span>
           </div>
         </main>
@@ -269,12 +270,12 @@ export default function EligibilityPage() {
   const progress = ((step + 1) / steps.length) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-b from-white via-[#F7FAFF] to-[#EAF2FF]">
       <nav className="bg-white border-b sticky top-0 z-30">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
             <img src="/logo-icon.png" alt="LoanLaabh logo" className="w-9 h-9 object-contain" />
-            <span>Loan<span className="text-[#1A6FE8]">Laabh</span></span>
+            <span>Loan<span className="text-[#1261E8]">Laabh</span></span>
           </Link>
           <Link href="/dashboard"><Button variant="ghost" size="sm">Dashboard</Button></Link>
         </div>
@@ -319,7 +320,7 @@ export default function EligibilityPage() {
               <div className="grid gap-3">
                 {RESIDENCE.map(r => (
                   <button key={r.value} type="button" onClick={() => update('residence_type', r.value)}
-                    className={`p-4 rounded-xl border-2 text-left ${form.residence_type === r.value ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                    className={`p-4 rounded-xl border-2 text-left ${form.residence_type === r.value ? 'border-[#1261E8] bg-[#EAF2FF]' : 'border-slate-200 hover:border-slate-300'}`}>
                     <div className="font-semibold">{r.label}</div>
                   </button>
                 ))}
@@ -330,7 +331,7 @@ export default function EligibilityPage() {
                 <div className="grid sm:grid-cols-2 gap-3">
                   {EMPLOYMENT.map(e => (
                     <button key={e.value} type="button" onClick={() => update('employment_type', e.value)}
-                      className={`p-4 rounded-xl border-2 text-left ${form.employment_type === e.value ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                      className={`p-4 rounded-xl border-2 text-left ${form.employment_type === e.value ? 'border-[#1261E8] bg-[#EAF2FF]' : 'border-slate-200 hover:border-slate-300'}`}>
                       <div className="font-semibold">{e.label}</div>
                     </button>
                   ))}
@@ -375,7 +376,7 @@ export default function EligibilityPage() {
                 <div className="grid sm:grid-cols-2 gap-2">
                   {LOAN_TYPES.map(lt => (
                     <button key={lt.value} type="button" onClick={() => update('loan_type', lt.value)}
-                      className={`p-3 rounded-lg border-2 text-left flex items-center gap-3 ${form.loan_type === lt.value ? 'border-blue-600 bg-blue-50' : 'border-slate-200'}`}>
+                      className={`p-3 rounded-lg border-2 text-left flex items-center gap-3 ${form.loan_type === lt.value ? 'border-[#1261E8] bg-[#EAF2FF]' : 'border-slate-200'}`}>
                       <span className="text-2xl">{lt.emoji}</span><span className="font-medium">{lt.label}</span>
                     </button>
                   ))}
@@ -395,14 +396,14 @@ export default function EligibilityPage() {
                 <div className="grid gap-2">
                   {CIBIL_BANDS.map(c => (
                     <button key={c.value} type="button" onClick={() => update('credit_band', c.value)}
-                      className={`p-3 rounded-lg border-2 text-left ${form.credit_band === c.value ? 'border-blue-600 bg-blue-50' : 'border-slate-200'}`}>{c.label}</button>
+                      className={`p-3 rounded-lg border-2 text-left ${form.credit_band === c.value ? 'border-[#1261E8] bg-[#EAF2FF]' : 'border-slate-200'}`}>{c.label}</button>
                   ))}
                 </div>
                 <Label className="pt-2">Recent credit enquiries (90 days)? *</Label>
                 <div className="grid grid-cols-3 gap-2">
                   {['yes','no','not_sure'].map(v => (
                     <button key={v} type="button" onClick={() => update('recent_enquiries', v)}
-                      className={`p-3 rounded-lg border-2 capitalize ${form.recent_enquiries === v ? 'border-blue-600 bg-blue-50' : 'border-slate-200'}`}>{v.replace('_',' ')}</button>
+                      className={`p-3 rounded-lg border-2 capitalize ${form.recent_enquiries === v ? 'border-[#1261E8] bg-[#EAF2FF]' : 'border-slate-200'}`}>{v.replace('_',' ')}</button>
                   ))}
                 </div>
                 {form.recent_enquiries === 'yes' && (
@@ -428,11 +429,11 @@ export default function EligibilityPage() {
                 <ChevronLeft className="mr-1 h-4 w-4" /> Back
               </Button>
               {step < 6 ? (
-                <Button onClick={() => setStep(s => Math.min(s + 1, 6))} disabled={!stepValid()} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={() => setStep(s => Math.min(s + 1, 6))} disabled={!stepValid()} className="bg-[#1261E8] hover:bg-[#0B4FC4]">
                   Next <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={submit} disabled={!stepValid() || submitting} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={submit} disabled={!stepValid() || submitting} className="bg-[#1261E8] hover:bg-[#0B4FC4]">
                   {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing...</> : <><Sparkles className="mr-2 h-4 w-4" /> Check Eligibility</>}
                 </Button>
               )}
@@ -454,41 +455,42 @@ const LOADING_STEPS = [
 
 function FinMatrixLoading({ step }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A1628] via-[#0E2240] to-[#123A6E] relative overflow-hidden flex items-center justify-center p-4">
-      <div className="absolute inset-0 fm-matrix-grid" />
+    <div className="min-h-screen bg-gradient-to-br from-white via-[#F7FAFF] to-[#EAF2FF] relative overflow-hidden flex items-center justify-center p-4">
+      <div className="absolute inset-0 fm-matrix-grid opacity-70" />
+      <div className="absolute -top-32 -right-32 w-[400px] h-[400px] bg-[#1261E8]/10 rounded-full blur-3xl" />
       <div className="relative max-w-md w-full">
         <div className="text-center mb-8">
           <div className="mx-auto relative w-20 h-20 mb-5">
-            <div className="absolute inset-0 rounded-2xl bg-[#1A6FE8]/30 blur-xl fm-pulse-dot" />
-            <div className="relative bg-gradient-to-br from-[#1A6FE8] to-[#0A1628] border border-white/20 rounded-2xl w-20 h-20 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-[#1261E8]/30 blur-xl fm-pulse-dot" />
+            <div className="relative bg-[#1261E8] border border-[#0B4FC4] rounded-2xl w-20 h-20 flex items-center justify-center shadow-lg shadow-blue-200">
               <Brain className="h-9 w-9 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white">FinMatrix AI&trade; is analyzing</h1>
-          <p className="text-slate-400 text-sm mt-1.5">This takes just a few seconds</p>
+          <h1 className="text-2xl font-bold text-[#071E41]">FinMatrix AI&trade; is analyzing</h1>
+          <p className="text-[#42526B] text-sm mt-1.5">This takes just a few seconds</p>
         </div>
-        <div className="bg-white/[0.06] backdrop-blur-xl border border-white/15 rounded-2xl p-6 relative overflow-hidden">
+        <div className="bg-white border border-[#E3ECFA] rounded-3xl p-6 relative overflow-hidden shadow-[0_20px_60px_rgba(18,97,232,0.12)]">
           <div className="fm-scanline" />
           <div className="space-y-3">
             {LOADING_STEPS.map((s, i) => {
               const done = i < step
               const active = i === step
               return (
-                <div key={i} className={`flex items-center gap-3 rounded-lg px-4 py-3 border transition-all duration-500 ${done ? 'bg-emerald-500/10 border-emerald-500/25' : active ? 'bg-white/[0.08] border-[#5B9BF3]/40' : 'bg-white/[0.03] border-white/5 opacity-40'}`}>
+                <div key={i} className={`flex items-center gap-3 rounded-xl px-4 py-3 border transition-all duration-500 ${done ? 'bg-emerald-50 border-emerald-100' : active ? 'bg-[#EAF2FF] border-[#1261E8]/30' : 'bg-[#F7FAFF] border-[#E3ECFA] opacity-60'}`}>
                   {done ? (
-                    <CheckCircle2 className="h-5 w-5 text-[#22C55E] shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-[#16A34A] shrink-0" />
                   ) : active ? (
-                    <Loader2 className="h-5 w-5 text-[#5B9BF3] animate-spin shrink-0" />
+                    <Loader2 className="h-5 w-5 text-[#1261E8] animate-spin shrink-0" />
                   ) : (
-                    <div className="h-5 w-5 rounded-full border-2 border-slate-600 shrink-0" />
+                    <div className="h-5 w-5 rounded-full border-2 border-[#C7D9F5] shrink-0" />
                   )}
-                  <span className={`text-sm ${done ? 'text-emerald-300' : active ? 'text-white font-medium' : 'text-slate-400'}`}>{s}</span>
+                  <span className={`text-sm ${done ? 'text-[#065F46] font-medium' : active ? 'text-[#071E41] font-semibold' : 'text-[#42526B]'}`}>{s}</span>
                 </div>
               )
             })}
           </div>
-          <div className="mt-5 h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-[#1A6FE8] to-[#22C55E] rounded-full transition-all duration-700" style={{ width: `${Math.min(((step + 1) / 5) * 100, 96)}%` }} />
+          <div className="mt-5 h-1.5 bg-[#EAF2FF] rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-[#1261E8] to-[#16A34A] rounded-full transition-all duration-700" style={{ width: `${Math.min(((step + 1) / 5) * 100, 96)}%` }} />
           </div>
         </div>
       </div>
@@ -501,8 +503,8 @@ function YesNo({ label, value, onChange }) {
     <div>
       <Label className="block mb-2">{label}</Label>
       <div className="flex gap-2">
-        <button type="button" onClick={() => onChange(true)} className={`flex-1 py-2 rounded-lg border-2 ${value === true ? 'border-blue-600 bg-blue-50' : 'border-slate-200'}`}>Yes</button>
-        <button type="button" onClick={() => onChange(false)} className={`flex-1 py-2 rounded-lg border-2 ${value === false ? 'border-blue-600 bg-blue-50' : 'border-slate-200'}`}>No</button>
+        <button type="button" onClick={() => onChange(true)} className={`flex-1 py-2 rounded-lg border-2 ${value === true ? 'border-[#1261E8] bg-[#EAF2FF]' : 'border-slate-200'}`}>Yes</button>
+        <button type="button" onClick={() => onChange(false)} className={`flex-1 py-2 rounded-lg border-2 ${value === false ? 'border-[#1261E8] bg-[#EAF2FF]' : 'border-slate-200'}`}>No</button>
       </div>
     </div>
   )
@@ -512,8 +514,8 @@ function StatBox({ label, value, highlight, colored }) {
   const cls = colored === 'High' ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
     : colored === 'Medium' ? 'text-amber-700 bg-amber-50 border-amber-200'
     : colored === 'Low' ? 'text-red-700 bg-red-50 border-red-200'
-    : colored === 'info' ? 'text-blue-700 bg-blue-50 border-blue-200'
-    : highlight ? 'text-blue-700 bg-blue-50 border-blue-200' : 'text-slate-700 bg-white border-slate-200'
+    : colored === 'info' ? 'text-blue-700 bg-[#EAF2FF] border-blue-200'
+    : highlight ? 'text-blue-700 bg-[#EAF2FF] border-blue-200' : 'text-slate-700 bg-white border-slate-200'
   return (
     <div className={`rounded-xl border-2 p-4 text-center ${cls}`}>
       <div className="text-xs uppercase tracking-wider opacity-70">{label}</div>

@@ -6,11 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, Mail, ShieldCheck, ArrowLeft } from 'lucide-react'
+import { Loader2, Mail, ArrowLeft } from 'lucide-react'
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-blue-600" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-[#1261E8]" /></div>}>
       <LoginInner />
     </Suspense>
   )
@@ -71,12 +71,12 @@ function LoginInner() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
-      <Card className="w-full max-w-md shadow-2xl border-blue-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#F7FAFF] to-[#EAF2FF] p-4">
+      <Card className="w-full max-w-md border border-[#E3ECFA] rounded-2xl shadow-[0_12px_40px_rgba(7,30,65,0.10)]">
         <CardHeader className="text-center">
           <img src="/logo-icon.png" alt="LoanLaabh logo" className="mx-auto w-16 h-16 object-contain mb-3" />
-          <CardTitle className="text-2xl">Welcome to <span className="text-blue-600">LoanLaabh</span></CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-[#071E41]">Welcome to <span className="text-[#1261E8]">LoanLaabh</span></CardTitle>
+          <CardDescription className="text-[#42526B]">
             {step === 'email' ? 'Sign in with your email to continue' : `We sent a 6-digit code to ${email}`}
           </CardDescription>
         </CardHeader>
@@ -84,33 +84,33 @@ function LoginInner() {
           {step === 'email' ? (
             <form onSubmit={(e) => { e.preventDefault(); if (email) sendOtp() }} className="space-y-4">
               <div>
-                <Label>Email Address</Label>
+                <Label className="text-[#071E41]">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1261E8]" />
                   <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="pl-9" autoFocus required />
                 </div>
               </div>
               {error && <div className="text-red-600 text-sm">{error}</div>}
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-11" disabled={loading || !email}>
+              <Button type="submit" className="w-full bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl h-11 font-semibold" disabled={loading || !email}>
                 {loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Send OTP Code'}
               </Button>
-              <p className="text-xs text-slate-500 text-center">By continuing, you agree to our Terms &amp; Privacy Policy.</p>
+              <p className="text-xs text-[#6B7280] text-center">By continuing, you agree to our Terms &amp; Privacy Policy.</p>
             </form>
           ) : (
             <form onSubmit={(e) => { e.preventDefault(); if (otp.length >= 6) verifyOtp() }} className="space-y-4">
               <div>
-                <Label>6-Digit Code</Label>
-                <Input type="text" inputMode="numeric" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g,''))} placeholder="123456" className="text-2xl tracking-[0.5em] text-center font-bold h-14" autoFocus />
+                <Label className="text-[#071E41]">6-Digit Code</Label>
+                <Input type="text" inputMode="numeric" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g,''))} placeholder="123456" className="text-2xl tracking-[0.5em] text-center font-bold h-14 text-[#071E41]" autoFocus />
               </div>
               {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-11" disabled={loading || otp.length < 6}>
+              <Button type="submit" className="w-full bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl h-11 font-semibold" disabled={loading || otp.length < 6}>
                 {loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Verify &amp; Sign In'}
               </Button>
               <div className="flex justify-between items-center text-sm">
-                <button type="button" onClick={() => { setStep('email'); setOtp(''); setError('') }} className="text-slate-500 hover:text-slate-900 flex items-center gap-1">
+                <button type="button" onClick={() => { setStep('email'); setOtp(''); setError('') }} className="text-[#6B7280] hover:text-[#071E41] flex items-center gap-1">
                   <ArrowLeft className="h-3 w-3" /> Change email
                 </button>
-                <button type="button" onClick={sendOtp} disabled={resendIn > 0 || loading} className="text-blue-600 hover:underline disabled:text-slate-400 disabled:no-underline">
+                <button type="button" onClick={sendOtp} disabled={resendIn > 0 || loading} className="text-[#1261E8] hover:underline disabled:text-[#B7C7DC] disabled:no-underline">
                   {resendIn > 0 ? `Resend in ${resendIn}s` : 'Resend code'}
                 </button>
               </div>
