@@ -124,7 +124,7 @@ export default function Home() {
               <Sparkles className="h-4 w-4" /> Powered by FinMatrix AI&trade;
             </div>
             <h1 className="text-4xl md:text-5xl xl:text-6xl font-extrabold text-[#071E41] leading-[1.1] tracking-tight">
-              Check Your Loan Eligibility <span className="text-[#1261E8]">Before Applying</span>
+              Don&apos;t Risk Your CIBIL. <span className="text-[#1261E8]">Check Your Loan Eligibility Before Applying</span>
             </h1>
             <p className="mt-6 text-lg text-[#42526B] max-w-xl leading-relaxed">
               LoanLaabh uses FinMatrix AI&trade; to match your profile with suitable banks and NBFCs &mdash; so you apply where your chances are stronger.
