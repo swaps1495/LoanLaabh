@@ -104,7 +104,7 @@ function LoginInner() {
               </div>
               {error && <div className="text-red-600 text-sm text-center">{error}</div>}
               <Button type="submit" className="w-full bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl h-11 font-semibold" disabled={loading || otp.length < 6}>
-                {loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Verify &amp; Sign In'}
+                {loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Verify & Sign In'}
               </Button>
               <div className="flex justify-between items-center text-sm">
                 <button type="button" onClick={() => { setStep('email'); setOtp(''); setError('') }} className="text-[#6B7280] hover:text-[#071E41] flex items-center gap-1">
