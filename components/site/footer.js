@@ -9,12 +9,14 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2.5 font-bold text-xl text-white">
-              <span className="bg-white rounded-lg w-10 h-10 flex items-center justify-center p-1"><img src="/logo-icon.png" alt="LoanLaabh logo" className="w-full h-full object-contain" /></span>
-              Loan<span className="text-[#8BC0FF]">Laabh</span>
+            <div className="flex items-center gap-3">
+              <span className="bg-white rounded-xl w-12 h-12 flex items-center justify-center p-1.5 shrink-0"><img src="/logo-icon.png" alt="LoanLaabh logo" className="w-full h-full object-contain" /></span>
+              <div>
+                <div className="font-bold text-xl text-white leading-tight">Loan<span className="text-[#8BC0FF]">Laabh</span></div>
+                <div className="text-xs text-[#8BC0FF] font-medium">Apply Smarter. Borrow Better.</div>
+              </div>
             </div>
-            <p className="mt-3 text-sm font-medium text-white">Apply Smarter. Borrow Better.</p>
-            <p className="mt-1 text-xs text-[#B7C7DC]">Powered by FinMatrix AI&trade;</p>
+            <p className="mt-3 text-xs text-[#B7C7DC]">Powered by FinMatrix AI&trade;</p>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="mt-5 flex items-center gap-2 text-sm text-[#7BD891] hover:text-white font-medium w-fit">
               <MessageCircle className="h-4 w-4" /> WhatsApp: +91 77700 24242
             </a>

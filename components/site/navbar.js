@@ -49,11 +49,15 @@ export default function Navbar() {
   return (
     <header ref={navRef} className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-shadow ${scrolled ? 'shadow-[0_4px_18px_rgba(7,30,65,0.07)]' : 'border-b border-[#E3ECFA]'}`}>
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" onClick={closeAll} className="flex items-center gap-2.5 font-bold text-xl text-[#071E41]">
-          <img src="/logo-icon.png" alt="LoanLaabh logo" className="w-10 h-10 object-contain" />
-          <span className="leading-none">
-            Loan<span className="text-[#1261E8]">Laabh</span>
-            <span className="block text-[9px] font-medium tracking-wide text-[#6B7280] mt-0.5">Apply Smarter. Borrow Better.</span>
+        <Link href="/" onClick={closeAll} className="flex items-center font-bold text-xl text-[#071E41] shrink-0">
+          {/* Desktop: horizontal logo */}
+          <img src="/logo-horizontal.png" alt="LoanLaabh — Apply Smarter. Borrow Better." className="hidden sm:block h-11 md:h-12 w-auto object-contain" />
+          {/* Mobile: icon + text */}
+          <span className="sm:hidden flex items-center gap-2">
+            <img src="/logo-icon.png" alt="LoanLaabh logo" className="w-9 h-9 object-contain" />
+            <span className="leading-none">
+              Loan<span className="text-[#1261E8]">Laabh</span>
+            </span>
           </span>
         </Link>
 

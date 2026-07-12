@@ -4,8 +4,8 @@
   "description": "AI-powered loan discovery. FinMatrix AI™ analyzes your profile and matches you with suitable lenders before you apply.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A1628",
-  "theme_color": "#0A1628",
+  "background_color": "#F7FAFF",
+  "theme_color": "#F7FAFF",
   "orientation": "portrait",
   "icons": [
     {
