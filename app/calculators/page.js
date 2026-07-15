@@ -101,7 +101,7 @@ export default function CalculatorsPage() {
               <div className="bg-[#EAF2FF] border border-[#E3ECFA] rounded-2xl p-5">
                 <div className="flex items-center gap-2 font-semibold text-[#071E41] text-sm"><Sparkles className="h-4 w-4 text-[#1261E8]" /> Can you actually get this loan?</div>
                 <p className="text-xs text-[#42526B] mt-1.5">EMI is only half the story. Let FinMatrix AI™ check which lenders would approve your profile.</p>
-                <Link href="/eligibility"><Button size="sm" className="mt-3 w-full bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold">Find My Loan Match <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>
+                <Link href="/eligibility"><Button size="sm" className="mt-3 w-full bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold">Check Free Eligibility <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>
               </div>
             </div>
           </div>

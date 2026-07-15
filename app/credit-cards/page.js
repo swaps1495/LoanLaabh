@@ -41,7 +41,7 @@ export default function CreditCardsPage() {
                 <Button size="lg" className="w-full sm:w-auto h-12 px-8 font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200"><MessageCircle className="mr-2 h-5 w-5" /> Notify Me on WhatsApp</Button>
               </a>
               <Link href="/eligibility">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">Check Loan Eligibility <ArrowRight className="ml-2 h-5 w-5" /></Button>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" /></Button>
               </Link>
             </div>
           </div>

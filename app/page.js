@@ -126,7 +126,10 @@ export default function Home() {
             <h1 className="text-4xl md:text-5xl xl:text-6xl font-extrabold text-[#071E41] leading-[1.1] tracking-tight">
               Don&apos;t Risk Your CIBIL. <span className="text-[#1261E8]">Check Your Loan Eligibility Before Applying</span>
             </h1>
-            <p className="mt-6 text-lg text-[#42526B] max-w-xl leading-relaxed">
+            <p className="mt-5 text-lg md:text-xl font-semibold text-[#071E41]">
+              Multiple Credit Inquiries Can Reduce Your Score
+            </p>
+            <p className="mt-4 text-lg text-[#42526B] max-w-xl leading-relaxed">
               LoanLaabh uses FinMatrix AI&trade; to match your profile with suitable banks and NBFCs &mdash; so you apply where your chances are stronger.
             </p>
             <div className="mt-9 flex flex-col sm:flex-row gap-4">
@@ -265,7 +268,7 @@ export default function Home() {
               </p>
               <Link href="/eligibility">
                 <Button size="lg" className="mt-8 h-12 px-8 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl font-semibold shadow-lg shadow-blue-200">
-                  Run My Analysis <ArrowRight className="ml-2 h-5 w-5" />
+                  Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
@@ -366,7 +369,7 @@ export default function Home() {
               <h3 className="font-bold text-[#071E41]">Not sure which loan fits?</h3>
               <p className="text-[#42526B] mt-1 text-sm">Let FinMatrix AI&trade; guide you to the right option.</p>
               <Link href="/eligibility">
-                <Button size="sm" className="mt-4 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold w-fit">Find My Match <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
+                <Button size="sm" className="mt-4 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold w-fit">Check Free Eligibility <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
               </Link>
             </div>
           </div>
@@ -392,7 +395,7 @@ export default function Home() {
           <div className="text-center mt-12">
             <Link href="/eligibility">
               <Button size="lg" className="h-12 px-8 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl font-semibold shadow-lg shadow-blue-200">
-                Start Free Eligibility Check <ArrowRight className="ml-2 h-5 w-5" />
+                Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
           </div>

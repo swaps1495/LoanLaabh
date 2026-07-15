@@ -233,6 +233,54 @@ async function handle(request, { params }) {
       return cors(NextResponse.json({ success: true }))
     }
 
+    // ============ LFMai CHATBOT (public) ============
+    if (route === '/lfmai/chat' && method === 'POST') {
+      const body = await request.json().catch(() => ({}))
+      const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : []
+      if (!messages.length) return cors(NextResponse.json({ error: 'No messages' }, { status: 400 }))
+      const LLM_BASE_URL = process.env.LLM_BASE_URL || 'https://integrations.emergentagent.com/llm/v1'
+      const LLM_API_KEY = process.env.OPENAI_API_KEY || process.env.EMERGENT_LLM_KEY
+      const LLM_MODEL = process.env.LLM_MODEL || 'gpt-4o'
+      if (!LLM_API_KEY) {
+        return cors(NextResponse.json({ message: { role: 'assistant', content: "Hi! I'm LFMai. AI chat is temporarily unavailable — please reach us on WhatsApp at +91 77700 24242 or email help@loanlaabh.com." } }))
+      }
+      const system = `You are LFMai — the LoanLaabh FinMatrix AI assistant. You help Indian loan customers understand loan eligibility, CIBIL scores, EMI, FOIR, and the LoanLaabh product.
+
+STRICT RULES:
+- Keep answers short (2-4 sentences unless customer asks for details). Be warm, clear, and jargon-free.
+- LoanLaabh is an AI-powered loan discovery platform — it does NOT lend money directly. Never promise loan approval, interest rates, loan amounts, or timelines — these are decided solely by the lending bank/NBFC.
+- Never ask for or accept sensitive data like Aadhaar number, full PAN, card numbers, CVV, passwords, or OTPs in this chat.
+- If asked about eligibility for a specific loan, guide the user to click "Check Free Eligibility" on the website — FinMatrix AI will analyze their profile.
+- If asked about CIBIL score improvement, share 2-3 practical tips (on-time EMIs, credit utilisation < 30%, avoid multiple applications).
+- For complex or account-specific queries, direct the user to WhatsApp +91 77700 24242 or email help@loanlaabh.com.
+- Always mention Rupees as ₹, not $.
+- If user asks who you are: "I'm LFMai, LoanLaabh's FinMatrix AI assistant."
+- Never make up lender-specific rates, offers, or approval odds.`
+      try {
+        const res = await fetch(`${LLM_BASE_URL}/chat/completions`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${LLM_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: LLM_MODEL,
+            messages: [{ role: 'system', content: system }, ...messages],
+            temperature: 0.5,
+            max_tokens: 350,
+          }),
+        })
+        if (!res.ok) {
+          const t = await res.text().catch(() => '')
+          console.warn('LFMai LLM error:', res.status, t.slice(0, 200))
+          return cors(NextResponse.json({ message: { role: 'assistant', content: "Sorry, I'm having trouble connecting right now. Please reach us on WhatsApp at +91 77700 24242 or email help@loanlaabh.com — a real advisor will help you quickly!" } }))
+        }
+        const data = await res.json()
+        const content = data.choices?.[0]?.message?.content?.trim() || "I couldn't generate a reply. Please try again or WhatsApp us at +91 77700 24242."
+        return cors(NextResponse.json({ message: { role: 'assistant', content } }))
+      } catch (e) {
+        console.warn('LFMai exception:', e.message)
+        return cors(NextResponse.json({ message: { role: 'assistant', content: "Sorry, I'm offline for a moment. WhatsApp us at +91 77700 24242 and our team will help you." } }))
+      }
+    }
+
     return cors(NextResponse.json({ error: `Route ${route} not found` }, { status: 404 }))
   } catch (e) {
     console.error('API error', e)

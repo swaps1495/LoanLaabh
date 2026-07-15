@@ -68,7 +68,7 @@ export default function CibilScorePage() {
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Link href="/eligibility">
                 <Button size="lg" className="w-full sm:w-auto h-12 px-8 text-base font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">
-                  Check My Loan Eligibility Free <ArrowRight className="ml-2 h-5 w-5" />
+                  Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
@@ -189,7 +189,7 @@ export default function CibilScorePage() {
               <h2 className="text-3xl md:text-4xl font-extrabold text-[#071E41] tracking-tight">Protect Your Score. <span className="text-[#1261E8]">Match Before You Apply.</span></h2>
               <p className="mt-4 text-[#42526B]">FinMatrix AI™ finds lenders suited to your score band — so you avoid rejections and unnecessary hard enquiries.</p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/eligibility"><Button size="lg" className="h-12 px-8 font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">Find My Loan Match <ArrowRight className="ml-2 h-5 w-5" /></Button></Link>
+                <Link href="/eligibility"><Button size="lg" className="h-12 px-8 font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" /></Button></Link>
                 <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="h-12 px-8 font-semibold rounded-2xl border-[#16A34A] bg-white text-[#16A34A] hover:bg-emerald-50 hover:text-[#16A34A]"><MessageCircle className="mr-2 h-5 w-5" /> Talk to an Advisor</Button></a>
               </div>
             </div>
