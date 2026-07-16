@@ -132,11 +132,13 @@ const LENDERS = [
 ]
 
 function LenderLogo({ name, domain, slug }) {
-  const [stage, setStage] = useState(0) // 0=local, 1=clearbit, 2=text
+  const [stage, setStage] = useState(0)
+  const logoDevKey = process.env.NEXT_PUBLIC_LOGO_DEV_KEY
   const sources = [
-    `/lenders/${slug}.png`,
-    `https://logo.clearbit.com/${domain}`,
-  ]
+    `/lenders/${slug}.png`, // Local file (if user has uploaded)
+    logoDevKey ? `https://img.logo.dev/${domain}?token=${logoDevKey}&size=200&format=png&retina=true` : null,
+    `https://logo.clearbit.com/${domain}`, // Clearbit fallback
+  ].filter(Boolean)
   return (
     <div className="group aspect-[5/3] bg-white border border-[#E3ECFA] rounded-2xl flex items-center justify-center p-3 hover:border-[#1261E8]/40 hover:shadow-[0_8px_24px_rgba(18,97,232,0.10)] transition-all duration-200">
       {stage >= sources.length ? (
@@ -147,7 +149,7 @@ function LenderLogo({ name, domain, slug }) {
           src={sources[stage]}
           alt={`${name} logo`}
           loading="lazy"
-          className="max-h-8 sm:max-h-9 w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-200"
+          className="max-h-9 sm:max-h-10 w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-200"
           onError={() => setStage(s => s + 1)}
         />
       )}
