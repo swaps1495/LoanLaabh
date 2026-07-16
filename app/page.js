@@ -131,28 +131,30 @@ const LENDERS = [
   { name: 'UGRO Capital', domain: 'ugrocapital.com', slug: 'ugro' },
 ]
 
-function LenderLogo({ name, domain, slug }) {
+function LenderPill({ name, domain }) {
   const [stage, setStage] = useState(0)
-  const logoDevKey = process.env.NEXT_PUBLIC_LOGO_DEV_KEY
+  const key = process.env.NEXT_PUBLIC_LOGO_DEV_KEY
   const sources = [
-    `/lenders/${slug}.png`, // Local file (if user has uploaded)
-    logoDevKey ? `https://img.logo.dev/${domain}?token=${logoDevKey}&size=200&format=png&retina=true` : null,
-    `https://logo.clearbit.com/${domain}`, // Clearbit fallback
+    key ? `https://img.logo.dev/${domain}?token=${key}&size=120&format=png&retina=true` : null,
+    `https://logo.clearbit.com/${domain}`,
   ].filter(Boolean)
   return (
-    <div className="group aspect-[5/3] bg-white border border-[#E3ECFA] rounded-2xl flex items-center justify-center p-3 hover:border-[#1261E8]/40 hover:shadow-[0_8px_24px_rgba(18,97,232,0.10)] transition-all duration-200">
-      {stage >= sources.length ? (
-        <span className="text-[11px] sm:text-xs font-bold text-[#071E41] text-center leading-tight px-1">{name}</span>
-      ) : (
-        <img
-          key={stage}
-          src={sources[stage]}
-          alt={`${name} logo`}
-          loading="lazy"
-          className="max-h-9 sm:max-h-10 w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-200"
-          onError={() => setStage(s => s + 1)}
-        />
-      )}
+    <div className="shrink-0 flex items-center gap-2.5 bg-white border border-[#E3ECFA] rounded-2xl px-3.5 py-2.5 shadow-sm hover:border-[#1261E8]/40 hover:shadow-md transition-all min-w-max">
+      <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-lg bg-[#F7FAFF]">
+        {stage >= sources.length ? (
+          <span className="text-[10px] font-black text-[#1261E8]">{name.slice(0, 2).toUpperCase()}</span>
+        ) : (
+          <img
+            key={stage}
+            src={sources[stage]}
+            alt=""
+            loading="lazy"
+            className="max-w-full max-h-full object-contain"
+            onError={() => setStage(s => s + 1)}
+          />
+        )}
+      </div>
+      <span className="text-sm font-semibold text-[#071E41] whitespace-nowrap pr-1">{name}</span>
     </div>
   )
 }
@@ -569,55 +571,46 @@ export default function Home() {
       </section>
 
       {/* ===== SECTION 7: TRUSTED PARTNERS ===== */}
-      <section className="relative py-20 md:py-24 bg-[#EAF2FF] overflow-hidden">
+      <section className="relative py-16 md:py-20 bg-[#EAF2FF] overflow-hidden">
         <div className="absolute -top-32 -right-20 w-[500px] h-[500px] bg-[#1261E8]/8 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -left-20 w-[400px] h-[400px] bg-[#16A34A]/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative">
-          <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            {/* Left: Copy */}
-            <div className="lg:col-span-5">
-              <div className="text-sm font-semibold tracking-widest uppercase mb-3 text-[#1261E8]">Our Trusted Partners</div>
-              <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-[#071E41] tracking-tight leading-[1.1]">
-                Compared Across <span className="text-[#1261E8]">{LENDERS.length}+ Trusted</span> Banks &amp; NBFCs
-              </h2>
-              <p className="mt-5 text-lg text-[#42526B] leading-relaxed">
-                FinMatrix AI&trade; evaluates your profile against eligibility rules from India&apos;s leading banks and RBI-regulated NBFCs &mdash; so you discover the lenders where your chances are stronger.
-              </p>
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="text-sm font-semibold tracking-widest uppercase mb-3 text-[#1261E8]">Our Trusted Partners</div>
+            <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-[#071E41] tracking-tight leading-[1.1]">
+              Compared Across <span className="text-[#1261E8]">{LENDERS.length}+ Trusted</span> Banks &amp; NBFCs
+            </h2>
+            <p className="mt-4 text-base md:text-lg text-[#42526B] leading-relaxed">
+              FinMatrix AI&trade; evaluates your profile against eligibility rules from India&apos;s leading banks and RBI-regulated NBFCs.
+            </p>
 
-              <div className="mt-6 flex flex-wrap gap-2.5">
-                {['RBI-Regulated Lenders', 'Banks & NBFCs', 'AI-Matched'].map(chip => (
-                  <span key={chip} className="inline-flex items-center gap-1.5 bg-white border border-[#E3ECFA] rounded-full px-3.5 py-1.5 text-xs font-semibold text-[#071E41] shadow-sm">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-[#16A34A]" /> {chip}
-                  </span>
-                ))}
-              </div>
-
-              <p className="mt-6 text-xs text-[#6B7280] leading-relaxed">
-                Logos shown are for informational purposes and represent well-known lenders operating in India. LoanLaabh does not lend directly &mdash; final approval decisions are made by the lending institution.
-              </p>
-            </div>
-
-            {/* Right: Logo grid */}
-            <div className="lg:col-span-7">
-              <div className="relative">
-                <div className="absolute -top-4 -left-2 lg:-left-4 z-10 bg-white border border-[#E3ECFA] rounded-full px-3.5 py-1.5 text-xs font-bold text-[#071E41] shadow-md flex items-center gap-1.5">
-                  <Landmark className="h-3.5 w-3.5 text-[#1261E8]" /> {LENDERS.length}+ Partners
-                </div>
-                <div className="absolute -bottom-4 -right-2 lg:-right-4 z-10 bg-white border border-[#E3ECFA] rounded-full px-3.5 py-1.5 text-xs font-bold text-[#071E41] shadow-md flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-[#16A34A]" /> RBI-Regulated
-                </div>
-
-                <div className="bg-white/60 backdrop-blur border border-[#E3ECFA] rounded-3xl p-4 sm:p-5 shadow-[0_20px_60px_rgba(18,97,232,0.10)]">
-                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3">
-                    {LENDERS.map(l => (
-                      <LenderLogo key={l.name} name={l.name} domain={l.domain} slug={l.slug} />
-                    ))}
-                  </div>
-                </div>
-              </div>
+            <div className="mt-5 flex flex-wrap gap-2 justify-center">
+              {['RBI-Regulated Lenders', 'Banks & NBFCs', 'AI-Matched'].map(chip => (
+                <span key={chip} className="inline-flex items-center gap-1.5 bg-white border border-[#E3ECFA] rounded-full px-3 py-1.5 text-xs font-semibold text-[#071E41] shadow-sm">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-[#16A34A]" /> {chip}
+                </span>
+              ))}
             </div>
           </div>
+
+          {/* Two-row marquee */}
+          <div className="marquee-track relative marquee-mask">
+            <div className="flex gap-3 animate-marquee-left w-max mb-3">
+              {[...LENDERS.slice(0, 18), ...LENDERS.slice(0, 18)].map((l, i) => (
+                <LenderPill key={`r1-${i}`} name={l.name} domain={l.domain} />
+              ))}
+            </div>
+            <div className="flex gap-3 animate-marquee-right w-max">
+              {[...LENDERS.slice(18), ...LENDERS.slice(18)].map((l, i) => (
+                <LenderPill key={`r2-${i}`} name={l.name} domain={l.domain} />
+              ))}
+            </div>
+          </div>
+
+          <p className="mt-8 text-xs text-[#6B7280] leading-relaxed text-center max-w-3xl mx-auto">
+            Logos shown are for informational purposes and represent well-known lenders operating in India. LoanLaabh does not lend directly &mdash; final approval decisions are made by the lending institution.
+          </p>
         </div>
       </section>
 

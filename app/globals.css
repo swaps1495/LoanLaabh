@@ -71,3 +71,12 @@
 /* Safe area for mobile sticky bar */
 .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem); }
 .mb-cta-safe { margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 5rem); }
+
+/* ===== Trusted-Partners marquee ===== */
+@keyframes marquee-left  { from { transform: translateX(0);       } to { transform: translateX(-50%); } }
+@keyframes marquee-right { from { transform: translateX(-50%);    } to { transform: translateX(0);    } }
+.animate-marquee-left  { animation: marquee-left  45s linear infinite; }
+.animate-marquee-right { animation: marquee-right 45s linear infinite; }
+.marquee-mask { -webkit-mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent); mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent); }
+.marquee-track:hover .animate-marquee-left,
+.marquee-track:hover .animate-marquee-right { animation-play-state: paused; }
