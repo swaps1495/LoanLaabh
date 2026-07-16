@@ -93,57 +93,62 @@ const PRODUCTS = [
 ]
 
 const LENDERS = [
-  { name: 'HDFC Bank', domain: 'hdfcbank.com' },
-  { name: 'ICICI Bank', domain: 'icicibank.com' },
-  { name: 'State Bank of India', domain: 'sbi.co.in' },
-  { name: 'Axis Bank', domain: 'axisbank.com' },
-  { name: 'Kotak Mahindra Bank', domain: 'kotak.com' },
-  { name: 'IDFC First Bank', domain: 'idfcfirstbank.com' },
-  { name: 'Yes Bank', domain: 'yesbank.in' },
-  { name: 'IndusInd Bank', domain: 'indusind.com' },
-  { name: 'Federal Bank', domain: 'federalbank.co.in' },
-  { name: 'RBL Bank', domain: 'rblbank.com' },
-  { name: 'Bank of Baroda', domain: 'bankofbaroda.in' },
-  { name: 'Canara Bank', domain: 'canarabank.com' },
-  { name: 'Punjab National Bank', domain: 'pnbindia.in' },
-  { name: 'Union Bank of India', domain: 'unionbankofindia.co.in' },
-  { name: 'Bank of India', domain: 'bankofindia.co.in' },
-  { name: 'Indian Bank', domain: 'indianbank.in' },
-  { name: 'HSBC India', domain: 'hsbc.co.in' },
-  { name: 'Citi India', domain: 'citibank.co.in' },
-  { name: 'Standard Chartered', domain: 'sc.com' },
-  { name: 'Bajaj Finserv', domain: 'bajajfinserv.in' },
-  { name: 'Tata Capital', domain: 'tatacapital.com' },
-  { name: 'Piramal Finance', domain: 'piramalfinance.com' },
-  { name: 'L&T Finance', domain: 'ltfs.com' },
-  { name: 'Aditya Birla Capital', domain: 'adityabirlacapital.com' },
-  { name: 'SMFG India Credit', domain: 'smfgindiacredit.com' },
-  { name: 'Poonawalla Fincorp', domain: 'poonawallafincorp.com' },
-  { name: 'Hero FinCorp', domain: 'herofincorp.com' },
-  { name: 'Muthoot Finance', domain: 'muthootfinance.com' },
-  { name: 'InCred', domain: 'incred.com' },
-  { name: 'Cholamandalam', domain: 'cholamandalam.com' },
-  { name: 'HomeFirst Finance', domain: 'homefirstindia.com' },
-  { name: 'LIC Housing Finance', domain: 'lichousing.com' },
-  { name: 'PNB Housing Finance', domain: 'pnbhousing.com' },
-  { name: 'IIFL Finance', domain: 'iiflfinance.com' },
-  { name: 'Manappuram Finance', domain: 'manappuram.com' },
-  { name: 'UGRO Capital', domain: 'ugrocapital.com' },
+  { name: 'HDFC Bank', domain: 'hdfcbank.com', slug: 'hdfc-bank' },
+  { name: 'ICICI Bank', domain: 'icicibank.com', slug: 'icici-bank' },
+  { name: 'State Bank of India', domain: 'sbi.co.in', slug: 'sbi' },
+  { name: 'Axis Bank', domain: 'axisbank.com', slug: 'axis-bank' },
+  { name: 'Kotak Mahindra Bank', domain: 'kotak.com', slug: 'kotak' },
+  { name: 'IDFC First Bank', domain: 'idfcfirstbank.com', slug: 'idfc-first' },
+  { name: 'Yes Bank', domain: 'yesbank.in', slug: 'yes-bank' },
+  { name: 'IndusInd Bank', domain: 'indusind.com', slug: 'indusind' },
+  { name: 'Federal Bank', domain: 'federalbank.co.in', slug: 'federal-bank' },
+  { name: 'RBL Bank', domain: 'rblbank.com', slug: 'rbl-bank' },
+  { name: 'Bank of Baroda', domain: 'bankofbaroda.in', slug: 'bob' },
+  { name: 'Canara Bank', domain: 'canarabank.com', slug: 'canara-bank' },
+  { name: 'Punjab National Bank', domain: 'pnbindia.in', slug: 'pnb' },
+  { name: 'Union Bank of India', domain: 'unionbankofindia.co.in', slug: 'union-bank' },
+  { name: 'Bank of India', domain: 'bankofindia.co.in', slug: 'bank-of-india' },
+  { name: 'Indian Bank', domain: 'indianbank.in', slug: 'indian-bank' },
+  { name: 'HSBC India', domain: 'hsbc.co.in', slug: 'hsbc' },
+  { name: 'Citi India', domain: 'citibank.co.in', slug: 'citi' },
+  { name: 'Standard Chartered', domain: 'sc.com', slug: 'standard-chartered' },
+  { name: 'Bajaj Finserv', domain: 'bajajfinserv.in', slug: 'bajaj-finserv' },
+  { name: 'Tata Capital', domain: 'tatacapital.com', slug: 'tata-capital' },
+  { name: 'Piramal Finance', domain: 'piramalfinance.com', slug: 'piramal' },
+  { name: 'L&T Finance', domain: 'ltfs.com', slug: 'lt-finance' },
+  { name: 'Aditya Birla Capital', domain: 'adityabirlacapital.com', slug: 'aditya-birla' },
+  { name: 'SMFG India Credit', domain: 'smfgindiacredit.com', slug: 'smfg' },
+  { name: 'Poonawalla Fincorp', domain: 'poonawallafincorp.com', slug: 'poonawalla' },
+  { name: 'Hero FinCorp', domain: 'herofincorp.com', slug: 'hero-fincorp' },
+  { name: 'Muthoot Finance', domain: 'muthootfinance.com', slug: 'muthoot' },
+  { name: 'InCred', domain: 'incred.com', slug: 'incred' },
+  { name: 'Cholamandalam', domain: 'cholamandalam.com', slug: 'chola' },
+  { name: 'HomeFirst Finance', domain: 'homefirstindia.com', slug: 'homefirst' },
+  { name: 'LIC Housing Finance', domain: 'lichousing.com', slug: 'lic-housing' },
+  { name: 'PNB Housing Finance', domain: 'pnbhousing.com', slug: 'pnb-housing' },
+  { name: 'IIFL Finance', domain: 'iiflfinance.com', slug: 'iifl' },
+  { name: 'Manappuram Finance', domain: 'manappuram.com', slug: 'manappuram' },
+  { name: 'UGRO Capital', domain: 'ugrocapital.com', slug: 'ugro' },
 ]
 
-function LenderLogo({ name, domain }) {
-  const [failed, setFailed] = useState(false)
+function LenderLogo({ name, domain, slug }) {
+  const [stage, setStage] = useState(0) // 0=local, 1=clearbit, 2=text
+  const sources = [
+    `/lenders/${slug}.png`,
+    `https://logo.clearbit.com/${domain}`,
+  ]
   return (
     <div className="group aspect-[5/3] bg-white border border-[#E3ECFA] rounded-2xl flex items-center justify-center p-3 hover:border-[#1261E8]/40 hover:shadow-[0_8px_24px_rgba(18,97,232,0.10)] transition-all duration-200">
-      {failed ? (
+      {stage >= sources.length ? (
         <span className="text-[11px] sm:text-xs font-bold text-[#071E41] text-center leading-tight px-1">{name}</span>
       ) : (
         <img
-          src={`https://logo.clearbit.com/${domain}`}
+          key={stage}
+          src={sources[stage]}
           alt={`${name} logo`}
           loading="lazy"
-          className="max-h-8 sm:max-h-9 w-auto object-contain filter grayscale-[0.25] group-hover:grayscale-0 opacity-90 group-hover:opacity-100 transition-all duration-200"
-          onError={() => setFailed(true)}
+          className="max-h-8 sm:max-h-9 w-auto object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-200"
+          onError={() => setStage(s => s + 1)}
         />
       )}
     </div>
@@ -561,7 +566,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== SECTION 7: LENDING PARTNERS ===== */}
+      {/* ===== SECTION 7: TRUSTED PARTNERS ===== */}
       <section className="relative py-20 md:py-24 bg-[#EAF2FF] overflow-hidden">
         <div className="absolute -top-32 -right-20 w-[500px] h-[500px] bg-[#1261E8]/8 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -left-20 w-[400px] h-[400px] bg-[#16A34A]/8 rounded-full blur-3xl pointer-events-none" />
@@ -570,7 +575,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left: Copy */}
             <div className="lg:col-span-5">
-              <div className="text-sm font-semibold tracking-widest uppercase mb-3 text-[#1261E8]">Our Lending Partners</div>
+              <div className="text-sm font-semibold tracking-widest uppercase mb-3 text-[#1261E8]">Our Trusted Partners</div>
               <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-[#071E41] tracking-tight leading-[1.1]">
                 Compared Across <span className="text-[#1261E8]">{LENDERS.length}+ Trusted</span> Banks &amp; NBFCs
               </h2>
@@ -586,20 +591,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Link href="/eligibility">
-                  <Button size="lg" className="w-full sm:w-auto h-12 px-8 text-base font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">
-                    Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <a href="#how-it-works">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">
-                    How FinMatrix AI&trade; Works
-                  </Button>
-                </a>
-              </div>
-
-              <p className="mt-5 text-xs text-[#6B7280] leading-relaxed">
+              <p className="mt-6 text-xs text-[#6B7280] leading-relaxed">
                 Logos shown are for informational purposes and represent well-known lenders operating in India. LoanLaabh does not lend directly &mdash; final approval decisions are made by the lending institution.
               </p>
             </div>
@@ -607,7 +599,6 @@ export default function Home() {
             {/* Right: Logo grid */}
             <div className="lg:col-span-7">
               <div className="relative">
-                {/* Decorative badge */}
                 <div className="absolute -top-4 -left-2 lg:-left-4 z-10 bg-white border border-[#E3ECFA] rounded-full px-3.5 py-1.5 text-xs font-bold text-[#071E41] shadow-md flex items-center gap-1.5">
                   <Landmark className="h-3.5 w-3.5 text-[#1261E8]" /> {LENDERS.length}+ Partners
                 </div>
@@ -618,7 +609,7 @@ export default function Home() {
                 <div className="bg-white/60 backdrop-blur border border-[#E3ECFA] rounded-3xl p-4 sm:p-5 shadow-[0_20px_60px_rgba(18,97,232,0.10)]">
                   <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3">
                     {LENDERS.map(l => (
-                      <LenderLogo key={l.name} name={l.name} domain={l.domain} />
+                      <LenderLogo key={l.name} name={l.name} domain={l.domain} slug={l.slug} />
                     ))}
                   </div>
                 </div>
