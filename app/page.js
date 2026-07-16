@@ -12,6 +12,7 @@ import {
   Briefcase, TrendingUp, Home as HomeIcon, Building2, Car, RefreshCcw, LineChart,
   FileSearch, ListChecks, Target, Compass,
   BookOpen, Scale, MessageCircle, User, Cpu, GitCompareArrows, ThumbsUp,
+  UserCircle2, Radar, Headphones,
 } from 'lucide-react'
 
 const WHATSAPP_URL = 'https://wa.me/917770024242'
@@ -31,12 +32,38 @@ const PROBLEMS = [
   { icon: FileSearch, title: 'Random Applications', desc: 'Traditional agents may send applications randomly.' },
 ]
 
-const TIMELINE = [
-  { icon: User, title: 'Tell us about yourself' },
-  { icon: Brain, title: 'FinMatrix AI\u2122 analyzes your profile' },
-  { icon: GitCompareArrows, title: 'Compares lender policies' },
-  { icon: ListChecks, title: 'Shows suitable loan matches' },
-  { icon: ThumbsUp, title: 'Apply with confidence' },
+const JOURNEY_STEPS = [
+  {
+    icon: UserCircle2,
+    title: 'Share Your Profile',
+    desc: 'Tell us your loan need, income, employment type, city, existing EMIs, and approximate CIBIL score band.',
+    chips: ['Income', 'City', 'CIBIL Band'],
+  },
+  {
+    icon: Radar,
+    title: 'AI Eligibility Review',
+    desc: 'FinMatrix AI\u2122 checks your profile across key lending factors like FOIR, age, salary mode, latest enquiries, PF/PT status, and obligations.',
+    chips: ['FOIR', 'Enquiries', 'PF/PT'],
+  },
+  {
+    icon: Cpu,
+    title: 'Policy Matching',
+    desc: 'Your profile is compared with bank/NBFC eligibility rules, including salary, age, CIBIL, city, and lender-specific conditions.',
+    chips: ['Bank Rules', 'NBFC Criteria', 'Policy Matrix'],
+    highlight: true,
+  },
+  {
+    icon: Target,
+    title: 'Suitable Loan Matches',
+    desc: 'You get indicative better-fit loan options instead of applying randomly and risking unnecessary rejections.',
+    chips: ['Better Fit', 'Risky Fit', 'Avoid Random Apply'],
+  },
+  {
+    icon: Headphones,
+    title: 'Guided Application',
+    desc: 'A LoanLaabh advisor helps with the next steps, lender coordination, documentation guidance, and application tracking.',
+    chips: ['Advisor Support', 'Documents', 'Tracking'],
+  },
 ]
 
 const FM_PARAMS = [
@@ -62,13 +89,6 @@ const PRODUCTS = [
   { icon: Building2, title: 'Loan Against Property', desc: 'Unlock the value of your property.' },
   { icon: RefreshCcw, title: 'Balance Transfer', desc: 'Transfer your existing loan to explore better terms.' },
   { icon: LineChart, title: 'Credit Improvement Guidance', desc: 'Resources to strengthen your credit profile.' },
-]
-
-const PROCESS = [
-  { icon: FileSearch, title: 'Profile Analysis', desc: 'Understand your financial profile.' },
-  { icon: ListChecks, title: 'Eligibility Intelligence', desc: 'Compare your details with lender criteria.' },
-  { icon: Target, title: 'Suitability Matching', desc: 'Identify lenders aligned with your profile.' },
-  { icon: Compass, title: 'Guided Application', desc: 'Proceed with confidence and support.' },
 ]
 
 const INSIGHTS = [
@@ -226,30 +246,135 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== SECTION 3: THE LOANLAABH WAY ===== */}
-      <section id="how-it-works" className="py-20 md:py-24 bg-[#EAF2FF] scroll-mt-16">
-        <div className="container mx-auto px-4">
-          <SectionHeading
-            eyebrow="The LoanLaabh Way"
-            title="Borrow Smarter with LoanLaabh"
-            subtitle={'Instead of applying everywhere, let FinMatrix AI\u2122 identify lenders that better match your financial profile.'}
-          />
-          <div className="relative">
-            <div className="hidden lg:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-[#1261E8]/20 via-[#1261E8] to-[#16A34A]/60" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-4">
-              {TIMELINE.map((s, i) => (
-                <div key={i} className="relative flex lg:flex-col items-start lg:items-center gap-4 lg:text-center bg-white lg:bg-transparent rounded-2xl lg:rounded-none p-5 lg:p-0 border lg:border-0 border-[#E3ECFA]">
-                  <div className="relative z-10 bg-white border-2 border-[#1261E8] text-[#1261E8] rounded-2xl w-16 h-16 flex items-center justify-center shrink-0 shadow-lg shadow-blue-100">
-                    <s.icon className="h-7 w-7" />
-                    <span className="absolute -top-2 -right-2 bg-[#1261E8] text-white text-[11px] font-bold rounded-full w-6 h-6 flex items-center justify-center">{i + 1}</span>
+      {/* ===== SECTION 3: THE LOANLAABH WAY — Smart Eligibility Journey ===== */}
+      <section id="how-it-works" className="relative py-20 md:py-28 bg-[#EAF2FF] overflow-hidden scroll-mt-16">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#1261E8]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 fm-matrix-grid opacity-40 pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative">
+          <div className="text-center max-w-3xl mx-auto mb-6 md:mb-8">
+            <div className="text-sm font-semibold tracking-widest uppercase mb-3 text-[#1261E8]">The LoanLaabh Way</div>
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#071E41] leading-[1.15]">
+              From Guesswork to <span className="text-[#1261E8]">Guided Loan Matching</span>
+            </h2>
+            <p className="mt-5 text-lg text-[#42526B] leading-relaxed">
+              Loan applications should not depend on guesswork. LoanLaabh uses FinMatrix AI&trade; to study your profile, compare it with lender criteria, and guide you toward loan options that may be more suitable before you apply.
+            </p>
+          </div>
+
+          {/* ============ DESKTOP: 5-step curved journey ============ */}
+          <div className="hidden lg:block relative mt-24 pb-4">
+            {/* Curved dashed connector — behind the circles */}
+            <svg className="absolute top-8 left-0 w-full h-40 pointer-events-none" viewBox="0 0 1200 160" preserveAspectRatio="none" fill="none">
+              <path
+                d="M 90 100 Q 260 20 360 90 Q 480 160 600 60 Q 720 -30 840 90 Q 960 200 1110 100"
+                stroke="#1261E8"
+                strokeWidth="2.5"
+                strokeDasharray="7 9"
+                strokeLinecap="round"
+                opacity="0.55"
+              />
+              {/* Small dot markers along the path */}
+              <circle cx="90" cy="100" r="4" fill="#1261E8" />
+              <circle cx="360" cy="90" r="4" fill="#1261E8" />
+              <circle cx="600" cy="60" r="6" fill="#0B4FC4" />
+              <circle cx="840" cy="90" r="4" fill="#1261E8" />
+              <circle cx="1110" cy="100" r="4" fill="#1261E8" />
+            </svg>
+
+            <div className="grid grid-cols-5 gap-4 relative">
+              {JOURNEY_STEPS.map((s, i) => {
+                const isCenter = !!s.highlight
+                const yOffset = isCenter ? '-translate-y-6' : ''
+                return (
+                  <div key={i} className={`flex flex-col items-center text-center ${yOffset} fm-fade-up`} style={{ animationDelay: `${i * 0.12}s` }}>
+                    {/* FinMatrix AI ribbon (center step only) */}
+                    {isCenter && (
+                      <div className="mb-3 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#1261E8] to-[#0B4FC4] text-white text-[11px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-full shadow-lg shadow-blue-200">
+                        <Sparkles className="h-3.5 w-3.5" /> FinMatrix AI&trade; Core
+                      </div>
+                    )}
+
+                    {/* Icon node */}
+                    <div className={`relative ${isCenter ? 'w-24 h-24' : 'w-20 h-20'} rounded-3xl flex items-center justify-center shrink-0 mb-5 ${isCenter ? 'bg-gradient-to-br from-[#1261E8] to-[#0B4FC4] text-white shadow-[0_20px_40px_rgba(18,97,232,0.35)]' : 'bg-white text-[#1261E8] border-2 border-[#1261E8]/25 shadow-[0_10px_28px_rgba(18,97,232,0.15)]'}`}>
+                      {isCenter && <div className="absolute inset-0 rounded-3xl bg-[#1261E8]/40 blur-2xl -z-10 fm-pulse-dot" />}
+                      <s.icon className={isCenter ? 'h-10 w-10' : 'h-8 w-8'} />
+                      <span className={`absolute -top-2.5 -right-2.5 ${isCenter ? 'bg-white text-[#1261E8] border-2 border-[#1261E8]' : 'bg-[#1261E8] text-white'} text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-md`}>
+                        {i + 1}
+                      </span>
+                    </div>
+
+                    {/* Card */}
+                    <div className={`w-full rounded-2xl p-5 text-left ${isCenter ? 'bg-white border-2 border-[#1261E8]/30 shadow-[0_20px_60px_rgba(18,97,232,0.15)]' : 'bg-white/80 backdrop-blur border border-[#E3ECFA] shadow-[0_2px_12px_rgba(7,30,65,0.04)]'}`}>
+                      <h3 className={`font-bold text-[#071E41] ${isCenter ? 'text-lg' : 'text-base'} leading-tight`}>{s.title}</h3>
+                      <p className="text-[#42526B] mt-2 text-xs leading-relaxed">{s.desc}</p>
+                      <div className="mt-3.5 flex flex-wrap gap-1.5">
+                        {s.chips.map(chip => (
+                          <span key={chip} className="inline-flex items-center text-[10px] font-semibold bg-[#EAF2FF] text-[#1261E8] rounded-full px-2 py-0.5 border border-[#E3ECFA]">{chip}</span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div className="lg:mt-4">
-                    <div className="font-semibold text-[#071E41] leading-snug">{s.title}</div>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
+
+          {/* ============ MOBILE: vertical timeline ============ */}
+          <div className="lg:hidden mt-10 relative">
+            <div className="absolute left-8 top-4 bottom-4 w-px border-l-2 border-dashed border-[#1261E8]/40" />
+            <div className="space-y-5">
+              {JOURNEY_STEPS.map((s, i) => {
+                const isCenter = !!s.highlight
+                return (
+                  <div key={i} className="relative flex gap-4 items-start fm-fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                    {/* Icon node */}
+                    <div className={`relative shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center z-10 ${isCenter ? 'bg-gradient-to-br from-[#1261E8] to-[#0B4FC4] text-white shadow-[0_10px_28px_rgba(18,97,232,0.35)]' : 'bg-white text-[#1261E8] border-2 border-[#1261E8]/25 shadow-md'}`}>
+                      <s.icon className="h-6 w-6" />
+                      <span className={`absolute -top-2 -right-2 ${isCenter ? 'bg-white text-[#1261E8] border-2 border-[#1261E8]' : 'bg-[#1261E8] text-white'} text-[10px] font-bold rounded-full w-6 h-6 flex items-center justify-center`}>
+                        {i + 1}
+                      </span>
+                    </div>
+
+                    {/* Card */}
+                    <div className={`flex-1 rounded-2xl p-4 ${isCenter ? 'bg-white border-2 border-[#1261E8]/30 shadow-[0_12px_32px_rgba(18,97,232,0.12)]' : 'bg-white border border-[#E3ECFA] shadow-[0_2px_10px_rgba(7,30,65,0.04)]'}`}>
+                      {isCenter && (
+                        <div className="mb-2 inline-flex items-center gap-1 bg-gradient-to-r from-[#1261E8] to-[#0B4FC4] text-white text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full">
+                          <Sparkles className="h-3 w-3" /> FinMatrix AI&trade; Core
+                        </div>
+                      )}
+                      <h3 className="font-bold text-[#071E41] text-base leading-tight">{s.title}</h3>
+                      <p className="text-[#42526B] mt-1.5 text-sm leading-relaxed">{s.desc}</p>
+                      <div className="mt-2.5 flex flex-wrap gap-1.5">
+                        {s.chips.map(chip => (
+                          <span key={chip} className="inline-flex items-center text-[10px] font-semibold bg-[#EAF2FF] text-[#1261E8] rounded-full px-2 py-0.5 border border-[#E3ECFA]">{chip}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="mt-14 md:mt-16 flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <Link href="/eligibility">
+              <Button size="lg" className="w-full sm:w-auto h-12 px-8 text-base font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">
+                Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#16A34A] bg-white text-[#16A34A] hover:bg-emerald-50 hover:text-[#16A34A]">
+                <MessageCircle className="mr-2 h-5 w-5" /> Talk on WhatsApp
+              </Button>
+            </a>
+          </div>
+
+          {/* Compliance line */}
+          <p className="text-xs text-[#42526B] leading-relaxed text-center mt-6 max-w-3xl mx-auto px-4">
+            Initial eligibility check is based on your self-declared profile and does not directly affect your CIBIL score. Final approval, loan amount, interest rate, and disbursal are decided only by the lending institution.
+          </p>
         </div>
       </section>
 
@@ -372,32 +497,6 @@ export default function Home() {
                 <Button size="sm" className="mt-4 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold w-fit">Check Free Eligibility <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SECTION 7: HOW FINMATRIX AI WORKS ===== */}
-      <section className="py-20 md:py-24 bg-[#EAF2FF]">
-        <div className="container mx-auto px-4">
-          <SectionHeading eyebrow="The Process" title={'How FinMatrix AI\u2122 Finds Better Loan Matches'} />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PROCESS.map((p, i) => (
-              <div key={i} className="relative bg-white rounded-2xl p-7 border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover">
-                <div className="text-5xl font-extrabold text-[#1261E8]/12 absolute top-4 right-5">{i + 1}</div>
-                <div className="bg-[#1261E8] text-white rounded-2xl w-12 h-12 flex items-center justify-center mb-5 shadow-md shadow-blue-200 relative z-10">
-                  <p.icon className="h-6 w-6" />
-                </div>
-                <h3 className="font-bold text-[#071E41] text-lg">{p.title}</h3>
-                <p className="text-[#42526B] mt-2 text-sm leading-relaxed">{p.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Link href="/eligibility">
-              <Button size="lg" className="h-12 px-8 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl font-semibold shadow-lg shadow-blue-200">
-                Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
           </div>
         </div>
       </section>
