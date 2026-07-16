@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/site/navbar'
 import Footer from '@/components/site/footer'
@@ -90,6 +91,65 @@ const PRODUCTS = [
   { icon: RefreshCcw, title: 'Balance Transfer', desc: 'Transfer your existing loan to explore better terms.' },
   { icon: LineChart, title: 'Credit Improvement Guidance', desc: 'Resources to strengthen your credit profile.' },
 ]
+
+const LENDERS = [
+  { name: 'HDFC Bank', domain: 'hdfcbank.com' },
+  { name: 'ICICI Bank', domain: 'icicibank.com' },
+  { name: 'State Bank of India', domain: 'sbi.co.in' },
+  { name: 'Axis Bank', domain: 'axisbank.com' },
+  { name: 'Kotak Mahindra Bank', domain: 'kotak.com' },
+  { name: 'IDFC First Bank', domain: 'idfcfirstbank.com' },
+  { name: 'Yes Bank', domain: 'yesbank.in' },
+  { name: 'IndusInd Bank', domain: 'indusind.com' },
+  { name: 'Federal Bank', domain: 'federalbank.co.in' },
+  { name: 'RBL Bank', domain: 'rblbank.com' },
+  { name: 'Bank of Baroda', domain: 'bankofbaroda.in' },
+  { name: 'Canara Bank', domain: 'canarabank.com' },
+  { name: 'Punjab National Bank', domain: 'pnbindia.in' },
+  { name: 'Union Bank of India', domain: 'unionbankofindia.co.in' },
+  { name: 'Bank of India', domain: 'bankofindia.co.in' },
+  { name: 'Indian Bank', domain: 'indianbank.in' },
+  { name: 'HSBC India', domain: 'hsbc.co.in' },
+  { name: 'Citi India', domain: 'citibank.co.in' },
+  { name: 'Standard Chartered', domain: 'sc.com' },
+  { name: 'Bajaj Finserv', domain: 'bajajfinserv.in' },
+  { name: 'Tata Capital', domain: 'tatacapital.com' },
+  { name: 'Piramal Finance', domain: 'piramalfinance.com' },
+  { name: 'L&T Finance', domain: 'ltfs.com' },
+  { name: 'Aditya Birla Capital', domain: 'adityabirlacapital.com' },
+  { name: 'SMFG India Credit', domain: 'smfgindiacredit.com' },
+  { name: 'Poonawalla Fincorp', domain: 'poonawallafincorp.com' },
+  { name: 'Hero FinCorp', domain: 'herofincorp.com' },
+  { name: 'Muthoot Finance', domain: 'muthootfinance.com' },
+  { name: 'InCred', domain: 'incred.com' },
+  { name: 'Cholamandalam', domain: 'cholamandalam.com' },
+  { name: 'HomeFirst Finance', domain: 'homefirstindia.com' },
+  { name: 'LIC Housing Finance', domain: 'lichousing.com' },
+  { name: 'PNB Housing Finance', domain: 'pnbhousing.com' },
+  { name: 'IIFL Finance', domain: 'iiflfinance.com' },
+  { name: 'Manappuram Finance', domain: 'manappuram.com' },
+  { name: 'UGRO Capital', domain: 'ugrocapital.com' },
+]
+
+function LenderLogo({ name, domain }) {
+  const [failed, setFailed] = useState(false)
+  return (
+    <div className="group aspect-[5/3] bg-white border border-[#E3ECFA] rounded-2xl flex items-center justify-center p-3 hover:border-[#1261E8]/40 hover:shadow-[0_8px_24px_rgba(18,97,232,0.10)] transition-all duration-200">
+      {failed ? (
+        <span className="text-[11px] sm:text-xs font-bold text-[#071E41] text-center leading-tight px-1">{name}</span>
+      ) : (
+        <img
+          src={`https://logo.clearbit.com/${domain}`}
+          alt={`${name} logo`}
+          loading="lazy"
+          className="max-h-8 sm:max-h-9 w-auto object-contain filter grayscale-[0.25] group-hover:grayscale-0 opacity-90 group-hover:opacity-100 transition-all duration-200"
+          onError={() => setFailed(true)}
+        />
+      )}
+    </div>
+  )
+}
+
 
 const INSIGHTS = [
   { tag: 'Credit Score', title: 'How to Improve Your CIBIL Score' },
@@ -496,6 +556,73 @@ export default function Home() {
               <Link href="/eligibility">
                 <Button size="sm" className="mt-4 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold w-fit">Check Free Eligibility <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 7: LENDING PARTNERS ===== */}
+      <section className="relative py-20 md:py-24 bg-[#EAF2FF] overflow-hidden">
+        <div className="absolute -top-32 -right-20 w-[500px] h-[500px] bg-[#1261E8]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -left-20 w-[400px] h-[400px] bg-[#16A34A]/8 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* Left: Copy */}
+            <div className="lg:col-span-5">
+              <div className="text-sm font-semibold tracking-widest uppercase mb-3 text-[#1261E8]">Our Lending Partners</div>
+              <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-[#071E41] tracking-tight leading-[1.1]">
+                Compared Across <span className="text-[#1261E8]">{LENDERS.length}+ Trusted</span> Banks &amp; NBFCs
+              </h2>
+              <p className="mt-5 text-lg text-[#42526B] leading-relaxed">
+                FinMatrix AI&trade; evaluates your profile against eligibility rules from India&apos;s leading banks and RBI-regulated NBFCs &mdash; so you discover the lenders where your chances are stronger.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-2.5">
+                {['RBI-Regulated Lenders', 'Banks & NBFCs', 'AI-Matched'].map(chip => (
+                  <span key={chip} className="inline-flex items-center gap-1.5 bg-white border border-[#E3ECFA] rounded-full px-3.5 py-1.5 text-xs font-semibold text-[#071E41] shadow-sm">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-[#16A34A]" /> {chip}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Link href="/eligibility">
+                  <Button size="lg" className="w-full sm:w-auto h-12 px-8 text-base font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">
+                    Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <a href="#how-it-works">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">
+                    How FinMatrix AI&trade; Works
+                  </Button>
+                </a>
+              </div>
+
+              <p className="mt-5 text-xs text-[#6B7280] leading-relaxed">
+                Logos shown are for informational purposes and represent well-known lenders operating in India. LoanLaabh does not lend directly &mdash; final approval decisions are made by the lending institution.
+              </p>
+            </div>
+
+            {/* Right: Logo grid */}
+            <div className="lg:col-span-7">
+              <div className="relative">
+                {/* Decorative badge */}
+                <div className="absolute -top-4 -left-2 lg:-left-4 z-10 bg-white border border-[#E3ECFA] rounded-full px-3.5 py-1.5 text-xs font-bold text-[#071E41] shadow-md flex items-center gap-1.5">
+                  <Landmark className="h-3.5 w-3.5 text-[#1261E8]" /> {LENDERS.length}+ Partners
+                </div>
+                <div className="absolute -bottom-4 -right-2 lg:-right-4 z-10 bg-white border border-[#E3ECFA] rounded-full px-3.5 py-1.5 text-xs font-bold text-[#071E41] shadow-md flex items-center gap-1.5">
+                  <ShieldCheck className="h-3.5 w-3.5 text-[#16A34A]" /> RBI-Regulated
+                </div>
+
+                <div className="bg-white/60 backdrop-blur border border-[#E3ECFA] rounded-3xl p-4 sm:p-5 shadow-[0_20px_60px_rgba(18,97,232,0.10)]">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3">
+                    {LENDERS.map(l => (
+                      <LenderLogo key={l.name} name={l.name} domain={l.domain} />
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
