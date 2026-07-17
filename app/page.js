@@ -290,63 +290,62 @@ export default function Home() {
       </section>
 
       {/* ===== SECTION 1.5: TRUST NETWORK / STATS ===== */}
-      <section className="relative py-14 md:py-20 bg-gradient-to-b from-white via-[#F7FAFF] to-[#EAF2FF] overflow-hidden">
+      <section className="relative py-10 md:py-20 bg-gradient-to-b from-white via-[#F7FAFF] to-[#EAF2FF] overflow-hidden">
         <div className="absolute -top-24 right-1/4 w-[420px] h-[420px] bg-[#1261E8]/6 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 left-1/4 w-[380px] h-[380px] bg-[#16A34A]/6 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative">
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="inline-flex items-center gap-2 bg-white border border-[#D6E6FF] rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wider uppercase text-[#1261E8] mb-4 shadow-sm">
-              <Sparkles className="h-3.5 w-3.5" /> LoanLaabh Trust Network
+          <div className="text-center max-w-2xl mx-auto mb-6 md:mb-14">
+            <div className="inline-flex items-center gap-1.5 md:gap-2 bg-white border border-[#D6E6FF] rounded-full px-3 py-1 md:px-3.5 md:py-1.5 text-[10px] md:text-xs font-semibold tracking-wider uppercase text-[#1261E8] mb-3 md:mb-4 shadow-sm">
+              <Sparkles className="h-3 w-3 md:h-3.5 md:w-3.5" /> LoanLaabh Trust Network
             </div>
-            <h2 className="text-3xl md:text-4xl xl:text-5xl font-extrabold text-[#071E41] tracking-tight leading-[1.15]">
+            <h2 className="text-2xl md:text-4xl xl:text-5xl font-extrabold text-[#071E41] tracking-tight leading-[1.15]">
               Numbers That Build <span className="text-[#1261E8]">Borrower Confidence</span>
             </h2>
-            <p className="mt-4 text-base md:text-lg text-[#5B6B82] leading-relaxed">
+            <p className="hidden md:block mt-4 text-base md:text-lg text-[#5B6B82] leading-relaxed">
               LoanLaabh combines FinMatrix AI&trade; with lending partner criteria to help customers discover suitable loan options before applying.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-5 lg:gap-6">
             {[
-              { icon: Target, num: '92%', title: 'Smart Match Success Rate', desc: 'Eligible profiles matched with suitable lending partners.', accent: 'from-[#1261E8] to-[#0B4FC4]' },
-              { icon: Users, num: '10K+', title: 'Borrowers Guided', desc: 'Customers assisted across eligibility checks and application support.', accent: 'from-[#0B4FC4] to-[#1261E8]' },
-              { icon: IndianRupee, num: '₹1B+', title: 'Loan Value Processed', desc: 'Loan applications processed through partner lending journeys.', accent: 'from-[#16A34A] to-[#059669]' },
-              { icon: Landmark, num: '39+', title: 'Trusted Lending Partners', desc: 'Banks, NBFCs, and finance partners mapped in the LoanLaabh network.', accent: 'from-[#1261E8] to-[#0B4FC4]' },
+              { icon: Target, num: '92%', title: 'Smart Match Success Rate', shortTitle: 'Match Success', desc: 'Eligible profiles matched with suitable lending partners.', accent: 'from-[#1261E8] to-[#0B4FC4]' },
+              { icon: Users, num: '10K+', title: 'Borrowers Guided', shortTitle: 'Borrowers Guided', desc: 'Customers assisted across eligibility checks and application support.', accent: 'from-[#0B4FC4] to-[#1261E8]' },
+              { icon: IndianRupee, num: '₹1B+', title: 'Loan Value Processed', shortTitle: 'Loan Value', desc: 'Loan applications processed through partner lending journeys.', accent: 'from-[#16A34A] to-[#059669]' },
+              { icon: Landmark, num: '39+', title: 'Trusted Lending Partners', shortTitle: 'Lending Partners', desc: 'Banks, NBFCs, and finance partners mapped in the LoanLaabh network.', accent: 'from-[#1261E8] to-[#0B4FC4]' },
             ].map((s, i) => (
               <div
                 key={i}
-                className="group relative bg-white rounded-3xl p-5 md:p-7 border border-[#D6E6FF] shadow-[0_4px_18px_rgba(18,97,232,0.06)] hover:shadow-[0_16px_40px_rgba(18,97,232,0.12)] hover:-translate-y-1 hover:border-[#1261E8]/30 transition-all duration-300 fm-fade-up"
+                className="group relative bg-white rounded-2xl md:rounded-3xl p-3.5 md:p-7 border border-[#D6E6FF] shadow-[0_2px_10px_rgba(18,97,232,0.05)] md:shadow-[0_4px_18px_rgba(18,97,232,0.06)] hover:shadow-[0_16px_40px_rgba(18,97,232,0.12)] md:hover:-translate-y-1 hover:border-[#1261E8]/30 transition-all duration-300 fm-fade-up"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                {/* Corner accent stripe */}
-                <div className={`absolute top-0 left-6 right-6 h-1 bg-gradient-to-r ${s.accent} rounded-b-full opacity-80`} />
+                <div className={`absolute top-0 left-4 md:left-6 right-4 md:right-6 h-1 bg-gradient-to-r ${s.accent} rounded-b-full opacity-80`} />
 
-                {/* Icon badge */}
-                <div className="mb-4 md:mb-5 inline-flex items-center justify-center w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-gradient-to-br from-[#EAF2FF] to-white border border-[#D6E6FF] shadow-sm">
-                  <s.icon className="h-5 md:h-6 w-5 md:w-6 text-[#1261E8]" />
+                <div className="mb-2.5 md:mb-5 inline-flex items-center justify-center w-9 md:w-14 h-9 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-[#EAF2FF] to-white border border-[#D6E6FF] shadow-sm">
+                  <s.icon className="h-4 md:h-6 w-4 md:w-6 text-[#1261E8]" />
                 </div>
 
-                {/* Number */}
-                <div className="text-4xl md:text-5xl xl:text-6xl font-extrabold text-[#071E41] tracking-tight leading-none">
+                <div className="text-2xl md:text-5xl xl:text-6xl font-extrabold text-[#071E41] tracking-tight leading-none">
                   {s.num}
                 </div>
 
-                {/* Title */}
-                <div className="mt-3 md:mt-4 text-sm md:text-base font-bold text-[#071E41] leading-snug">
-                  {s.title}
+                {/* Mobile: short label only */}
+                <div className="md:hidden mt-1.5 text-[13px] font-bold text-[#071E41] leading-tight">
+                  {s.shortTitle}
                 </div>
 
-                {/* Description */}
-                <p className="mt-2 text-xs md:text-sm text-[#5B6B82] leading-relaxed">
+                {/* Desktop: full title + description */}
+                <div className="hidden md:block mt-3 md:mt-4 text-sm md:text-base font-bold text-[#071E41] leading-snug">
+                  {s.title}
+                </div>
+                <p className="hidden md:block mt-2 text-xs md:text-sm text-[#5B6B82] leading-relaxed">
                   {s.desc}
                 </p>
               </div>
             ))}
           </div>
 
-          {/* Compliance disclaimer */}
-          <p className="mt-8 md:mt-10 text-[11px] text-[#6B7280] leading-relaxed text-center max-w-3xl mx-auto">
+          <p className="mt-5 md:mt-10 text-[10px] md:text-[11px] text-[#6B7280] leading-relaxed text-center max-w-3xl mx-auto">
             Figures shown reflect cumulative platform activity and are indicative of LoanLaabh&apos;s AI-matching and advisory reach. Loan approval, amount, and interest rate are determined solely by the lending institution.
           </p>
         </div>
