@@ -135,12 +135,12 @@ function LenderPill({ name, domain }) {
   const [stage, setStage] = useState(0)
   const key = process.env.NEXT_PUBLIC_LOGO_DEV_KEY
   const sources = [
-    key ? `https://img.logo.dev/${domain}?token=${key}&size=120&format=png&retina=true` : null,
+    key ? `https://img.logo.dev/${domain}?token=${key}&size=200&format=png` : null,
     `https://logo.clearbit.com/${domain}`,
   ].filter(Boolean)
   return (
     <div className="shrink-0 flex items-center gap-2.5 bg-white border border-[#E3ECFA] rounded-2xl px-3.5 py-2.5 shadow-sm hover:border-[#1261E8]/40 hover:shadow-md transition-all min-w-max">
-      <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-lg bg-[#F7FAFF]">
+      <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-lg bg-[#F7FAFF] overflow-hidden">
         {stage >= sources.length ? (
           <span className="text-[10px] font-black text-[#1261E8]">{name.slice(0, 2).toUpperCase()}</span>
         ) : (
@@ -148,7 +148,6 @@ function LenderPill({ name, domain }) {
             key={stage}
             src={sources[stage]}
             alt=""
-            loading="lazy"
             className="max-w-full max-h-full object-contain"
             onError={() => setStage(s => s + 1)}
           />
