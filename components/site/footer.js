@@ -1,7 +1,9 @@
 import Link from 'next/link'
-import { Phone, Mail } from 'lucide-react'
+import { Phone, Mail, Instagram, Facebook, ShieldCheck, Users, Heart } from 'lucide-react'
 
 const HELPLINE = '7770024242'
+const INSTAGRAM_URL = 'https://www.instagram.com/loanlaabh'
+const FACEBOOK_URL = 'https://www.facebook.com/LoanLaabh'
 
 export default function Footer() {
   return (
@@ -23,6 +25,27 @@ export default function Footer() {
             <a href="mailto:help@loanlaabh.com" className="mt-2 flex items-center gap-2 text-sm text-[#B7C7DC] hover:text-white font-medium w-fit">
               <Mail className="h-4 w-4" /> help@loanlaabh.com
             </a>
+            {/* Social Media */}
+            <div className="mt-5 flex items-center gap-3">
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow LoanLaabh on Instagram"
+                className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-[#B7C7DC] hover:text-white hover:border-[#8BC0FF] hover:bg-white/5 transition-all"
+              >
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a
+                href={FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow LoanLaabh on Facebook"
+                className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-[#B7C7DC] hover:text-white hover:border-[#8BC0FF] hover:bg-white/5 transition-all"
+              >
+                <Facebook className="h-4 w-4" />
+              </a>
+            </div>
           </div>
           <div>
             <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
@@ -49,7 +72,27 @@ export default function Footer() {
           <p className="text-xs leading-relaxed text-[#B7C7DC] max-w-4xl">
             <strong className="text-white">Disclaimer:</strong> LoanLaabh is an AI-powered loan discovery platform. We do not lend money directly. Loan approval, interest rates, loan amount, processing fees, and disbursal are determined solely by the lending institution after its own assessment and verification. FinMatrix AI&trade; provides eligibility insights only and does not guarantee loan approval.
           </p>
-          <p className="text-xs text-[#6B7F9E] mt-6">&copy; 2025 LoanLaabh. All rights reserved.</p>
+          <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <p className="text-xs text-[#6B7F9E]">&copy; 2025 LoanLaabh. All rights reserved.</p>
+            {/* Trust Badges */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+              <span className="inline-flex items-center gap-1.5 text-[#B7C7DC]">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="font-medium">100% Secure</span>
+              </span>
+              <span className="hidden md:inline text-white/10">|</span>
+              <span className="inline-flex items-center gap-1.5 text-[#B7C7DC]">
+                <Users className="h-3.5 w-3.5 text-[#8BC0FF]" />
+                <span className="font-medium">Trusted by Millions</span>
+              </span>
+              <span className="hidden md:inline text-white/10">|</span>
+              <span className="inline-flex items-center gap-1.5 text-[#B7C7DC]">
+                <Heart className="h-3.5 w-3.5 text-rose-400 fill-rose-400" />
+                <span className="font-medium">Built with Love — Made in India</span>
+                <span aria-label="India flag" className="ml-0.5 text-sm leading-none">🇮🇳</span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
