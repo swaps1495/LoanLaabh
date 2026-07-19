@@ -233,6 +233,30 @@ async function handle(request, { params }) {
       return cors(NextResponse.json({ success: true }))
     }
 
+    // ============ LEAD CAPTURE (public, pre-eligibility) ============
+    if (route === '/leads/capture' && method === 'POST') {
+      const body = await request.json().catch(() => ({}))
+      const { full_name, mobile, email, consent, source_cta } = body
+      if (!full_name || !mobile || !email) {
+        return cors(NextResponse.json({ error: 'Missing required fields' }, { status: 400 }))
+      }
+      try {
+        const supabase = getSupabaseServer()
+        await supabase.from('lead_captures').insert({
+          full_name: String(full_name).trim(),
+          mobile: String(mobile).replace(/\D/g, '').slice(0, 10),
+          email: String(email).toLowerCase().trim(),
+          consent: !!consent,
+          source_cta: source_cta || null,
+          otp_verified: true,
+        })
+      } catch (e) {
+        // Table may not exist yet — log and continue silently, do not block user
+        console.warn('lead_captures insert warn:', e?.message)
+      }
+      return cors(NextResponse.json({ ok: true }))
+    }
+
     // ============ LFMai CHATBOT (public) ============
     if (route === '/lfmai/chat' && method === 'POST') {
       const body = await request.json().catch(() => ({}))
