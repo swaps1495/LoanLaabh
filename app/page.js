@@ -14,7 +14,7 @@ import {
   FileSearch, ListChecks, Target, Compass,
   BookOpen, Scale, MessageCircle, User, Cpu, GitCompareArrows, ThumbsUp,
   UserCircle2, Radar, Headphones, Phone,
-  Users, IndianRupee, TrendingUp as TrendUp,
+  Users, IndianRupee, TrendingUp as TrendUp, Star,
 } from 'lucide-react'
 
 const HELPLINE = '7770024242'
@@ -169,11 +169,13 @@ const INSIGHTS = [
   { tag: 'Guides', title: 'How to Choose the Right Loan Type' },
 ]
 
-const TRUST_CARDS = [
-  { icon: Lock, title: 'Secure Data Handling', desc: 'Your information is protected and shared only as needed.' },
-  { icon: Eye, title: 'Transparent Process', desc: 'No hidden eligibility charges.' },
-  { icon: HeartHandshake, title: 'Responsible Matching', desc: 'We help you discover suitable options, not make approval promises.' },
-  { icon: Scale, title: 'Compliance', desc: 'LoanLaabh is an AI-powered loan discovery platform. We do not lend money directly.' },
+const REVIEWS = [
+  { name: 'Rohan Kulkarni', city: 'Mumbai', rating: 5, initials: 'RK', color: 'from-[#1261E8] to-[#0B4FC4]', text: "LoanLaabh's AI showed me exactly which lenders to approach — I saved weeks of paperwork and got a better rate. Advisor support made the process painless." },
+  { name: 'Priya Sharma', city: 'Pune', rating: 4, initials: 'PS', color: 'from-pink-500 to-rose-600', text: "I was unsure about my CIBIL band. The eligibility check was quick and risk-free. The advisor helped me prepare documents and I got approved faster than expected." },
+  { name: 'Amit Chaudhary', city: 'Nashik', rating: 5, initials: 'AC', color: 'from-emerald-500 to-teal-600', text: "Saved me time and reduced rejections. The lender-match suggestions were spot on and the team followed up promptly." },
+  { name: 'Sneha Dandepani', city: 'Chennai', rating: 4, initials: 'SD', color: 'from-purple-500 to-indigo-600', text: "Clear process, no fake promises. LoanLaabh guided me to lenders that actually considered my profile." },
+  { name: 'Kiran Vishwakarma', city: 'Bangalore', rating: 5, initials: 'KV', color: 'from-amber-500 to-orange-600', text: "Free eligibility check was honest and useful. The FinMatrix AI match is real — I received offers that fit my income and EMIs." },
+  { name: 'Anjali Roy', city: '', rating: 4, initials: 'AR', color: 'from-cyan-500 to-blue-600', text: "Good advisor support and transparency. Would like slightly faster response on weekends, otherwise a great experience." },
 ]
 
 const FAQS = [
@@ -583,6 +585,65 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===== SECTION 5.5: CUSTOMER STORIES ===== */}
+      <section className="relative py-12 md:py-20 bg-white overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-8 md:mb-12">
+            <div className="text-sm font-semibold tracking-widest uppercase mb-2 md:mb-3 text-[#1261E8]">Customer Stories</div>
+            <h2 className="text-2xl md:text-4xl xl:text-5xl font-extrabold text-[#071E41] tracking-tight leading-[1.15]">
+              Real Customers, <span className="text-[#1261E8]">Real Loan Matches</span>
+            </h2>
+            <p className="mt-2 md:mt-4 text-sm md:text-lg text-[#42526B] leading-relaxed">
+              Real customers who found better loan matches with LoanLaabh.
+            </p>
+          </div>
+
+          {/* Mobile: auto-scrolling marquee (compact) */}
+          <div className="lg:hidden marquee-track relative marquee-mask">
+            <div className="flex gap-3 animate-marquee-left w-max">
+              {[...REVIEWS, ...REVIEWS].map((r, i) => (
+                <div key={i} className="shrink-0 w-[280px] bg-white rounded-2xl p-4 border border-[#E3ECFA] shadow-[0_2px_10px_rgba(7,30,65,0.05)]">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${r.color} text-white font-bold text-xs flex items-center justify-center shrink-0`}>{r.initials}</div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-[#071E41] text-sm truncate">{r.name}</div>
+                      {r.city && <div className="text-[10px] text-[#6B7280]">{r.city}</div>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-0.5 mb-1.5">
+                    {[1,2,3,4,5].map(n => (
+                      <Star key={n} className={`h-3.5 w-3.5 ${n <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-[#E3ECFA] fill-[#E3ECFA]'}`} />
+                    ))}
+                  </div>
+                  <p className="text-[12px] text-[#42526B] leading-snug line-clamp-3">&ldquo;{r.text}&rdquo;</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: 3-column grid */}
+          <div className="hidden lg:grid grid-cols-2 xl:grid-cols-3 gap-5">
+            {REVIEWS.map((r, i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 border border-[#E3ECFA] shadow-[0_2px_12px_rgba(7,30,65,0.05)] hover:shadow-[0_12px_32px_rgba(18,97,232,0.10)] hover:-translate-y-0.5 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${r.color} text-white font-bold text-sm flex items-center justify-center shrink-0`}>{r.initials}</div>
+                  <div>
+                    <div className="font-bold text-[#071E41]">{r.name}</div>
+                    {r.city && <div className="text-xs text-[#6B7280]">{r.city}</div>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-0.5 mb-3">
+                  {[1,2,3,4,5].map(n => (
+                    <Star key={n} className={`h-4 w-4 ${n <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-[#E3ECFA] fill-[#E3ECFA]'}`} />
+                  ))}
+                </div>
+                <p className="text-sm text-[#42526B] leading-relaxed">&ldquo;{r.text}&rdquo;</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== SECTION 6: LOAN PRODUCTS ===== */}
       <section id="products" className="py-20 md:py-24 bg-white scroll-mt-16">
         <div className="container mx-auto px-4">
@@ -699,37 +760,6 @@ export default function Home() {
             <Button size="lg" variant="outline" className="h-12 px-8 rounded-2xl font-semibold border-[#1261E8] text-[#1261E8] bg-white hover:bg-[#EAF2FF] hover:text-[#1261E8]">
               Explore Insights <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SECTION 9: TRUST & COMPLIANCE ===== */}
-      <section className="py-20 md:py-24 bg-[#F7FAFF]">
-        <div className="container mx-auto px-4">
-          <SectionHeading eyebrow="Trust & Compliance" title="Built for Responsible Loan Discovery" />
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="grid sm:grid-cols-2 gap-5 order-2 lg:order-1">
-              {TRUST_CARDS.map((t, i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover">
-                  <div className="bg-emerald-50 text-[#16A34A] rounded-xl w-11 h-11 flex items-center justify-center mb-4">
-                    <t.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-bold text-[#071E41]">{t.title}</h3>
-                  <p className="text-[#42526B] mt-1.5 text-sm leading-relaxed">{t.desc}</p>
-                </div>
-              ))}
-            </div>
-            <div className="relative order-1 lg:order-2">
-              <div className="absolute -inset-4 bg-[#16A34A]/10 blur-2xl rounded-full" />
-              <img src="https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&w=900&q=80" alt="Trusted partnership handshake" className="relative rounded-3xl shadow-[0_20px_60px_rgba(7,30,65,0.15)] w-full object-cover aspect-[4/3] border border-white" />
-              <div className="absolute -bottom-6 -left-4 sm:-left-6 bg-white rounded-2xl fm-card-shadow p-4 flex items-center gap-3 border border-[#E3ECFA]">
-                <div className="bg-emerald-50 text-[#16A34A] rounded-lg w-11 h-11 flex items-center justify-center"><ShieldCheck className="h-5 w-5" /></div>
-                <div>
-                  <div className="text-xs text-[#42526B]">100% Free</div>
-                  <div className="font-bold text-[#071E41] text-sm">Discovery Platform</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
