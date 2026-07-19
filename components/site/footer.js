@@ -8,9 +8,10 @@ const FACEBOOK_URL = 'https://www.facebook.com/LoanLaabh'
 export default function Footer() {
   return (
     <footer className="bg-[#071E41] text-slate-200">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-4 gap-10">
-          <div className="md:col-span-2">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid md:grid-cols-2 gap-10">
+          {/* LEFT COLUMN: Brand */}
+          <div>
             <div className="flex items-center gap-3">
               <span className="bg-white rounded-xl w-12 h-12 flex items-center justify-center p-1.5 shrink-0"><img src="/logo-icon.png" alt="LoanLaabh logo" className="w-full h-full object-contain" /></span>
               <div>
@@ -47,28 +48,32 @@ export default function Footer() {
               </a>
             </div>
           </div>
-          <div>
-            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
-            <ul className="space-y-2.5 text-sm text-[#B7C7DC]">
-              <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
-              <li><Link href="/eligibility" className="hover:text-white transition-colors">Eligibility</Link></li>
-              <li><Link href="/cibil-score" className="hover:text-white transition-colors">CIBIL Score</Link></li>
-              <li><Link href="/calculators" className="hover:text-white transition-colors">EMI Calculator</Link></li>
-              <li><Link href="/credit-cards" className="hover:text-white transition-colors">Credit Cards</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
-              <li><Link href="/#insights" className="hover:text-white transition-colors">Insights</Link></li>
-              <li><a href={`tel:${HELPLINE}`} className="hover:text-white transition-colors">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Legal</h4>
-            <ul className="space-y-2.5 text-sm text-[#B7C7DC]">
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-            </ul>
+
+          {/* RIGHT COLUMN: Quick Links + Legal stacked */}
+          <div className="md:pl-6">
+            <div>
+              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+              <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-[#B7C7DC]">
+                <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
+                <li><Link href="/eligibility" className="hover:text-white transition-colors">Eligibility</Link></li>
+                <li><Link href="/cibil-score" className="hover:text-white transition-colors">CIBIL Score</Link></li>
+                <li><Link href="/calculators" className="hover:text-white transition-colors">EMI Calculator</Link></li>
+                <li><Link href="/credit-cards" className="hover:text-white transition-colors">Credit Cards</Link></li>
+                <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
+                <li><Link href="/#insights" className="hover:text-white transition-colors">Insights</Link></li>
+                <li><a href={`tel:${HELPLINE}`} className="hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div className="mt-8">
+              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Legal</h4>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#B7C7DC]">
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-white/10">
+        <div className="mt-10 pt-6 border-t border-white/10">
           <p className="text-xs leading-relaxed text-[#B7C7DC] max-w-4xl">
             <strong className="text-white">Disclaimer:</strong> LoanLaabh is an AI-powered loan discovery platform. We do not lend money directly. Loan approval, interest rates, loan amount, processing fees, and disbursal are determined solely by the lending institution after its own assessment and verification. FinMatrix AI&trade; provides eligibility insights only and does not guarantee loan approval.
           </p>
