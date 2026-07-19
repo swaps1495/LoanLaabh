@@ -11,11 +11,11 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-3 gap-4 md:gap-8">
           {/* COLUMN 1: Brand */}
-          <div>
-            <div className="flex items-center gap-2 md:gap-3">
-              <span className="bg-white rounded-xl w-10 h-10 md:w-12 md:h-12 flex items-center justify-center p-1.5 shrink-0"><img src="/logo-icon.png" alt="LoanLaabh logo" className="w-full h-full object-contain" /></span>
-              <div>
-                <div className="font-bold text-base md:text-xl text-white leading-tight">Loan<span className="text-[#8BC0FF]">Laabh</span></div>
+          <div className="min-w-0">
+            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
+              <span className="bg-white rounded-lg md:rounded-xl w-8 h-8 md:w-12 md:h-12 flex items-center justify-center p-1 md:p-1.5 shrink-0"><img src="/logo-icon.png" alt="LoanLaabh logo" className="w-full h-full object-contain" /></span>
+              <div className="min-w-0">
+                <div className="font-bold text-sm md:text-xl text-white leading-tight">Loan<span className="text-[#8BC0FF]">Laabh</span></div>
                 <div className="text-[10px] md:text-xs text-[#8BC0FF] font-medium leading-tight">Apply Smarter.<br className="md:hidden" /> Borrow Better.</div>
               </div>
             </div>
