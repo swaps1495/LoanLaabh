@@ -559,7 +559,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-br from-[#1261E8]/10 to-[#16A34A]/10 blur-2xl rounded-full" />
-              <img src="https://images.pexels.com/photos/19609201/pexels-photo-19609201.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Happy Indian couple planning their finances" className="relative rounded-3xl shadow-[0_20px_60px_rgba(7,30,65,0.15)] w-full object-cover aspect-[4/3] border border-white" />
+              <img src="/why-us-hero.webp" alt="Indian professional presenting FinMatrix AI-powered loan matching platform" className="relative rounded-3xl shadow-[0_20px_60px_rgba(7,30,65,0.15)] w-full object-cover aspect-[4/3] border border-white" />
               <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-white rounded-2xl fm-card-shadow p-4 flex items-center gap-3 border border-[#E3ECFA]">
                 <div className="bg-emerald-50 text-[#16A34A] rounded-lg w-11 h-11 flex items-center justify-center"><Brain className="h-5 w-5" /></div>
                 <div>
@@ -568,14 +568,14 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-2 gap-2.5 md:gap-4 lg:gap-5">
               {WHY_US.map((w, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover p-5">
-                  <div className="bg-[#EAF2FF] text-[#1261E8] rounded-xl w-11 h-11 flex items-center justify-center mb-4">
-                    <w.icon className="h-5 w-5" />
+                <div key={i} className="bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover p-3 md:p-5">
+                  <div className="bg-[#EAF2FF] text-[#1261E8] rounded-xl w-9 md:w-11 h-9 md:h-11 flex items-center justify-center mb-2.5 md:mb-4">
+                    <w.icon className="h-4 md:h-5 w-4 md:w-5" />
                   </div>
-                  <h3 className="font-bold text-[#071E41]">{w.title}</h3>
-                  <p className="text-[#42526B] mt-1.5 text-sm leading-relaxed">{w.desc}</p>
+                  <h3 className="font-bold text-[#071E41] text-[13px] md:text-base leading-tight">{w.title}</h3>
+                  <p className="text-[#42526B] mt-1 md:mt-1.5 text-[11px] md:text-sm leading-snug md:leading-relaxed">{w.desc}</p>
                 </div>
               ))}
             </div>
