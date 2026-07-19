@@ -357,14 +357,14 @@ export default function Home() {
       <section className="py-20 md:py-24 bg-white">
         <div className="container mx-auto px-4">
           <SectionHeading eyebrow="The Problem" title="Blind Loan Applications Can Cost You Time, CIBIL Drop and Confidence" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-6">
             {PROBLEMS.map((p, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover p-7">
-                <div className="bg-red-50 text-red-500 rounded-xl w-12 h-12 flex items-center justify-center mb-5">
-                  <p.icon className="h-6 w-6" />
+              <div key={i} className="bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover p-4 md:p-7">
+                <div className="bg-red-50 text-red-500 rounded-xl w-10 h-10 md:w-12 md:h-12 flex items-center justify-center mb-3 md:mb-5">
+                  <p.icon className="h-5 w-5 md:h-6 md:w-6" />
                 </div>
-                <h3 className="font-bold text-[#071E41] text-lg">{p.title}</h3>
-                <p className="text-[#42526B] mt-2 text-sm leading-relaxed">{p.desc}</p>
+                <h3 className="font-bold text-[#071E41] text-sm md:text-lg leading-tight">{p.title}</h3>
+                <p className="text-[#42526B] mt-1.5 md:mt-2 text-xs md:text-sm leading-relaxed">{p.desc}</p>
               </div>
             ))}
           </div>
@@ -648,45 +648,45 @@ export default function Home() {
       <section id="products" className="py-20 md:py-24 bg-white scroll-mt-16">
         <div className="container mx-auto px-4">
           <SectionHeading eyebrow="Loan Products" title="Loan Solutions for Every Need" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-3 md:mb-6">
             {PRODUCTS.filter(p => p.img).map((p, i) => (
               <Link key={i} href="/eligibility" className="group bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover block overflow-hidden">
-                <div className="relative h-40 overflow-hidden">
+                <div className="relative h-24 md:h-40 overflow-hidden">
                   <img src={p.img} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#071E41]/40 to-transparent" />
-                  <div className="absolute bottom-3 left-4 bg-white text-[#1261E8] rounded-xl w-10 h-10 flex items-center justify-center shadow-md">
-                    <p.icon className="h-5 w-5" />
+                  <div className="absolute bottom-2 left-2 md:bottom-3 md:left-4 bg-white text-[#1261E8] rounded-xl w-8 h-8 md:w-10 md:h-10 flex items-center justify-center shadow-md">
+                    <p.icon className="h-4 w-4 md:h-5 md:w-5" />
                   </div>
                 </div>
-                <div className="p-5">
-                  <h3 className="font-bold text-[#071E41] text-lg group-hover:text-[#1261E8] transition-colors">{p.title}</h3>
-                  <p className="text-[#42526B] mt-1.5 text-sm leading-relaxed">{p.desc}</p>
-                  <div className="mt-3 inline-flex items-center text-sm font-semibold text-[#1261E8]">
-                    Check eligibility <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <div className="p-3 md:p-5">
+                  <h3 className="font-bold text-[#071E41] text-sm md:text-lg group-hover:text-[#1261E8] transition-colors leading-tight">{p.title}</h3>
+                  <p className="text-[#42526B] mt-1 md:mt-1.5 text-xs md:text-sm leading-relaxed line-clamp-2">{p.desc}</p>
+                  <div className="mt-2 md:mt-3 inline-flex items-center text-xs md:text-sm font-semibold text-[#1261E8]">
+                    Check eligibility <ArrowRight className="ml-1 h-3.5 w-3.5 md:h-4 md:w-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {PRODUCTS.filter(p => !p.img).map((p, i) => (
-              <Link key={i} href="/eligibility" className="group bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover p-6 block">
-                <div className="flex items-center gap-4">
-                  <div className="bg-[#EAF2FF] text-[#1261E8] rounded-xl w-12 h-12 flex items-center justify-center shrink-0">
-                    <p.icon className="h-6 w-6" />
+              <Link key={i} href="/eligibility" className="group bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover p-3 md:p-6 block">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                  <div className="bg-[#EAF2FF] text-[#1261E8] rounded-xl w-10 h-10 md:w-12 md:h-12 flex items-center justify-center shrink-0">
+                    <p.icon className="h-5 w-5 md:h-6 md:w-6" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-[#071E41] group-hover:text-[#1261E8] transition-colors">{p.title}</h3>
-                    <p className="text-[#42526B] text-sm mt-0.5">{p.desc}</p>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-[#071E41] text-sm md:text-base group-hover:text-[#1261E8] transition-colors leading-tight">{p.title}</h3>
+                    <p className="text-[#42526B] text-xs md:text-sm mt-0.5 leading-relaxed line-clamp-2">{p.desc}</p>
                   </div>
                 </div>
               </Link>
             ))}
-            <div className="bg-[#EAF2FF] border border-[#E3ECFA] rounded-2xl p-6 flex flex-col justify-center">
-              <h3 className="font-bold text-[#071E41]">Not sure which loan fits?</h3>
-              <p className="text-[#42526B] mt-1 text-sm">Let FinMatrix AI&trade; guide you to the right option.</p>
+            <div className="bg-[#EAF2FF] border border-[#E3ECFA] rounded-2xl p-3 md:p-6 flex flex-col justify-center">
+              <h3 className="font-bold text-[#071E41] text-sm md:text-base leading-tight">Not sure which loan fits?</h3>
+              <p className="text-[#42526B] mt-1 text-xs md:text-sm leading-relaxed">Let FinMatrix AI&trade; guide you to the right option.</p>
               <Link href="/eligibility">
-                <Button size="sm" className="mt-4 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold w-fit">Check Free Eligibility <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
+                <Button size="sm" className="mt-3 md:mt-4 bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl font-semibold text-xs md:text-sm h-8 md:h-9 px-3 w-fit">Check Eligibility <ArrowRight className="ml-1.5 h-3.5 w-3.5 md:h-4 md:w-4" /></Button>
               </Link>
             </div>
           </div>
