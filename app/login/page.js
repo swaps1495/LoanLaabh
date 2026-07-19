@@ -131,15 +131,37 @@ function LoginInner() {
 
           {/* ===== LEFT: Trust / brand content ===== */}
           <div>
-            {/* Mobile: compact intro */}
-            <div className="lg:hidden text-center mb-6">
-              <div className="inline-flex items-center gap-1.5 bg-white border border-[#D6E6FF] rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#1261E8] mb-3 shadow-sm">
-                <Sparkles className="h-3 w-3" /> Free Eligibility Check
+            {/* Mobile: compact intro + condensed trust panel */}
+            <div className="lg:hidden mb-6">
+              <div className="text-center">
+                <div className="inline-flex items-center gap-1.5 bg-white border border-[#D6E6FF] rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#1261E8] mb-3 shadow-sm">
+                  <Sparkles className="h-3 w-3" /> Free Eligibility Check
+                </div>
+                <h1 className="text-2xl font-extrabold text-[#071E41] tracking-tight leading-tight">
+                  Check Your Free <span className="text-[#1261E8]">Loan Eligibility</span>
+                </h1>
+                <p className="mt-2 text-sm text-[#5B6B82]">Start with your basic details. This check does not directly affect your CIBIL score.</p>
               </div>
-              <h1 className="text-2xl font-extrabold text-[#071E41] tracking-tight leading-tight">
-                Check Your Free <span className="text-[#1261E8]">Loan Eligibility</span>
-              </h1>
-              <p className="mt-2 text-sm text-[#5B6B82]">Start with your basic details. This check does not directly affect your CIBIL score.</p>
+
+              {/* Mobile credibility strip */}
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                {CREDIBILITY.map((c, i) => (
+                  <div key={i} className="bg-white border border-[#D6E6FF] rounded-2xl py-3 px-2 text-center shadow-[0_2px_8px_rgba(18,97,232,0.05)]">
+                    <div className="text-lg font-extrabold text-[#071E41] leading-none">{c.num}</div>
+                    <div className="text-[10px] text-[#5B6B82] font-medium mt-1 leading-tight">{c.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile trust chips */}
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {TRUST_POINTS.map((t, i) => (
+                  <div key={i} className="flex items-center gap-1.5 bg-white border border-[#D6E6FF] rounded-xl px-2.5 py-2 shadow-sm">
+                    <t.icon className="h-3.5 w-3.5 text-[#16A34A] shrink-0" />
+                    <span className="text-[11px] text-[#071E41] font-semibold leading-tight">{t.text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Desktop: full trust panel */}
