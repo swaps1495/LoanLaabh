@@ -737,33 +737,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== SECTION 8: LOANLAABH INSIGHTS ===== */}
-      <section id="insights" className="py-20 md:py-24 bg-white scroll-mt-16">
-        <div className="container mx-auto px-4">
-          <SectionHeading eyebrow={'LoanLaabh Insights\u2122'} title="Learn Before You Borrow" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {INSIGHTS.map((a, i) => (
-              <div key={i} className="group bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover overflow-hidden cursor-pointer">
-                <div className="h-1.5 bg-gradient-to-r from-[#1261E8] to-[#16A34A]" />
-                <div className="p-7">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-[#EAF2FF] text-[#1261E8] rounded-xl w-10 h-10 flex items-center justify-center"><BookOpen className="h-5 w-5" /></div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-[#1261E8] bg-[#EAF2FF] rounded-full px-3 py-1">{a.tag}</span>
-                  </div>
-                  <h3 className="font-bold text-[#071E41] text-lg leading-snug group-hover:text-[#1261E8] transition-colors">{a.title}</h3>
-                  <div className="mt-4 inline-flex items-center text-sm font-semibold text-[#42526B]">Coming soon <ArrowRight className="ml-1 h-4 w-4" /></div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Button size="lg" variant="outline" className="h-12 px-8 rounded-2xl font-semibold border-[#1261E8] text-[#1261E8] bg-white hover:bg-[#EAF2FF] hover:text-[#1261E8]">
-              Explore Insights <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* ===== ADVISOR SECTION (LIGHT) ===== */}
       <section className="py-20 md:py-24 bg-white">
         <div className="container mx-auto px-4">
@@ -809,30 +782,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== SECTION 11: FINAL CTA (LIGHT) ===== */}
-      <section className="py-20 md:py-24 bg-white">
+      {/* ===== SECTION 11: LOANLAABH INSIGHTS ===== */}
+      <section id="insights" className="py-20 md:py-24 bg-white scroll-mt-16">
         <div className="container mx-auto px-4">
-          <div className="relative bg-gradient-to-br from-[#EAF2FF] via-white to-[#EAF2FF] border border-[#E3ECFA] rounded-3xl p-10 md:p-16 text-center max-w-4xl mx-auto overflow-hidden shadow-[0_20px_60px_rgba(18,97,232,0.12)]">
-            <div className="absolute inset-0 fm-matrix-grid opacity-50" />
-            <div className="relative">
-              <div className="inline-flex items-center gap-2 bg-white border border-[#E3ECFA] rounded-full px-4 py-1.5 text-sm text-[#1261E8] font-medium mb-6 shadow-sm">
-                <Sparkles className="h-4 w-4" /> Free Eligibility Check
+          <SectionHeading eyebrow={'LoanLaabh Insights\u2122'} title="Learn Before You Borrow" />
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+            {INSIGHTS.map((a, i) => (
+              <div key={i} className="group bg-white rounded-2xl border border-[#E3ECFA] fm-card-shadow fm-card-shadow-hover overflow-hidden cursor-pointer">
+                <div className="h-1.5 bg-gradient-to-r from-[#1261E8] to-[#16A34A]" />
+                <div className="p-4 md:p-7">
+                  <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                    <div className="bg-[#EAF2FF] text-[#1261E8] rounded-xl w-8 h-8 md:w-10 md:h-10 flex items-center justify-center shrink-0"><BookOpen className="h-4 w-4 md:h-5 md:w-5" /></div>
+                    <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[#1261E8] bg-[#EAF2FF] rounded-full px-2 md:px-3 py-0.5 md:py-1 truncate">{a.tag}</span>
+                  </div>
+                  <h3 className="font-bold text-[#071E41] text-sm md:text-lg leading-snug group-hover:text-[#1261E8] transition-colors">{a.title}</h3>
+                  <div className="mt-3 md:mt-4 inline-flex items-center text-xs md:text-sm font-semibold text-[#42526B]">Coming soon <ArrowRight className="ml-1 h-3.5 w-3.5 md:h-4 md:w-4" /></div>
+                </div>
               </div>
-              <h2 className="text-3xl md:text-5xl font-extrabold text-[#071E41] tracking-tight leading-tight">Ready to Discover Your <span className="text-[#1261E8]">Best Loan Match?</span></h2>
-              <p className="mt-5 text-lg text-[#42526B] max-w-2xl mx-auto">Let FinMatrix AI&trade; analyze your profile and help you explore suitable loan options before you apply.</p>
-              <div className="mt-9 flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/eligibility">
-                  <Button size="lg" className="w-full sm:w-auto h-12 px-8 text-base font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">
-                    Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <a href={`tel:${HELPLINE}`}>
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">
-                    <Phone className="mr-2 h-5 w-5" /> Call Helpline: {HELPLINE}
-                  </Button>
-                </a>
-              </div>
-            </div>
+            ))}
+          </div>
+          <div className="text-center mt-10 md:mt-12">
+            <Button size="lg" variant="outline" className="h-12 px-8 rounded-2xl font-semibold border-[#1261E8] text-[#1261E8] bg-white hover:bg-[#EAF2FF] hover:text-[#1261E8]">
+              Explore Insights <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>
