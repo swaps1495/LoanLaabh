@@ -9,8 +9,8 @@ export default function Footer() {
   return (
     <footer className="bg-[#071E41] text-slate-200">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 gap-10">
-          {/* LEFT COLUMN: Brand */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+          {/* COLUMN 1: Brand */}
           <div>
             <div className="flex items-center gap-3">
               <span className="bg-white rounded-xl w-12 h-12 flex items-center justify-center p-1.5 shrink-0"><img src="/logo-icon.png" alt="LoanLaabh logo" className="w-full h-full object-contain" /></span>
@@ -23,8 +23,8 @@ export default function Footer() {
             <a href={`tel:${HELPLINE}`} className="mt-5 flex items-center gap-2 text-sm text-[#8BC0FF] hover:text-white font-semibold w-fit">
               <Phone className="h-4 w-4" /> Helpline: {HELPLINE}
             </a>
-            <a href="mailto:help@loanlaabh.com" className="mt-2 flex items-center gap-2 text-sm text-[#B7C7DC] hover:text-white font-medium w-fit">
-              <Mail className="h-4 w-4" /> help@loanlaabh.com
+            <a href="mailto:help@loanlaabh.com" className="mt-2 flex items-center gap-2 text-sm text-[#B7C7DC] hover:text-white font-medium w-fit break-all">
+              <Mail className="h-4 w-4 shrink-0" /> help@loanlaabh.com
             </a>
             {/* Social Media */}
             <div className="mt-5 flex items-center gap-3">
@@ -49,11 +49,17 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Quick Links + Legal stacked */}
-          <div className="md:pl-6">
+          {/*
+            Wrapper: on mobile behaves as single grid cell (col 2)
+            containing Quick Links + Legal stacked.
+            On desktop uses `md:contents` so children become
+            direct grid children → col 2 and col 3.
+          */}
+          <div className="md:contents">
+            {/* COLUMN 2: Quick Links */}
             <div>
               <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
-              <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-[#B7C7DC]">
+              <ul className="space-y-2.5 text-sm text-[#B7C7DC]">
                 <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
                 <li><Link href="/eligibility" className="hover:text-white transition-colors">Eligibility</Link></li>
                 <li><Link href="/cibil-score" className="hover:text-white transition-colors">CIBIL Score</Link></li>
@@ -64,9 +70,10 @@ export default function Footer() {
                 <li><a href={`tel:${HELPLINE}`} className="hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
-            <div className="mt-8">
+            {/* COLUMN 3 (desktop) / Below Quick Links (mobile): Legal */}
+            <div className="mt-8 md:mt-0">
               <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Legal</h4>
-              <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#B7C7DC]">
+              <ul className="space-y-2.5 text-sm text-[#B7C7DC]">
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
