@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { getSupabaseBrowser } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
-import { Menu, X, ArrowRight, ChevronDown, Gauge, Briefcase, TrendingUp, Home as HomeIcon, Building2, Car, RefreshCcw, LineChart, Calculator, CreditCard } from 'lucide-react'
+import { Menu, X, ArrowRight, ChevronDown, Gauge, Briefcase, TrendingUp, Home as HomeIcon, Building2, Car, RefreshCcw, LineChart, Calculator, CreditCard, Phone } from 'lucide-react'
+
+const HELPLINE = '7770024242'
 
 const CIBIL_ITEMS = [
   { label: 'Check CIBIL Score Free', href: '/cibil-score', desc: 'Know where you stand' },
@@ -110,6 +112,11 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
+          <a href={`tel:${HELPLINE}`} className="flex items-center gap-1.5 text-sm font-semibold text-[#071E41] hover:text-[#1261E8] transition-colors px-3 py-1.5 rounded-lg hover:bg-[#EAF2FF]">
+            <Phone className="h-3.5 w-3.5 text-[#1261E8]" />
+            <span className="text-[11px] text-[#6B7280] font-medium leading-none">Need help?</span>
+            <span className="tabular-nums">{HELPLINE}</span>
+          </a>
           {authed ? (
             <Link href="/dashboard"><Button variant="ghost" size="sm" className="text-[#071E41] font-semibold hover:text-[#1261E8] hover:bg-[#EAF2FF]">Dashboard</Button></Link>
           ) : (
@@ -154,6 +161,9 @@ export default function Navbar() {
             <Link href="/calculators" onClick={closeAll} className="flex items-center gap-2 py-2.5 px-2 rounded-lg font-medium text-[#071E41] hover:bg-[#F7FAFF]"><Calculator className="h-4 w-4 text-[#1261E8]" /> Calculators</Link>
             <Link href="/credit-cards" onClick={closeAll} className="flex items-center gap-2 py-2.5 px-2 rounded-lg font-medium text-[#071E41] hover:bg-[#F7FAFF]"><CreditCard className="h-4 w-4 text-[#1261E8]" /> Credit Cards <span className="text-[9px] font-bold bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5">SOON</span></Link>
             <div className="flex flex-col gap-2 pt-3 border-t border-[#E3ECFA] mt-2">
+              <a href={`tel:${HELPLINE}`} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#EAF2FF] border border-[#D6E6FF] text-[#071E41] font-semibold text-sm hover:bg-[#DDE9FF]">
+                <Phone className="h-4 w-4 text-[#1261E8]" /> Call: {HELPLINE}
+              </a>
               <Link href="/eligibility" onClick={closeAll}>
                 <Button className="w-full bg-[#1261E8] hover:bg-[#0B4FC4] rounded-xl h-11 font-semibold">Check Free Eligibility <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
               </Link>

@@ -3,14 +3,14 @@ import Navbar from '@/components/site/navbar'
 import Footer from '@/components/site/footer'
 import StickyMobileCta from '@/components/site/sticky-mobile-cta'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, CheckCircle2, Gauge, CalendarClock, PieChart, Layers, SearchCheck, TrendingUp, MessageCircle, Sparkles } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Gauge, CalendarClock, PieChart, Layers, SearchCheck, TrendingUp, Phone, Sparkles } from 'lucide-react'
 
 export const metadata = {
   title: 'CIBIL Score Guide — Check, Understand & Improve | LoanLaabh',
   description: 'Everything about your CIBIL score: what it is, score ranges, factors that affect it, how to improve it, and the scores lenders look for.',
 }
 
-const WHATSAPP_URL = 'https://wa.me/917770024242'
+const HELPLINE = '7770024242'
 
 const BANDS = [
   { range: '300 – 549', label: 'Poor', dot: 'bg-red-500', text: 'text-red-600', bg: 'bg-red-50 border-red-100', desc: 'Loan approval is difficult. Focus on repairing your credit history first.' },
@@ -190,7 +190,7 @@ export default function CibilScorePage() {
               <p className="mt-4 text-[#42526B]">FinMatrix AI™ finds lenders suited to your score band — so you avoid rejections and unnecessary hard enquiries.</p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/eligibility"><Button size="lg" className="h-12 px-8 font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200">Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" /></Button></Link>
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="h-12 px-8 font-semibold rounded-2xl border-[#16A34A] bg-white text-[#16A34A] hover:bg-emerald-50 hover:text-[#16A34A]"><MessageCircle className="mr-2 h-5 w-5" /> Talk to an Advisor</Button></a>
+                <a href={`tel:${HELPLINE}`}><Button size="lg" variant="outline" className="h-12 px-8 font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]"><Phone className="mr-2 h-5 w-5" /> Call Helpline: {HELPLINE}</Button></a>
               </div>
             </div>
           </div>

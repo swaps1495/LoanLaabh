@@ -13,11 +13,11 @@ import {
   Briefcase, TrendingUp, Home as HomeIcon, Building2, Car, RefreshCcw, LineChart,
   FileSearch, ListChecks, Target, Compass,
   BookOpen, Scale, MessageCircle, User, Cpu, GitCompareArrows, ThumbsUp,
-  UserCircle2, Radar, Headphones,
+  UserCircle2, Radar, Headphones, Phone,
   Users, IndianRupee, TrendingUp as TrendUp,
 } from 'lucide-react'
 
-const WHATSAPP_URL = 'https://wa.me/917770024242'
+const HELPLINE = '7770024242'
 
 const TRUST_BADGES = [
   { icon: BadgeCheck, label: 'Free Eligibility Check' },
@@ -495,9 +495,9 @@ export default function Home() {
                 Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#16A34A] bg-white text-[#16A34A] hover:bg-emerald-50 hover:text-[#16A34A]">
-                <MessageCircle className="mr-2 h-5 w-5" /> Talk on WhatsApp
+            <a href={`tel:${HELPLINE}`}>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">
+                <Phone className="mr-2 h-5 w-5" /> Call Helpline: {HELPLINE}
               </Button>
             </a>
           </div>
@@ -745,9 +745,9 @@ export default function Home() {
                 FinMatrix AI&trade; finds your matches, and our advisors walk you through documentation, lender processes, and every step until disbursal &mdash; at no cost to you.
               </p>
               <div className="mt-7 flex flex-col sm:flex-row gap-4">
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" className="w-full sm:w-auto h-12 px-7 font-semibold bg-[#16A34A] hover:bg-emerald-700 rounded-2xl shadow-md shadow-emerald-100">
-                    <MessageCircle className="mr-2 h-5 w-5" /> WhatsApp: +91 77700 24242
+                <a href={`tel:${HELPLINE}`}>
+                  <Button size="lg" className="w-full sm:w-auto h-12 px-7 font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-md shadow-blue-200">
+                    <Phone className="mr-2 h-5 w-5" /> Call Helpline: {HELPLINE}
                   </Button>
                 </a>
                 <a href="mailto:help@loanlaabh.com">
@@ -796,9 +796,9 @@ export default function Home() {
                     Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#16A34A] bg-white text-[#16A34A] hover:bg-emerald-50 hover:text-[#16A34A]">
-                    <MessageCircle className="mr-2 h-5 w-5" /> Talk to an Advisor
+                <a href={`tel:${HELPLINE}`}>
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">
+                    <Phone className="mr-2 h-5 w-5" /> Call Helpline: {HELPLINE}
                   </Button>
                 </a>
               </div>

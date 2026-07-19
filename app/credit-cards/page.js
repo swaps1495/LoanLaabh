@@ -3,14 +3,14 @@ import Navbar from '@/components/site/navbar'
 import Footer from '@/components/site/footer'
 import StickyMobileCta from '@/components/site/sticky-mobile-cta'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, CreditCard, Bell, MessageCircle, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, CreditCard, Bell, Phone, CheckCircle2 } from 'lucide-react'
 
 export const metadata = {
   title: 'Credit Cards — Coming Soon | LoanLaabh',
   description: 'Smart credit card matching is coming soon to LoanLaabh. Meanwhile, check your loan eligibility with FinMatrix AI™.',
 }
 
-const WHATSAPP_URL = 'https://wa.me/917770024242'
+const HELPLINE = '7770024242'
 
 export default function CreditCardsPage() {
   return (
@@ -37,8 +37,8 @@ export default function CreditCardsPage() {
               ))}
             </div>
             <div className="mt-9 flex flex-col sm:flex-row gap-4">
-              <a href={`${WHATSAPP_URL}?text=${encodeURIComponent('Hi! Please notify me when LoanLaabh Credit Cards launches.')}`} target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="w-full sm:w-auto h-12 px-8 font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200"><MessageCircle className="mr-2 h-5 w-5" /> Notify Me on WhatsApp</Button>
+              <a href={`tel:${HELPLINE}`}>
+                <Button size="lg" className="w-full sm:w-auto h-12 px-8 font-semibold bg-[#1261E8] hover:bg-[#0B4FC4] rounded-2xl shadow-lg shadow-blue-200"><Phone className="mr-2 h-5 w-5" /> Call Helpline: {HELPLINE}</Button>
               </a>
               <Link href="/eligibility">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 font-semibold rounded-2xl border-[#1261E8] bg-white text-[#1261E8] hover:bg-[#EAF2FF] hover:text-[#1261E8]">Check Free Eligibility <ArrowRight className="ml-2 h-5 w-5" /></Button>
