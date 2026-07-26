@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { getSupabaseServer, isSupabaseConfigured, getUserFromAuthHeader, isUserAdmin } from '@/lib/supabase'
 import { screenLenders, computeFoir } from '@/lib/matching'
 import { analyzeLeadAI } from '@/lib/ai'
+import { attrToColumns, buildRetryTags } from '@/lib/attribution-server'
+import { classifySource } from '@/lib/source-classifier'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -150,9 +152,23 @@ async function handle(request, { params }) {
       const required = ['full_name','mobile','employment_type','net_monthly_salary','loan_type','loan_amount']
       for (const k of required) if (!b[k]) return cors(NextResponse.json({ error: `Missing field: ${k}` }, { status: 400 }))
 
+      // Phase-1 attribution capture
+      const attrFirst = b.attribution?.first || null
+      const attrLatest = b.attribution?.latest || attrFirst || null
+      const originalCols = attrToColumns(attrFirst, 'original')
+      const latestCols = attrToColumns(attrLatest, 'latest')
+
+      // Check if a prior lead exists for this mobile (regardless of user_id)
+      // to preserve original attribution and increment retry count.
+      const cleanMobile = String(b.mobile).replace(/\D/g, '').slice(0, 10)
+      const { data: priorLeads } = await sb
+        .from('leads').select('*').eq('mobile', cleanMobile)
+        .order('created_at', { ascending: true }).limit(1)
+      const priorLead = priorLeads && priorLeads[0]
+
       const lead = {
         user_id: user.id,
-        full_name: b.full_name, mobile: b.mobile, pan: b.pan || null, city: b.city || null,
+        full_name: b.full_name, mobile: cleanMobile, pan: b.pan || null, city: b.city || null,
         pincode: b.pincode || null, age: b.age ? Number(b.age) : null,
         city_tier: b.city_tier || 'Other',
         residence_type: b.residence_type || null,
@@ -187,6 +203,27 @@ async function handle(request, { params }) {
       const { eligible } = screenLenders(lead, lenders || [], foirSlabs)
 
       const ai = await analyzeLeadAI(lead, eligible)
+      // Build retry tags & original attribution preservation
+      const retryInfo = priorLead ? buildRetryTags(priorLead, attrLatest, { reason: 'eligibility_retry' }) : { tags: ['New Lead'], sourceChanged: false }
+      const preservedOriginalCols = priorLead ? {
+        original_source_type: priorLead.original_source_type || originalCols.original_source_type || null,
+        original_utm_source: priorLead.original_utm_source || originalCols.original_utm_source || null,
+        original_utm_medium: priorLead.original_utm_medium || originalCols.original_utm_medium || null,
+        original_utm_campaign: priorLead.original_utm_campaign || originalCols.original_utm_campaign || null,
+        original_utm_content: priorLead.original_utm_content || originalCols.original_utm_content || null,
+        original_utm_term: priorLead.original_utm_term || originalCols.original_utm_term || null,
+        original_fbclid: priorLead.original_fbclid || originalCols.original_fbclid || null,
+        original_gclid: priorLead.original_gclid || originalCols.original_gclid || null,
+        original_fbp: priorLead.original_fbp || originalCols.original_fbp || null,
+        original_fbc: priorLead.original_fbc || originalCols.original_fbc || null,
+        original_referrer: priorLead.original_referrer || originalCols.original_referrer || null,
+        original_landing_page: priorLead.original_landing_page || originalCols.original_landing_page || null,
+        original_device_type: priorLead.original_device_type || originalCols.original_device_type || null,
+        original_browser: priorLead.original_browser || originalCols.original_browser || null,
+        original_platform: priorLead.original_platform || originalCols.original_platform || null,
+        first_visit_at: priorLead.first_visit_at || originalCols.first_visit_at,
+      } : originalCols
+
       const enriched = {
         ...lead,
         lead_score: ai.lead_score,
@@ -198,10 +235,40 @@ async function handle(request, { params }) {
         internal_notes: ai.internal_notes,
         ai_provider: ai.provider,
         lead_status: 'submitted',
+        // Phase-1 attribution
+        ...preservedOriginalCols,
+        ...latestCols,
+        retry_count: priorLead ? (priorLead.retry_count || 0) + 1 : 0,
+        tags: retryInfo.tags,
+        last_activity_at: new Date().toISOString(),
+        consent_at: (lead.consent_share || lead.consent_terms) ? new Date().toISOString() : null,
       }
 
-      const { data: row, error: e1 } = await sb.from('leads').insert(enriched).select().single()
-      if (e1) return cors(NextResponse.json({ error: e1.message }, { status: 500 }))
+      // Try insert with attribution; fall back gracefully if migration not yet applied
+      let row, e1
+      {
+        const res = await sb.from('leads').insert(enriched).select().single()
+        row = res.data; e1 = res.error
+        if (e1 && /column .* does not exist|schema cache/i.test(e1.message || '')) {
+          // Fallback — insert without new attribution columns
+          const { retry_count, tags, last_activity_at, consent_at,
+            original_source_type, original_utm_source, original_utm_medium,
+            original_utm_campaign, original_utm_content, original_utm_term,
+            original_fbclid, original_gclid, original_fbp, original_fbc,
+            original_referrer, original_landing_page, original_device_type,
+            original_browser, original_platform, first_visit_at,
+            latest_source_type, latest_utm_source, latest_utm_medium,
+            latest_utm_campaign, latest_utm_content, latest_utm_term,
+            latest_referrer, latest_landing_page,
+            ...safe } = enriched
+          const res2 = await sb.from('leads').insert(safe).select().single()
+          row = res2.data; e1 = res2.error
+        }
+      }
+      if (e1) {
+        if (isNetworkError(e1)) return supabaseUnreachable()
+        return cors(NextResponse.json({ error: e1.message }, { status: 500 }))
+      }
 
       if (eligible.length) {
         const matchRows = eligible.slice(0, 10).map(m => ({
@@ -285,27 +352,106 @@ async function handle(request, { params }) {
     }
 
     // ============ LEAD CAPTURE (public, pre-eligibility) ============
+    // Phase-1 attribution + dedupe by mobile OR email.
     if (route === '/leads/capture' && method === 'POST') {
       const body = await request.json().catch(() => ({}))
-      const { full_name, mobile, email, consent, source_cta } = body
+      const { full_name, mobile, email, consent, source_cta, attribution } = body
       if (!full_name || !mobile || !email) {
         return cors(NextResponse.json({ error: 'Missing required fields' }, { status: 400 }))
       }
+      const cleanName = String(full_name).trim()
+      const cleanMobile = String(mobile).replace(/\D/g, '').slice(0, 10)
+      const cleanEmail = String(email).toLowerCase().trim()
+
+      const first = attribution?.first || null
+      const latest = attribution?.latest || first || null
+      const originalCols = attrToColumns(first, 'original')
+      const latestCols = attrToColumns(latest, 'latest')
+
       try {
         const supabase = getSupabaseServer()
-        await supabase.from('lead_captures').insert({
-          full_name: String(full_name).trim(),
-          mobile: String(mobile).replace(/\D/g, '').slice(0, 10),
-          email: String(email).toLowerCase().trim(),
+        if (!supabase) return cors(NextResponse.json({ ok: true, warning: 'db_not_configured' }))
+
+        // Dedupe check — same mobile OR same email
+        const { data: existing, error: findErr } = await supabase
+          .from('lead_captures')
+          .select('*')
+          .or(`mobile.eq.${cleanMobile},email.eq.${cleanEmail}`)
+          .order('created_at', { ascending: true })
+          .limit(1)
+
+        if (findErr && isNetworkError(findErr)) return supabaseUnreachable()
+
+        const now = new Date().toISOString()
+
+        if (existing && existing.length > 0) {
+          // ---- RETURNING LEAD ----
+          const row = existing[0]
+          const { tags } = buildRetryTags(row, latest, { reason: 'lead_capture_retry' })
+          const patch = {
+            // Refresh mutable info (name may have been corrected)
+            full_name: cleanName,
+            // NEVER overwrite the original source columns
+            ...latestCols,
+            latest_source_cta: source_cta || row.latest_source_cta || null,
+            retry_count: (row.retry_count || 0) + 1,
+            tags,
+            last_activity_at: now,
+            otp_verified: true,
+            consent_at: consent ? now : row.consent_at || null,
+          }
+          const { data: updated, error: updErr } = await supabase
+            .from('lead_captures').update(patch).eq('id', row.id).select().maybeSingle()
+          if (updErr && isNetworkError(updErr)) return supabaseUnreachable()
+
+          return cors(NextResponse.json({
+            ok: true,
+            lead_id: row.id,
+            returning: true,
+            retry_count: updated?.retry_count || patch.retry_count,
+            tags,
+          }))
+        }
+
+        // ---- NEW LEAD ----
+        const insertRow = {
+          full_name: cleanName,
+          mobile: cleanMobile,
+          email: cleanEmail,
           consent: !!consent,
           source_cta: source_cta || null,
           otp_verified: true,
-        })
+          ...originalCols,
+          ...latestCols,
+          latest_source_cta: source_cta || null,
+          retry_count: 0,
+          tags: ['New Lead'],
+          last_activity_at: now,
+          consent_at: consent ? now : null,
+        }
+
+        const { data: inserted, error: insErr } = await supabase
+          .from('lead_captures').insert(insertRow).select().maybeSingle()
+        if (insErr) {
+          if (isNetworkError(insErr)) return supabaseUnreachable()
+          // If columns don't exist yet (migration not applied) — retry with minimal payload
+          if (/column .* does not exist|schema cache/i.test(insErr.message || '')) {
+            const fallback = {
+              full_name: cleanName, mobile: cleanMobile, email: cleanEmail,
+              consent: !!consent, source_cta: source_cta || null, otp_verified: true,
+            }
+            const { data: fbRow } = await supabase.from('lead_captures').insert(fallback).select().maybeSingle()
+            return cors(NextResponse.json({ ok: true, lead_id: fbRow?.id, migration_pending: true }))
+          }
+          return cors(NextResponse.json({ ok: true, warning: insErr.message }))
+        }
+
+        return cors(NextResponse.json({ ok: true, lead_id: inserted?.id, returning: false }))
       } catch (e) {
-        // Table may not exist yet — log and continue silently, do not block user
-        console.warn('lead_captures insert warn:', e?.message)
+        if (isNetworkError(e)) return supabaseUnreachable()
+        console.warn('lead_captures error:', e?.message)
+        return cors(NextResponse.json({ ok: true, warning: 'processed_with_warning' }))
       }
-      return cors(NextResponse.json({ ok: true }))
     }
 
     // ============ LFMai CHATBOT (public) ============

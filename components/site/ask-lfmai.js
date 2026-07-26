@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowser } from '@/lib/supabase-browser'
 import { MessageCircle, X, Send, Sparkles, Loader2, CheckCircle2 } from 'lucide-react'
+import { getAttribution } from '@/lib/attribution'
 
 const HELPLINE = '7770024242'
 
@@ -94,6 +95,7 @@ export default function AskLfmai() {
           body: JSON.stringify({
             full_name: flow.name, mobile: flow.mobile, email,
             consent: true, source_cta: 'chatbot',
+            attribution: getAttribution(),
           }),
         })
       } catch (_) { /* non-blocking */ }

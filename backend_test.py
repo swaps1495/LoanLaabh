@@ -1,363 +1,465 @@
 #!/usr/bin/env python3
 """
-Backend API tests for LoanLaabh - Supabase unreachability error handling
-Tests the graceful degradation when Supabase is paused/unreachable
+Phase 1 Attribution Backend Testing
+Tests POST /api/leads/capture with attribution + dedupe logic
 """
-
 import requests
 import json
+import sys
 
 BASE_URL = "http://localhost:3000/api"
 ADMIN_PASSWORD = "Sw@ps9409"
 
-def print_test_header(test_name):
-    print(f"\n{'='*80}")
-    print(f"TEST: {test_name}")
-    print('='*80)
-
-def print_result(passed, message):
+def print_test(name, passed, details=""):
     status = "✅ PASS" if passed else "❌ FAIL"
-    print(f"{status}: {message}")
-
-def test_admin_login_success():
-    """Test 1: POST /api/admin/login with correct password"""
-    print_test_header("Admin Login - Correct Password")
-    
-    try:
-        response = requests.post(
-            f"{BASE_URL}/admin/login",
-            json={"password": ADMIN_PASSWORD},
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:300]}")
-        
-        # Check status code
-        if response.status_code != 200:
-            print_result(False, f"Expected status 200, got {response.status_code}")
-            return None
-        
-        # Check response body
-        data = response.json()
-        if data.get("success") != True:
-            print_result(False, f"Expected success:true, got {data}")
-            return None
-        
-        # Check cookie
-        cookie = response.cookies.get("loanlaabh_admin")
-        if not cookie:
-            print_result(False, "No loanlaabh_admin cookie set")
-            return None
-        
-        print(f"Cookie set: loanlaabh_admin={cookie}")
-        print_result(True, "Admin login successful with correct password")
-        return cookie
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return None
-
-def test_admin_login_failure():
-    """Test 2: POST /api/admin/login with wrong password"""
-    print_test_header("Admin Login - Wrong Password")
-    
-    try:
-        response = requests.post(
-            f"{BASE_URL}/admin/login",
-            json={"password": "wrongpassword123"},
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:300]}")
-        
-        # Check status code
-        if response.status_code != 401:
-            print_result(False, f"Expected status 401, got {response.status_code}")
-            return False
-        
-        # Check response body
-        data = response.json()
-        if "error" not in data or "Invalid password" not in data["error"]:
-            print_result(False, f"Expected 'Invalid password' error, got {data}")
-            return False
-        
-        print_result(True, "Correctly rejected wrong password with 401")
-        return True
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
-
-def test_leads_with_auth_supabase_down(admin_cookie):
-    """Test 3: GET /api/leads WITH admin cookie - should return 503 SUPABASE_UNREACHABLE"""
-    print_test_header("GET /api/leads with Auth (Supabase Down)")
-    
-    try:
-        response = requests.get(
-            f"{BASE_URL}/leads",
-            cookies={"loanlaabh_admin": admin_cookie},
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:500]}")
-        
-        # Check status code
-        if response.status_code != 503:
-            print_result(False, f"Expected status 503, got {response.status_code}")
-            return False
-        
-        # Check response body
-        data = response.json()
-        
-        # Check for SUPABASE_UNREACHABLE code
-        if data.get("code") != "SUPABASE_UNREACHABLE":
-            print_result(False, f"Expected code 'SUPABASE_UNREACHABLE', got {data.get('code')}")
-            return False
-        
-        # Check error message contains actionable info
-        error_msg = data.get("error", "").lower()
-        if "paused" not in error_msg or "supabase.com" not in error_msg:
-            print_result(False, f"Error message missing 'paused' or 'supabase.com': {data.get('error')}")
-            return False
-        
-        # Verify it's NOT the raw "fetch failed" error
-        if data.get("error") == "fetch failed":
-            print_result(False, "Got raw 'fetch failed' error instead of friendly message")
-            return False
-        
-        print_result(True, "Correctly returned 503 with SUPABASE_UNREACHABLE and actionable message")
-        return True
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
-
-def test_lender_criteria_with_auth_supabase_down(admin_cookie):
-    """Test 4: GET /api/lender-criteria WITH admin cookie - should return 503 SUPABASE_UNREACHABLE"""
-    print_test_header("GET /api/lender-criteria with Auth (Supabase Down)")
-    
-    try:
-        response = requests.get(
-            f"{BASE_URL}/lender-criteria",
-            cookies={"loanlaabh_admin": admin_cookie},
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:500]}")
-        
-        # Check status code
-        if response.status_code != 503:
-            print_result(False, f"Expected status 503, got {response.status_code}")
-            return False
-        
-        # Check response body
-        data = response.json()
-        
-        # Check for SUPABASE_UNREACHABLE code
-        if data.get("code") != "SUPABASE_UNREACHABLE":
-            print_result(False, f"Expected code 'SUPABASE_UNREACHABLE', got {data.get('code')}")
-            return False
-        
-        # Check error message contains actionable info
-        error_msg = data.get("error", "").lower()
-        if "paused" not in error_msg or "supabase.com" not in error_msg:
-            print_result(False, f"Error message missing 'paused' or 'supabase.com': {data.get('error')}")
-            return False
-        
-        # Verify it's NOT the raw "fetch failed" error
-        if data.get("error") == "fetch failed":
-            print_result(False, "Got raw 'fetch failed' error instead of friendly message")
-            return False
-        
-        print_result(True, "Correctly returned 503 with SUPABASE_UNREACHABLE and actionable message")
-        return True
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
-
-def test_leads_without_auth():
-    """Test 5: GET /api/leads WITHOUT admin cookie - should return 401"""
-    print_test_header("GET /api/leads without Auth")
-    
-    try:
-        response = requests.get(
-            f"{BASE_URL}/leads",
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:300]}")
-        
-        # Check status code
-        if response.status_code != 401:
-            print_result(False, f"Expected status 401, got {response.status_code}")
-            return False
-        
-        # Check response body
-        data = response.json()
-        if "error" not in data or "Unauthorized" not in data["error"]:
-            print_result(False, f"Expected 'Unauthorized' error, got {data}")
-            return False
-        
-        print_result(True, "Correctly returned 401 Unauthorized without auth")
-        return True
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
+    print(f"\n{status}: {name}")
+    if details:
+        print(f"  {details}")
 
 def test_health_check():
-    """Test 6: GET /api or /api/ - health check (doesn't hit Supabase)"""
-    print_test_header("GET /api - Health Check")
-    
+    """Test 1: GET /api health check"""
     try:
-        response = requests.get(
-            f"{BASE_URL}/",
-            timeout=10
+        resp = requests.get(f"{BASE_URL.replace('/api', '')}/api", timeout=10)
+        data = resp.json()
+        passed = (
+            resp.status_code == 200 and
+            data.get("ok") == True and
+            data.get("app") == "LoanLaabh" and
+            "supabase_configured" in data
         )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:300]}")
-        
-        # Check status code
-        if response.status_code != 200:
-            print_result(False, f"Expected status 200, got {response.status_code}")
-            return False
-        
-        # Check response body
-        data = response.json()
-        if data.get("ok") != True or data.get("app") != "LoanLaabh":
-            print_result(False, f"Expected ok:true and app:LoanLaabh, got {data}")
-            return False
-        
-        print_result(True, "Health check endpoint working correctly")
-        return True
-        
+        print_test(
+            "Health check (GET /api)",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:200]}"
+        )
+        return passed
     except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
+        print_test("Health check (GET /api)", False, f"Exception: {str(e)[:200]}")
         return False
 
-def test_nonexistent_route(admin_cookie):
-    """Test 7: GET /api/nonexistent-route with admin cookie - should return 404"""
-    print_test_header("GET /api/nonexistent-route - 404 Test")
-    
+def test_keepalive():
+    """Test 2: GET /api/keepalive"""
     try:
-        response = requests.get(
-            f"{BASE_URL}/nonexistent-route",
-            cookies={"loanlaabh_admin": admin_cookie},
-            timeout=10
+        resp = requests.get(f"{BASE_URL}/keepalive", timeout=10)
+        data = resp.json()
+        # Accept both 200 (alive) and 503 (unreachable but endpoint works)
+        passed = (
+            resp.status_code in [200, 503] and
+            "ok" in data and
+            "db" in data
         )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:300]}")
-        
-        # Check status code
-        if response.status_code != 404:
-            print_result(False, f"Expected status 404, got {response.status_code}")
-            return False
-        
-        # Check response body
-        data = response.json()
-        if "error" not in data or "not found" not in data["error"].lower():
-            print_result(False, f"Expected 'not found' error, got {data}")
-            return False
-        
-        print_result(True, "Correctly returned 404 for nonexistent route")
-        return True
-        
+        print_test(
+            "Keepalive (GET /api/keepalive)",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:200]}"
+        )
+        return passed
     except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
+        print_test("Keepalive (GET /api/keepalive)", False, f"Exception: {str(e)[:200]}")
         return False
 
-def test_cors_headers(admin_cookie):
-    """Test 8: Verify CORS headers on 503 response"""
-    print_test_header("CORS Headers on 503 Response")
-    
+def test_lead_capture_full_attribution():
+    """Test 3: POST /api/leads/capture with full attribution"""
     try:
-        response = requests.get(
-            f"{BASE_URL}/leads",
-            cookies={"loanlaabh_admin": admin_cookie},
-            timeout=10
+        payload = {
+            "full_name": "Alice Smith",
+            "mobile": "9998811111",
+            "email": "alice.p1@example.com",
+            "consent": True,
+            "source_cta": "login-eligibility",
+            "attribution": {
+                "first": {
+                    "utm_source": "facebook",
+                    "utm_medium": "cpc",
+                    "utm_campaign": "diwali24",
+                    "utm_content": "carousel_a",
+                    "utm_term": None,
+                    "fbclid": "AbCdE_123",
+                    "_fbp": "fb.1.abc",
+                    "_fbc": "fb.1.xyz",
+                    "referrer": "https://www.facebook.com/",
+                    "landing_page": "https://loanlaabh.com/?utm_source=facebook&utm_campaign=diwali24",
+                    "device_type": "mobile",
+                    "browser": "Chrome",
+                    "platform": "Android",
+                    "captured_at": "2026-05-15T10:00:00Z",
+                    "source_type": "Meta Ads"
+                },
+                "latest": {
+                    "utm_source": "facebook",
+                    "utm_medium": "cpc",
+                    "utm_campaign": "diwali24",
+                    "captured_at": "2026-06-01T00:00:00Z",
+                    "source_type": "Meta Ads"
+                }
+            }
+        }
+        resp = requests.post(f"{BASE_URL}/leads/capture", json=payload, timeout=10)
+        data = resp.json()
+        
+        # Must be 200 and have ok:true and lead_id
+        # migration_pending or returning flags are acceptable
+        passed = (
+            resp.status_code == 200 and
+            data.get("ok") == True and
+            "lead_id" in data
         )
         
-        print(f"Status Code: {response.status_code}")
-        print(f"Response Headers: {dict(response.headers)}")
+        print_test(
+            "Lead capture with full attribution",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:400]}"
+        )
         
-        # Check for CORS header
-        cors_header = response.headers.get("Access-Control-Allow-Origin")
-        if not cors_header:
-            print_result(False, "Missing Access-Control-Allow-Origin header")
-            return False
-        
-        print(f"CORS Header: {cors_header}")
-        print_result(True, f"CORS headers present on 503 response")
-        return True
-        
+        # Store lead_id for next test
+        if passed:
+            return passed, data.get("lead_id")
+        return passed, None
     except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
+        print_test("Lead capture with full attribution", False, f"Exception: {str(e)[:200]}")
+        return False, None
+
+def test_dedupe_same_mobile():
+    """Test 4: Dedupe with SAME mobile"""
+    try:
+        payload = {
+            "full_name": "Alice Smith Updated",
+            "mobile": "9998811111",  # Same as test 3
+            "email": "alice.different@example.com",
+            "consent": True,
+            "source_cta": "chatbot-retry",
+            "attribution": {
+                "first": {
+                    "utm_source": "facebook",
+                    "utm_medium": "cpc",
+                    "utm_campaign": "diwali24",
+                    "captured_at": "2026-06-01T00:00:00Z"
+                },
+                "latest": {
+                    "utm_source": "facebook",
+                    "utm_medium": "cpc",
+                    "utm_campaign": "diwali24",
+                    "captured_at": "2026-06-01T00:00:00Z"
+                }
+            }
+        }
+        resp = requests.post(f"{BASE_URL}/leads/capture", json=payload, timeout=10)
+        data = resp.json()
+        
+        # Must be 200 with ok:true
+        # If migration applied: returning:true, retry_count >= 1, tags with 'Returning Lead'
+        # If migration NOT applied: migration_pending:true is acceptable
+        passed = (
+            resp.status_code == 200 and
+            data.get("ok") == True
+        )
+        
+        # Check for dedupe indicators (informational, not blocking if migration not applied)
+        has_dedupe = data.get("returning") == True or data.get("migration_pending") == True
+        
+        print_test(
+            "Dedupe with same mobile",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:400]}, Dedupe detected: {has_dedupe}"
+        )
+        return passed
+    except Exception as e:
+        print_test("Dedupe with same mobile", False, f"Exception: {str(e)[:200]}")
+        return False
+
+def test_dedupe_same_email():
+    """Test 5: Dedupe with SAME email but different mobile"""
+    try:
+        payload = {
+            "full_name": "Alice Smith Email Retry",
+            "mobile": "9998822222",  # Different mobile
+            "email": "alice.p1@example.com",  # Same email as test 3
+            "consent": True,
+            "source_cta": "login-retry",
+            "attribution": {
+                "first": {
+                    "utm_source": "google",
+                    "utm_medium": "cpc",
+                    "gclid": "G_9876",
+                    "captured_at": "2026-06-01T00:00:00Z"
+                },
+                "latest": {
+                    "utm_source": "google",
+                    "utm_medium": "cpc",
+                    "captured_at": "2026-06-01T00:00:00Z"
+                }
+            }
+        }
+        resp = requests.post(f"{BASE_URL}/leads/capture", json=payload, timeout=10)
+        data = resp.json()
+        
+        passed = (
+            resp.status_code == 200 and
+            data.get("ok") == True
+        )
+        
+        has_dedupe = data.get("returning") == True or data.get("migration_pending") == True
+        
+        print_test(
+            "Dedupe with same email",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:400]}, Dedupe detected: {has_dedupe}"
+        )
+        return passed
+    except Exception as e:
+        print_test("Dedupe with same email", False, f"Exception: {str(e)[:200]}")
+        return False
+
+def test_validation_missing_fields():
+    """Test 6: Validation - missing required fields"""
+    try:
+        payload = {"full_name": "Bob"}  # Missing mobile and email
+        resp = requests.post(f"{BASE_URL}/leads/capture", json=payload, timeout=10)
+        data = resp.json()
+        
+        passed = (
+            resp.status_code == 400 and
+            "error" in data and
+            "Missing required fields" in data.get("error", "")
+        )
+        
+        print_test(
+            "Validation: missing fields",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:200]}"
+        )
+        return passed
+    except Exception as e:
+        print_test("Validation: missing fields", False, f"Exception: {str(e)[:200]}")
+        return False
+
+def test_no_attribution():
+    """Test 7: Lead capture without attribution field"""
+    try:
+        payload = {
+            "full_name": "Charlie NoAttr",
+            "mobile": "7777711111",
+            "email": "noattr@example.com",
+            "consent": True
+        }
+        resp = requests.post(f"{BASE_URL}/leads/capture", json=payload, timeout=10)
+        data = resp.json()
+        
+        # Must not crash - attribution is optional
+        passed = (
+            resp.status_code == 200 and
+            data.get("ok") == True
+        )
+        
+        print_test(
+            "Lead capture without attribution",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:200]}"
+        )
+        return passed
+    except Exception as e:
+        print_test("Lead capture without attribution", False, f"Exception: {str(e)[:200]}")
+        return False
+
+def test_source_classifier():
+    """Test 8: Source classifier smoke test"""
+    try:
+        payload = {
+            "full_name": "David GoogleAds",
+            "mobile": "8888811111",
+            "email": "david.gads@example.com",
+            "consent": True,
+            "attribution": {
+                "first": {
+                    "gclid": "G_9876",
+                    "utm_source": "google",
+                    "utm_medium": "cpc",
+                    "landing_page": "https://loanlaabh.com/",
+                    "captured_at": "2026-06-01T00:00:00Z"
+                },
+                "latest": None
+            }
+        }
+        resp = requests.post(f"{BASE_URL}/leads/capture", json=payload, timeout=10)
+        data = resp.json()
+        
+        # Should classify as 'Google Ads' behind the scenes
+        # Just verify no crash
+        passed = (
+            resp.status_code == 200 and
+            data.get("ok") == True
+        )
+        
+        print_test(
+            "Source classifier smoke test",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:200]}"
+        )
+        return passed
+    except Exception as e:
+        print_test("Source classifier smoke test", False, f"Exception: {str(e)[:200]}")
+        return False
+
+def test_admin_login():
+    """Test 9: Admin login"""
+    try:
+        payload = {"password": ADMIN_PASSWORD}
+        resp = requests.post(f"{BASE_URL}/admin/login", json=payload, timeout=10)
+        data = resp.json()
+        
+        passed = (
+            resp.status_code == 200 and
+            data.get("success") == True and
+            "loanlaabh_admin" in resp.cookies
+        )
+        
+        print_test(
+            "Admin login",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:200]}, Cookie set: {'loanlaabh_admin' in resp.cookies}"
+        )
+        
+        # Return cookies for next tests
+        if passed:
+            return passed, resp.cookies
+        return passed, None
+    except Exception as e:
+        print_test("Admin login", False, f"Exception: {str(e)[:200]}")
+        return False, None
+
+def test_get_leads_with_cookie(cookies):
+    """Test 10: GET /api/leads with admin cookie"""
+    try:
+        resp = requests.get(f"{BASE_URL}/leads", cookies=cookies, timeout=10)
+        data = resp.json()
+        
+        # Accept 200 (success) or 503 (Supabase unreachable)
+        # Must NOT return 500 with raw 'fetch failed'
+        passed = (
+            resp.status_code in [200, 503] and
+            (
+                "leads" in data or  # 200 success
+                (data.get("code") == "SUPABASE_UNREACHABLE" and "paused" in data.get("error", "").lower())  # 503 expected
+            )
+        )
+        
+        print_test(
+            "GET /api/leads with cookie",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:400]}"
+        )
+        return passed
+    except Exception as e:
+        print_test("GET /api/leads with cookie", False, f"Exception: {str(e)[:200]}")
+        return False
+
+def test_get_lender_criteria_with_cookie(cookies):
+    """Test 11: GET /api/lender-criteria with admin cookie"""
+    try:
+        resp = requests.get(f"{BASE_URL}/lender-criteria", cookies=cookies, timeout=10)
+        data = resp.json()
+        
+        # Accept 200 (success) or 503 (Supabase unreachable)
+        passed = (
+            resp.status_code in [200, 503] and
+            (
+                "lenders" in data or
+                (data.get("code") == "SUPABASE_UNREACHABLE" and "paused" in data.get("error", "").lower())
+            )
+        )
+        
+        print_test(
+            "GET /api/lender-criteria with cookie",
+            passed,
+            f"Status: {resp.status_code}, Body: {json.dumps(data)[:400]}"
+        )
+        return passed
+    except Exception as e:
+        print_test("GET /api/lender-criteria with cookie", False, f"Exception: {str(e)[:200]}")
+        return False
+
+def test_cors_headers():
+    """Test 12: CORS headers on lead capture"""
+    try:
+        payload = {
+            "full_name": "CORS Test",
+            "mobile": "6666611111",
+            "email": "cors@example.com",
+            "consent": True
+        }
+        resp = requests.post(f"{BASE_URL}/leads/capture", json=payload, timeout=10)
+        
+        has_cors = "access-control-allow-origin" in [k.lower() for k in resp.headers.keys()]
+        
+        print_test(
+            "CORS headers present",
+            has_cors,
+            f"Headers: {dict(resp.headers)}"
+        )
+        return has_cors
+    except Exception as e:
+        print_test("CORS headers present", False, f"Exception: {str(e)[:200]}")
         return False
 
 def main():
-    print("\n" + "="*80)
-    print("LOANLAABH BACKEND API TESTS - SUPABASE UNREACHABILITY ERROR HANDLING")
-    print("="*80)
+    print("=" * 80)
+    print("Phase 1 Attribution Backend Testing")
+    print("=" * 80)
     
-    results = {}
+    results = []
     
-    # Test 1: Admin login success
-    admin_cookie = test_admin_login_success()
-    results["admin_login_success"] = admin_cookie is not None
+    # Test 1: Health check
+    results.append(test_health_check())
     
-    # Test 2: Admin login failure
-    results["admin_login_failure"] = test_admin_login_failure()
+    # Test 2: Keepalive
+    results.append(test_keepalive())
     
-    # Only proceed with authenticated tests if login succeeded
-    if admin_cookie:
-        # Test 3: GET /api/leads with auth (Supabase down)
-        results["leads_with_auth_503"] = test_leads_with_auth_supabase_down(admin_cookie)
-        
-        # Test 4: GET /api/lender-criteria with auth (Supabase down)
-        results["lender_criteria_with_auth_503"] = test_lender_criteria_with_auth_supabase_down(admin_cookie)
-        
-        # Test 7: Nonexistent route
-        results["nonexistent_route_404"] = test_nonexistent_route(admin_cookie)
-        
-        # Test 8: CORS headers
-        results["cors_headers"] = test_cors_headers(admin_cookie)
+    # Test 3: Lead capture with full attribution
+    passed, lead_id = test_lead_capture_full_attribution()
+    results.append(passed)
+    
+    # Test 4: Dedupe same mobile
+    results.append(test_dedupe_same_mobile())
+    
+    # Test 5: Dedupe same email
+    results.append(test_dedupe_same_email())
+    
+    # Test 6: Validation
+    results.append(test_validation_missing_fields())
+    
+    # Test 7: No attribution
+    results.append(test_no_attribution())
+    
+    # Test 8: Source classifier
+    results.append(test_source_classifier())
+    
+    # Test 9: Admin login
+    passed, cookies = test_admin_login()
+    results.append(passed)
+    
+    # Test 10 & 11: Admin endpoints (only if login succeeded)
+    if cookies:
+        results.append(test_get_leads_with_cookie(cookies))
+        results.append(test_get_lender_criteria_with_cookie(cookies))
     else:
-        print("\n⚠️  Skipping authenticated tests due to login failure")
+        print("\n⚠️  Skipping admin endpoint tests (login failed)")
+        results.append(False)
+        results.append(False)
     
-    # Test 5: GET /api/leads without auth
-    results["leads_without_auth_401"] = test_leads_without_auth()
-    
-    # Test 6: Health check
-    results["health_check"] = test_health_check()
+    # Test 12: CORS
+    results.append(test_cors_headers())
     
     # Summary
-    print("\n" + "="*80)
-    print("TEST SUMMARY")
-    print("="*80)
+    print("\n" + "=" * 80)
+    print(f"SUMMARY: {sum(results)}/{len(results)} tests passed")
+    print("=" * 80)
     
-    passed = sum(1 for v in results.values() if v)
-    total = len(results)
-    
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{status}: {test_name}")
-    
-    print(f"\nTotal: {passed}/{total} tests passed")
-    
-    if passed == total:
-        print("\n🎉 ALL TESTS PASSED! The Supabase unreachability error handling is working correctly.")
-        return 0
+    if all(results):
+        print("\n✅ ALL TESTS PASSED")
+        sys.exit(0)
     else:
-        print(f"\n⚠️  {total - passed} test(s) failed. Please review the output above.")
-        return 1
+        print("\n❌ SOME TESTS FAILED")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

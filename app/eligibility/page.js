@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowRight, CheckCircle2, Sparkles, Loader2, ChevronLeft, MessageCircle, AlertTriangle, AlertCircle, Star, Brain, BadgeCheck, ShieldCheck, Landmark } from 'lucide-react'
+import { getAttribution } from '@/lib/attribution'
 
 const LOAN_TYPES = [
   { value: 'personal', label: 'Personal Loan', emoji: '💼' },
@@ -101,7 +102,7 @@ export default function EligibilityPage() {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, attribution: getAttribution() }),
       })
       const data = await res.json()
       if (res.status === 409) { setActiveApp(data.active); return }

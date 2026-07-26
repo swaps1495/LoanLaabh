@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Loader2, Mail, ArrowLeft, ArrowRight, Phone, User, ShieldCheck, BadgeCheck, Brain, HeartHandshake, Sparkles, CheckCircle2 } from 'lucide-react'
+import { getAttribution } from '@/lib/attribution'
 
 export default function LoginPage() {
   return (
@@ -112,6 +113,7 @@ function LoginInner() {
             email,
             consent: true,
             source_cta: redirect,
+            attribution: getAttribution(),
           }),
         })
       } catch (_) { /* non-blocking */ }
