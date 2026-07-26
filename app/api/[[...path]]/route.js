@@ -17,6 +17,27 @@ function cors(res) {
   res.headers.set('Access-Control-Allow-Credentials', 'true')
   return res
 }
+
+function isNetworkError(error) {
+  if (!error) return false
+  const msg = (error.message || error.toString() || '').toLowerCase()
+  return (
+    msg.includes('fetch failed') ||
+    msg.includes('enotfound') ||
+    msg.includes('econnrefused') ||
+    msg.includes('etimedout') ||
+    msg.includes('network') ||
+    msg.includes('typeerror: fetch')
+  )
+}
+
+function supabaseUnreachable() {
+  return cors(NextResponse.json({
+    error: 'Database temporarily unreachable. Your Supabase project may be paused (free-tier auto-pauses after 7 days of inactivity). Please visit https://app.supabase.com and click "Restore project" to resume.',
+    code: 'SUPABASE_UNREACHABLE',
+  }, { status: 503 }))
+}
+
 export async function OPTIONS() { return cors(new NextResponse(null, { status: 200 })) }
 function noConf() { return cors(NextResponse.json({ error: 'Supabase not configured' }, { status: 503 })) }
 function unauth() { return cors(NextResponse.json({ error: 'Unauthorized' }, { status: 401 })) }
@@ -183,7 +204,10 @@ async function handle(request, { params }) {
       const a = await adminCheck(request); if (!a) return unauth()
       const sb = getSupabaseServer(); if (!sb) return noConf()
       const { data, error } = await sb.from('leads').select('*, matches(*, lender_criteria(name))').order('created_at', { ascending: false }).limit(1000)
-      if (error) return cors(NextResponse.json({ error: error.message }, { status: 500 }))
+      if (error) {
+        if (isNetworkError(error)) return supabaseUnreachable()
+        return cors(NextResponse.json({ error: error.message }, { status: 500 }))
+      }
       return cors(NextResponse.json({ leads: data }))
     }
 
@@ -205,7 +229,10 @@ async function handle(request, { params }) {
       const a = await adminCheck(request); if (!a) return unauth()
       const sb = getSupabaseServer(); if (!sb) return noConf()
       const { data, error } = await sb.from('lender_criteria').select('*').order('name')
-      if (error) return cors(NextResponse.json({ error: error.message }, { status: 500 }))
+      if (error) {
+        if (isNetworkError(error)) return supabaseUnreachable()
+        return cors(NextResponse.json({ error: error.message }, { status: 500 }))
+      }
       return cors(NextResponse.json({ lenders: data }))
     }
     if (route === '/lender-criteria' && method === 'POST') {
@@ -308,6 +335,8 @@ STRICT RULES:
     return cors(NextResponse.json({ error: `Route ${route} not found` }, { status: 404 }))
   } catch (e) {
     console.error('API error', e)
+    // Detect Supabase / network unreachability (paused project, DNS fail, timeout)
+    if (isNetworkError(e)) return supabaseUnreachable()
     return cors(NextResponse.json({ error: e.message || 'Internal server error' }, { status: 500 }))
   }
 }

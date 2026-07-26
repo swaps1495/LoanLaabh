@@ -72,10 +72,16 @@ export default function AdminPage() {
 
   const loadLeads = async () => {
     setLoading(true)
+    setError('')
     try {
       const res = await fetch('/api/leads', { headers: authHeaders })
-      const data = await res.json()
-      if (res.ok) setLeads(data.leads || []); else setError(data.error)
+      let data = null
+      try { data = await res.json() } catch { data = { error: 'Server returned invalid response' } }
+      if (res.ok) setLeads(data.leads || [])
+      else if (data?.code === 'SUPABASE_UNREACHABLE') setError('⚠️ ' + data.error)
+      else setError(data?.error || `Failed to load leads (HTTP ${res.status})`)
+    } catch (e) {
+      setError('⚠️ Network error: unable to reach the server. If this persists, your Supabase project may be paused — visit https://app.supabase.com to restore it.')
     } finally { setLoading(false) }
   }
 
