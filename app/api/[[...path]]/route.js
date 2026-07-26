@@ -59,6 +59,30 @@ async function handle(request, { params }) {
       return cors(NextResponse.json({ ok: true, app: 'LoanLaabh', supabase_configured: isSupabaseConfigured() }))
     }
 
+    // ============ KEEPALIVE (for UptimeRobot / cron) ============
+    // Runs a minimal SELECT on Supabase so the free-tier project does NOT auto-pause.
+    // Point UptimeRobot at: https://<your-domain>/api/keepalive  (ping every 5 min)
+    if (route === '/keepalive' && method === 'GET') {
+      const start = Date.now()
+      const sb = getSupabaseServer()
+      if (!sb) {
+        return cors(NextResponse.json({ ok: false, db: 'not_configured' }, { status: 503 }))
+      }
+      try {
+        const { error } = await sb.from('admins').select('id', { count: 'exact', head: true }).limit(1)
+        if (error && isNetworkError(error)) {
+          return cors(NextResponse.json({ ok: false, db: 'unreachable', error: 'Supabase unreachable — project may be paused.', ms: Date.now() - start }, { status: 503 }))
+        }
+        // Even if 'admins' table doesn't exist, a table-missing error still counts as a query hit
+        // which is enough to keep Supabase from pausing. Return success.
+        return cors(NextResponse.json({ ok: true, db: 'alive', ms: Date.now() - start, ts: new Date().toISOString() }))
+      } catch (e) {
+        if (isNetworkError(e)) return supabaseUnreachable()
+        // Even a non-network error means we reached the DB — treat as alive
+        return cors(NextResponse.json({ ok: true, db: 'alive', note: 'query returned error but db is reachable', ms: Date.now() - start }))
+      }
+    }
+
     // ============ ADMIN (legacy password) ============
     if (route === '/admin/login' && method === 'POST') {
       const { password } = await request.json()
