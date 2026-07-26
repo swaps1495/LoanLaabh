@@ -113,6 +113,18 @@ user_problem_statement: |
   - Supabase (Postgres) for persistence, admin password auth
 
 backend:
+  - task: "Admin GET /api/lead-captures endpoint (pre-eligibility funnel view)"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "User reported that new leads captured in Supabase lead_captures table are not visible on the admin dashboard. Root cause: admin dashboard only queried /api/leads (post-eligibility). Added new admin-only endpoint GET /api/lead-captures which returns all rows from public.lead_captures ordered by last_activity_at desc, with graceful fallback to created_at if last_activity_at column missing. Also added 'Lead Captures (Pre-Eligibility)' tab in /admin/page.js with search, source-type filter, CSV export, and columns for source/campaign/landing page/device/retries/tags/first-visit/last-activity. Local curl test confirms endpoint returns real user data with full attribution populated after user ran SQL migration."
+        - working: true
+          agent: "testing"
+          comment: "VERIFIED - All 7/7 tests PASSED. Bug fix working correctly. (1) Admin login returns 200 with success:true and cookie set, (2) GET /api/lead-captures WITH admin cookie returns 200 with lead_captures array containing 9 rows including user's earlier lead (mobile:9657781755), all required fields present (id, full_name, mobile, email, created_at), optional attribution fields present (original_source_type, original_utm_source, retry_count, tags, first_visit_at, last_activity_at, device/browser/platform), (3) GET /api/lead-captures WITHOUT cookie returns 401 Unauthorized (auth guard working), (4) E2E capture+list: new lead captured with full attribution (fbclid:E2E_123), appears in list with original_source_type='Meta Ads', retry_count=0, tags=['New Lead'], (5) Dedupe+retry: same mobile captured again with different source (gclid:G_456), no duplicate created, retry_count incremented to 1, tags updated to ['New Lead','Returning Lead','Customer Retried','Re-engaged from New Campaign'], original_source_type preserved as 'Meta Ads', latest_source_type updated to 'Google Ads', (6) CORS headers present (access-control-allow-origin:*), (7) Existing endpoints unaffected: GET /api/leads returns 200 with leads array, GET /api/lender-criteria returns 200 with lenders array, GET /api/keepalive returns 200 with db:alive. The main bug fix is confirmed working - pre-eligibility leads now visible in admin dashboard via new endpoint."
   - task: "Phase 1 attribution + dedupe on /api/leads/capture"
     implemented: true
     working: true
@@ -307,4 +319,35 @@ agent_communication:
       
       RECOMMENDATION FOR MAIN AGENT:
         The Phase 1 attribution foundation is working correctly. The migration_pending:true flag in responses is EXPECTED and CORRECT - it indicates the SQL migration hasn't been applied yet. This is not a bug. Once the user runs the SQL migration in Supabase SQL editor, the full attribution columns will be persisted. Until then, the fallback logic ensures submissions don't break.
+
+  - agent: "testing"
+    message: |
+      Bug Fix Verification COMPLETE - Admin lead-captures endpoint working correctly ✅
+      
+      TESTED: GET /api/lead-captures endpoint (the main bug fix)
+      
+      TEST RESULTS: All 7/7 tests PASSED
+        ✅ Test 1: Admin login sanity check - POST /api/admin/login returns 200 with success:true and cookie set
+        ✅ Test 2: GET /api/lead-captures WITH admin cookie (MAIN FIX) - Returns 200 with lead_captures array containing 9 rows including user's earlier lead (mobile:9657781755). All required fields present (id, full_name, mobile, email, created_at). Optional attribution fields present (original_source_type, original_utm_source, original_utm_campaign, retry_count, tags, first_visit_at, last_activity_at, original_device_type, original_browser, original_platform). CORS headers present.
+        ✅ Test 3: GET /api/lead-captures WITHOUT cookie - Returns 401 Unauthorized (auth guard working correctly)
+        ✅ Test 4: E2E capture + list - New lead captured via POST /api/leads/capture with full attribution (fbclid:E2E_123, utm_source:facebook, utm_medium:cpc, utm_campaign:e2e-test, device:mobile, browser:Chrome, platform:Android). Lead appears in GET /api/lead-captures response with original_source_type='Meta Ads' (correctly classified from fbclid), retry_count=0, tags=['New Lead'].
+        ✅ Test 5: Dedupe + retry visibility - Same mobile captured again with different source (gclid:G_456, utm_source:google). No duplicate created (same row updated). retry_count incremented to 1. tags updated to ['New Lead','Returning Lead','Customer Retried','Re-engaged from New Campaign']. original_source_type PRESERVED as 'Meta Ads' (not overwritten). latest_source_type updated to 'Google Ads'. latest_utm_source updated to 'google'.
+        ✅ Test 6: CORS headers - access-control-allow-origin:* present on all responses
+        ✅ Test 7: Existing endpoints smoke test - GET /api/leads returns 200 with leads array, GET /api/lender-criteria returns 200 with lenders array, GET /api/keepalive returns 200 with db:alive
+      
+      KEY FINDINGS:
+        ✅ The main bug is FIXED - pre-eligibility leads from lead_captures table are now visible via the new GET /api/lead-captures endpoint
+        ✅ User's earlier lead (mobile:9657781755) confirmed present in the response
+        ✅ Admin auth guard working correctly (401 without cookie)
+        ✅ Full attribution capture working (utm_*, fbclid, gclid, referrer, landing_page, device/browser/platform)
+        ✅ Source classifier working correctly (Meta Ads for fbclid, Google Ads for gclid)
+        ✅ Dedupe logic working correctly (no duplicates, retry_count incremented, tags updated)
+        ✅ Original attribution preserved on retry (original_source_type not overwritten)
+        ✅ Latest attribution refreshed on retry (latest_source_type updated)
+        ✅ CORS headers present
+        ✅ No 500 errors
+        ✅ Existing endpoints unaffected
+      
+      RECOMMENDATION FOR MAIN AGENT:
+        The bug fix is working correctly. The new GET /api/lead-captures endpoint successfully returns pre-eligibility leads that were previously invisible in the admin dashboard. All attribution, dedupe, and retry logic working as designed. Ready to summarize and finish.
 

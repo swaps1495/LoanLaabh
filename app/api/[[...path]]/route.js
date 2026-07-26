@@ -316,6 +316,29 @@ async function handle(request, { params }) {
     }
 
     // ============ LENDER CRUD ============
+    // ============ LEAD CAPTURES (admin — pre-eligibility funnel view) ============
+    if (route === '/lead-captures' && method === 'GET') {
+      const a = await adminCheck(request); if (!a) return unauth()
+      const sb = getSupabaseServer(); if (!sb) return noConf()
+      const { data, error } = await sb
+        .from('lead_captures')
+        .select('*')
+        .order('last_activity_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .limit(2000)
+      if (error) {
+        if (isNetworkError(error)) return supabaseUnreachable()
+        // last_activity_at column may not exist if migration not applied — retry with created_at only
+        if (/column .*last_activity_at.* does not exist/i.test(error.message || '')) {
+          const { data: d2, error: e2 } = await sb.from('lead_captures').select('*').order('created_at', { ascending: false }).limit(2000)
+          if (e2) return cors(NextResponse.json({ error: e2.message }, { status: 500 }))
+          return cors(NextResponse.json({ lead_captures: d2, migration_pending: true }))
+        }
+        return cors(NextResponse.json({ error: error.message }, { status: 500 }))
+      }
+      return cors(NextResponse.json({ lead_captures: data }))
+    }
+
     if (route === '/lender-criteria' && method === 'GET') {
       const a = await adminCheck(request); if (!a) return unauth()
       const sb = getSupabaseServer(); if (!sb) return noConf()

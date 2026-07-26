@@ -25,6 +25,8 @@ export default function AdminPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [leads, setLeads] = useState([])
+  const [leadCaptures, setLeadCaptures] = useState([])
+  const [activeTab, setActiveTab] = useState('leads') // 'leads' | 'captures'
   const [openLead, setOpenLead] = useState(null)
   const [editingNote, setEditingNote] = useState(null)
   const [noteDraft, setNoteDraft] = useState('')
@@ -52,7 +54,7 @@ export default function AdminPage() {
 
   const authHeaders = useMemo(() => session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}, [session])
 
-  useEffect(() => { if (authed) loadLeads() }, [authed, session])
+  useEffect(() => { if (authed) { loadLeads(); loadLeadCaptures() } }, [authed, session])
 
   const login = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
@@ -83,6 +85,15 @@ export default function AdminPage() {
     } catch (e) {
       setError('⚠️ Network error: unable to reach the server. If this persists, your Supabase project may be paused — visit https://app.supabase.com to restore it.')
     } finally { setLoading(false) }
+  }
+
+  const loadLeadCaptures = async () => {
+    try {
+      const res = await fetch('/api/lead-captures', { headers: authHeaders })
+      let data = null
+      try { data = await res.json() } catch { data = null }
+      if (res.ok) setLeadCaptures(data?.lead_captures || [])
+    } catch (_) { /* non-blocking */ }
   }
 
   const updateStatus = async (id, status) => {
@@ -169,6 +180,26 @@ export default function AdminPage() {
           <Button onClick={exportCSV} className="bg-emerald-600 hover:bg-emerald-700"><Download className="mr-2 h-4 w-4" /> Export CSV</Button>
         </div>
 
+        {/* TAB SWITCHER */}
+        <div className="flex gap-2 mb-6 border-b border-slate-200">
+          <button
+            onClick={() => setActiveTab('leads')}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition ${activeTab === 'leads' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+          >
+            Full Leads <span className="ml-1 text-xs bg-slate-100 rounded-full px-2 py-0.5">{leads.length}</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('captures')}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition ${activeTab === 'captures' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+          >
+            Lead Captures (Pre-Eligibility) <span className="ml-1 text-xs bg-slate-100 rounded-full px-2 py-0.5">{leadCaptures.length}</span>
+          </button>
+        </div>
+
+        {activeTab === 'captures' ? (
+          <LeadCapturesTable rows={leadCaptures} />
+        ) : (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <StatCard icon={<Users />} label="Total Leads" value={filtered.length} />
           <StatCard icon={<TrendingUp />} label="🔥 Hot Leads" value={hot} />
@@ -216,6 +247,8 @@ export default function AdminPage() {
             </table>
           </CardContent>
         </Card>
+        </>
+        )}
       </main>
     </div>
   )
@@ -310,3 +343,143 @@ function StatCard({ icon, label, value }) {
     <div><div className="text-sm text-slate-500">{label}</div><div className="text-2xl font-bold">{value}</div></div>
   </CardContent></Card>
 }
+
+function LeadCapturesTable({ rows }) {
+  const [q, setQ] = useState('')
+  const [sourceFilter, setSourceFilter] = useState('all')
+  const sources = useMemo(() => {
+    const set = new Set()
+    rows.forEach(r => { if (r.original_source_type) set.add(r.original_source_type) })
+    return ['all', ...Array.from(set).sort()]
+  }, [rows])
+  const filtered = useMemo(() => rows.filter(r => {
+    if (sourceFilter !== 'all' && r.original_source_type !== sourceFilter) return false
+    if (!q) return true
+    const s = q.toLowerCase()
+    return (r.full_name || '').toLowerCase().includes(s) ||
+      (r.mobile || '').includes(s) ||
+      (r.email || '').toLowerCase().includes(s) ||
+      (r.original_utm_campaign || '').toLowerCase().includes(s)
+  }), [rows, q, sourceFilter])
+
+  const fmtDate = (d) => d ? new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'
+
+  const exportCSV = () => {
+    if (!filtered.length) return
+    const headers = ['Full Name','Mobile','Email','Source','UTM Source','UTM Campaign','UTM Medium','Landing Page','Referrer','Device','Browser','Retry Count','Tags','Latest Source','Latest Campaign','Source CTA','First Visit','Last Activity','Consent','OTP Verified']
+    const rows2 = filtered.map(r => [
+      r.full_name, r.mobile, r.email,
+      r.original_source_type || 'Direct',
+      r.original_utm_source || '', r.original_utm_campaign || '', r.original_utm_medium || '',
+      r.original_landing_page || '', r.original_referrer || '',
+      r.original_device_type || '', r.original_browser || '',
+      r.retry_count || 0,
+      Array.isArray(r.tags) ? r.tags.join('|') : '',
+      r.latest_source_type || '', r.latest_utm_campaign || '',
+      r.latest_source_cta || r.source_cta || '',
+      r.first_visit_at || r.created_at || '', r.last_activity_at || r.updated_at || r.created_at || '',
+      r.consent ? 'Yes' : 'No', r.otp_verified ? 'Yes' : 'No',
+    ])
+    const csv = [headers, ...rows2].map(row => row.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `lead-captures-${new Date().toISOString().split('T')[0]}.csv`
+    a.click(); URL.revokeObjectURL(url)
+  }
+
+  return (
+    <>
+      <Card className="mb-4">
+        <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+          <div>
+            <Label className="text-xs">Search</Label>
+            <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Name, mobile, email, campaign..." className="h-9" />
+          </div>
+          <Filter label="Source Type" value={sourceFilter} options={sources} onChange={setSourceFilter} />
+          <Button onClick={exportCSV} size="sm" className="bg-emerald-600 hover:bg-emerald-700 h-9"><Download className="mr-2 h-4 w-4" /> Export CSV ({filtered.length})</Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-0 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-100 text-slate-700">
+              <tr>
+                <th className="text-left p-3">Name / Contact</th>
+                <th className="text-left p-3">Source</th>
+                <th className="text-left p-3">Campaign</th>
+                <th className="text-left p-3">Landing Page</th>
+                <th className="text-center p-3">Device</th>
+                <th className="text-center p-3">Retries</th>
+                <th className="text-left p-3">Tags</th>
+                <th className="text-left p-3">First Visit</th>
+                <th className="text-left p-3">Last Activity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 && <tr><td colSpan={9} className="p-10 text-center text-slate-500">No lead captures yet</td></tr>}
+              {filtered.map(r => (
+                <tr key={r.id} className="border-t hover:bg-slate-50">
+                  <td className="p-3">
+                    <div className="font-medium">{r.full_name}</div>
+                    <div className="text-xs text-slate-500">{r.mobile}</div>
+                    <div className="text-xs text-slate-500 break-all">{r.email}</div>
+                  </td>
+                  <td className="p-3">
+                    <Badge className={sourceBadgeColor(r.original_source_type)}>{r.original_source_type || 'Direct'}</Badge>
+                    {r.original_utm_source && <div className="text-xs text-slate-500 mt-1">{r.original_utm_source}{r.original_utm_medium ? ' · ' + r.original_utm_medium : ''}</div>}
+                  </td>
+                  <td className="p-3 max-w-[180px]">
+                    <div className="text-xs truncate" title={r.original_utm_campaign}>{r.original_utm_campaign || '—'}</div>
+                    {r.original_utm_content && <div className="text-[10px] text-slate-400 truncate" title={r.original_utm_content}>{r.original_utm_content}</div>}
+                  </td>
+                  <td className="p-3 max-w-[200px]">
+                    <div className="text-xs truncate" title={r.original_landing_page}>{r.original_landing_page || '—'}</div>
+                    {r.original_referrer && <div className="text-[10px] text-slate-400 truncate" title={r.original_referrer}>via {r.original_referrer}</div>}
+                  </td>
+                  <td className="p-3 text-center text-xs">
+                    <div>{r.original_device_type || '—'}</div>
+                    <div className="text-[10px] text-slate-400">{r.original_browser}</div>
+                  </td>
+                  <td className="p-3 text-center">
+                    {r.retry_count > 0
+                      ? <Badge className="bg-amber-500">{r.retry_count}</Badge>
+                      : <span className="text-slate-300">—</span>}
+                  </td>
+                  <td className="p-3 max-w-[160px]">
+                    <div className="flex flex-wrap gap-1">
+                      {(r.tags || []).slice(0, 3).map(t => (
+                        <span key={t} className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">{t}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="p-3 text-xs text-slate-600 whitespace-nowrap">{fmtDate(r.first_visit_at || r.created_at)}</td>
+                  <td className="p-3 text-xs text-slate-600 whitespace-nowrap">{fmtDate(r.last_activity_at || r.updated_at || r.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </>
+  )
+}
+
+function sourceBadgeColor(src) {
+  const map = {
+    'Meta Ads': 'bg-blue-600',
+    'Google Ads': 'bg-red-500',
+    'Organic Search': 'bg-emerald-600',
+    'Direct': 'bg-slate-500',
+    'Referral': 'bg-purple-500',
+    'WhatsApp': 'bg-green-600',
+    'Chatbot': 'bg-indigo-500',
+    'Email Campaign': 'bg-amber-500',
+    'SMS Campaign': 'bg-cyan-500',
+    'RCS Campaign': 'bg-teal-500',
+    'Partner Referral': 'bg-fuchsia-500',
+  }
+  return map[src] || 'bg-slate-400'
+}
+
