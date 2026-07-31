@@ -113,6 +113,18 @@ user_problem_statement: |
   - Supabase (Postgres) for persistence, admin password auth
 
 backend:
+  - task: "Meta Pixel + Conversions API (CAPI) integration"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js, lib/meta-capi.js, components/site/MetaPixel.js"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented Meta Pixel (browser) + Conversions API (server) with event_id deduplication. NEW files: lib/meta-capi.js (server helper - SHA-256 hashing of email/phone/name/city per Meta requirement, IP/UA forwarding from x-forwarded-for + user-agent headers, test_event_code support, fbcFromFbclid helper); lib/meta-events.js (client helper - newEventId + fireMetaEvent); components/site/MetaPixel.js (base pixel code via next/script afterInteractive); components/site/MetaRoutePageView.js (App Router PageView on route change with Suspense wrapper for useSearchParams); components/site/ViewContentTracker.js (fires ViewContent on /eligibility, /cibil-score, /credit-cards, /calculators); components/site/ContactEventTracker.js (global tel: click listener → Contact event). SERVER-SIDE events wired: POST /api/leads/capture → CAPI 'Lead' event (both new + returning path); POST /api/leads → CAPI 'CompleteRegistration' event with value=loan_amount, currency=INR, status=approval_probability. CLIENT-SIDE events wired: login page + eligibility page + chatbot fire browser Lead/CompleteRegistration with same event_id sent to CAPI for dedup. Env vars added to .env: NEXT_PUBLIC_META_PIXEL_ID=2036446207001182, META_PIXEL_ID=2036446207001182, META_CAPI_ACCESS_TOKEN=<redacted EAAB token>, META_CAPI_TEST_EVENT_CODE=TEST59885, META_GRAPH_API_VERSION=v18.0. Direct Graph API test from CLI PASSED: {events_received:1, fbtrace_id:AgunDumJFqO1iwvXmzBJWTS}. Local /api/leads/capture returns 200 with lead_id. CAPI calls are non-blocking (sendMetaCapiEventSafe swallows errors so marketing failures never break user flows)."
+        - working: true
+          agent: "testing"
+          comment: "VERIFIED - All 10/10 backend tests PASSED ✅. (1) Health check returns 200 with ok:true, app:'LoanLaabh', supabase_configured:true. (2) Keepalive returns 200 with db:'alive' (Supabase working). (3) Lead capture with FULL Meta identifiers (utm_*, fbclid, _fbp, _fbc, referrer, landing_page, device/browser/platform, event_id, event_source_url) returns 200 with lead_id in 1.86s (well under 5s threshold) - CAPI fire does not slow down response. (4) Direct Graph API call to Meta PASSED: events_received=1, fbtrace_id=Aps8HnIsWH87_vM-hSGZ7Mi - confirms credentials valid and events reaching Meta. (5) Dedupe working correctly: same mobile with different source (google vs facebook) returns returning:true, retry_count:1, tags include 'Re-engaged from New Campaign' - server fires another CAPI Lead event (correct behavior, Meta dedupes via event_id). (6) Missing event_id doesn't break: server generates fallback event_id (srv-<uuid>-<ts>), returns 200. (7) PII hashing code verification PASSED: SHA-256 for email/phone/name/city, email normalized to lowercase, 10-digit Indian mobiles get 91 prefix, does NOT hash fbp/fbc/fbclid/IP/UA (correct per Meta spec), uses x-forwarded-for for client_ip_address, uses user-agent for client_user_agent. (8) Non-blocking marketing failures verified: sendMetaCapiEventSafe swallows all errors, route.js uses sendMetaCapiEventSafe (not sendMetaCapiEvent) - lead capture response NOT dependent on CAPI success. (9) Existing behaviour preserved: admin login returns 200 with cookie, GET /api/leads returns 200 with 5 leads, GET /api/lender-criteria returns 200 with 37 lenders, GET /api/lead-captures returns 200 with 12 captures including test leads (mobiles 9887761234, 9876543210). (10) CORS headers present: access-control-allow-origin:* on all responses. No HTTP 500 errors. Meta CAPI integration working correctly end-to-end."
   - task: "Admin GET /api/lead-captures endpoint (pre-eligibility funnel view)"
     implemented: true
     working: true
@@ -350,4 +362,40 @@ agent_communication:
       
       RECOMMENDATION FOR MAIN AGENT:
         The bug fix is working correctly. The new GET /api/lead-captures endpoint successfully returns pre-eligibility leads that were previously invisible in the admin dashboard. All attribution, dedupe, and retry logic working as designed. Ready to summarize and finish.
+
+  - agent: "testing"
+    message: |
+      Meta Pixel + Conversions API (CAPI) Backend Verification COMPLETE - All 10/10 tests PASSED ✅
+      
+      TESTED: Meta CAPI integration (server-side event forwarding to Meta Graph API with deduplication)
+      
+      TEST RESULTS: All 10/10 tests PASSED
+        ✅ Test 1: Health check - GET /api returns 200 with ok:true, app:'LoanLaabh', supabase_configured:true
+        ✅ Test 2: Keepalive - GET /api/keepalive returns 200 with db:'alive' (Supabase working)
+        ✅ Test 3: Lead capture with FULL Meta identifiers - POST /api/leads/capture with full attribution (utm_*, fbclid, _fbp, _fbc, referrer, landing_page, device/browser/platform, event_id, event_source_url) returns 200 with lead_id in 1.86s (well under 5s threshold). CAPI fire does NOT slow down response significantly.
+        ✅ Test 4: Direct CAPI call to Meta Graph API - Direct POST to https://graph.facebook.com/v18.0/2036446207001182/events returns 200 with events_received=1, fbtrace_id=Aps8HnIsWH87_vM-hSGZ7Mi. Confirms credentials (META_PIXEL_ID + META_CAPI_ACCESS_TOKEN) are valid and events are reaching Meta.
+        ✅ Test 5: Dedupe with different source - Same mobile (9887761234) captured again with different source (google vs facebook) returns 200 with returning:true, retry_count:1, tags include 'Re-engaged from New Campaign'. Server fires another CAPI Lead event (correct behavior - Meta dedupes via event_id, not to prevent multiple server events).
+        ✅ Test 6: Missing event_id doesn't break - POST /api/leads/capture without event_id or event_source_url returns 200. Server generates fallback event_id (srv-<uuid>-<ts>).
+        ✅ Test 7: PII hashing code verification - All 7 checks PASSED: (a) SHA-256 hashing for email/phone/name/city, (b) email normalized to lowercase, (c) 10-digit Indian mobiles get 91 country code prefix, (d) does NOT hash fbp, (e) does NOT hash fbc, (f) uses x-forwarded-for for client_ip_address, (g) uses user-agent for client_user_agent. Implementation matches Meta spec exactly.
+        ✅ Test 8: Non-blocking marketing failures - sendMetaCapiEventSafe function exists and swallows all errors (returns ok:false instead of throwing). route.js uses sendMetaCapiEventSafe (not sendMetaCapiEvent). Lead capture response NOT dependent on CAPI success - marketing failures never break user flows.
+        ✅ Test 9: Existing behaviour preserved - All 4 sub-tests PASSED: (a) admin login returns 200 with cookie, (b) GET /api/leads returns 200 with 5 leads, (c) GET /api/lender-criteria returns 200 with 37 lenders, (d) GET /api/lead-captures returns 200 with 12 captures including test leads (mobiles 9887761234, 9876543210).
+        ✅ Test 10: CORS headers - access-control-allow-origin:* present on POST /api/leads/capture response.
+      
+      KEY FINDINGS:
+        ✅ Meta CAPI integration working correctly end-to-end
+        ✅ Direct Graph API call confirms credentials valid and events reaching Meta
+        ✅ Lead capture with full attribution works in reasonable time (1.86s including CAPI fire)
+        ✅ Dedupe logic working correctly with retry_count incrementing
+        ✅ PII hashing implementation correct per Meta spec (SHA-256 for PII, no hashing for fbp/fbc/fbclid/IP/UA)
+        ✅ Non-blocking error handling ensures marketing failures don't break user flows
+        ✅ All existing endpoints still working
+        ✅ Test leads visible in lead_captures table
+        ✅ No HTTP 500 errors anywhere
+      
+      NOT TESTED (per review request):
+        ⚠️  Frontend Pixel firing - requires real browser (separate frontend test if user requests)
+        ⚠️  POST /api/leads (eligibility form) - requires Supabase JWT (cannot be easily minted from test script)
+      
+      RECOMMENDATION FOR MAIN AGENT:
+        Meta Pixel + CAPI integration is working correctly. All backend tests passed. Ready to summarize and finish.
 

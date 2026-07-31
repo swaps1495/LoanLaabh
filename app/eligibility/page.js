@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowRight, CheckCircle2, Sparkles, Loader2, ChevronLeft, MessageCircle, AlertTriangle, AlertCircle, Star, Brain, BadgeCheck, ShieldCheck, Landmark } from 'lucide-react'
 import { getAttribution } from '@/lib/attribution'
+import { newEventId, fireMetaEvent } from '@/lib/meta-events'
 
 const LOAN_TYPES = [
   { value: 'personal', label: 'Personal Loan', emoji: '💼' },
@@ -80,6 +81,11 @@ export default function EligibilityPage() {
       const d = await r.json()
       if (d.has_active) setActiveApp(d.active)
       setAuthChecked(true)
+      // Fire Meta Pixel InitiateCheckout on eligibility form entry
+      fireMetaEvent('InitiateCheckout', {
+        content_name: 'eligibility_form',
+        content_category: 'loan_eligibility',
+      })
     })()
   }, [router])
 
@@ -98,15 +104,29 @@ export default function EligibilityPage() {
     setSubmitting(true); setError(null); setLoadingStep(0)
     const timer = setInterval(() => setLoadingStep(s => Math.min(s + 1, 4)), 1300)
     const started = Date.now()
+    const eventId = newEventId()
     try {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ ...form, attribution: getAttribution() }),
+        body: JSON.stringify({
+          ...form,
+          attribution: getAttribution(),
+          event_id: eventId,
+          event_source_url: typeof window !== 'undefined' ? window.location.href : undefined,
+        }),
       })
       const data = await res.json()
       if (res.status === 409) { setActiveApp(data.active); return }
       if (!res.ok) throw new Error(data.error || 'Submission failed')
+      // Fire Meta Pixel CompleteRegistration on successful submission (same event_id as CAPI)
+      fireMetaEvent('CompleteRegistration', {
+        content_name: form.loan_type,
+        content_category: 'loan_eligibility',
+        value: Number(form.loan_amount) || 0,
+        currency: 'INR',
+        status: data.approval_probability,
+      }, eventId)
       // Ensure the FinMatrix analysis animation completes all 5 steps
       const remaining = Math.max(0, 6800 - (Date.now() - started))
       await new Promise(r => setTimeout(r, remaining))

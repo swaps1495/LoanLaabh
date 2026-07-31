@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { getSupabaseBrowser } from '@/lib/supabase-browser'
 import { MessageCircle, X, Send, Sparkles, Loader2, CheckCircle2 } from 'lucide-react'
 import { getAttribution } from '@/lib/attribution'
+import { newEventId, fireMetaEvent } from '@/lib/meta-events'
 
 const HELPLINE = '7770024242'
 
@@ -89,6 +90,7 @@ export default function AskLfmai() {
         }, { onConflict: 'id' })
       } catch (_) { /* non-blocking */ }
       try {
+        const eventId = newEventId()
         await fetch('/api/leads/capture', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -96,8 +98,14 @@ export default function AskLfmai() {
             full_name: flow.name, mobile: flow.mobile, email,
             consent: true, source_cta: 'chatbot',
             attribution: getAttribution(),
+            event_id: eventId,
+            event_source_url: typeof window !== 'undefined' ? window.location.href : undefined,
           }),
         })
+        fireMetaEvent('Lead', {
+          content_name: 'chatbot_lead_capture',
+          content_category: 'loan_lead',
+        }, eventId)
       } catch (_) { /* non-blocking */ }
       return true
     } catch (e) {

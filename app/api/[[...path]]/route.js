@@ -5,6 +5,7 @@ import { screenLenders, computeFoir } from '@/lib/matching'
 import { analyzeLeadAI } from '@/lib/ai'
 import { attrToColumns, buildRetryTags } from '@/lib/attribution-server'
 import { classifySource } from '@/lib/source-classifier'
+import { buildUserData, sendMetaCapiEventSafe, fbcFromFbclid } from '@/lib/meta-capi'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -278,6 +279,29 @@ async function handle(request, { params }) {
         await sb.from('matches').insert(matchRows)
       }
 
+      // Fire Meta CAPI CompleteRegistration event (post-eligibility)
+      {
+        const fbcVal = attrFirst?._fbc || fbcFromFbclid(attrFirst?.fbclid)
+        await sendMetaCapiEventSafe({
+          request,
+          event_name: 'CompleteRegistration',
+          event_id: b.event_id || `srv-cr-${row.id}`,
+          event_source_url: b.event_source_url || attrFirst?.landing_page || 'https://loanlaabh.com/eligibility',
+          user: buildUserData(request, {
+            email: user.email, phone: cleanMobile, fullName: lead.full_name,
+            fbp: attrFirst?._fbp || null, fbc: fbcVal,
+            external_id: row.id, city: lead.city,
+          }),
+          custom_data: {
+            content_name: lead.loan_type,
+            content_category: 'loan_eligibility',
+            value: Number(lead.loan_amount) || 0,
+            currency: 'INR',
+            status: ai.approval_probability,
+          },
+        })
+      }
+
       return cors(NextResponse.json({
         lead_id: row.id,
         first_name: lead.full_name.split(' ')[0],
@@ -376,9 +400,10 @@ async function handle(request, { params }) {
 
     // ============ LEAD CAPTURE (public, pre-eligibility) ============
     // Phase-1 attribution + dedupe by mobile OR email.
+    // Also fires Meta CAPI `Lead` event with deduplication via event_id.
     if (route === '/leads/capture' && method === 'POST') {
       const body = await request.json().catch(() => ({}))
-      const { full_name, mobile, email, consent, source_cta, attribution } = body
+      const { full_name, mobile, email, consent, source_cta, attribution, event_id, event_source_url } = body
       if (!full_name || !mobile || !email) {
         return cors(NextResponse.json({ error: 'Missing required fields' }, { status: 400 }))
       }
@@ -427,6 +452,24 @@ async function handle(request, { params }) {
             .from('lead_captures').update(patch).eq('id', row.id).select().maybeSingle()
           if (updErr && isNetworkError(updErr)) return supabaseUnreachable()
 
+          // Fire Meta CAPI Lead event (server-side, deduped with browser eventID)
+          const fbcVal = first?._fbc || fbcFromFbclid(first?.fbclid)
+          await sendMetaCapiEventSafe({
+            request,
+            event_name: 'Lead',
+            event_id: event_id || `srv-${row.id}-${Date.now()}`,
+            event_source_url: event_source_url || first?.landing_page || 'https://loanlaabh.com/',
+            user: buildUserData(request, {
+              email: cleanEmail, phone: cleanMobile, fullName: cleanName,
+              fbp: first?._fbp || null, fbc: fbcVal, external_id: row.id,
+            }),
+            custom_data: {
+              content_name: source_cta || 'lead_capture',
+              content_category: 'loan_lead',
+              lead_event_source: 'returning_lead',
+            },
+          })
+
           return cors(NextResponse.json({
             ok: true,
             lead_id: row.id,
@@ -468,6 +511,24 @@ async function handle(request, { params }) {
           }
           return cors(NextResponse.json({ ok: true, warning: insErr.message }))
         }
+
+        // Fire Meta CAPI Lead event for new lead
+        const fbcVal = first?._fbc || fbcFromFbclid(first?.fbclid)
+        await sendMetaCapiEventSafe({
+          request,
+          event_name: 'Lead',
+          event_id: event_id || `srv-${inserted?.id || Date.now()}`,
+          event_source_url: event_source_url || first?.landing_page || 'https://loanlaabh.com/',
+          user: buildUserData(request, {
+            email: cleanEmail, phone: cleanMobile, fullName: cleanName,
+            fbp: first?._fbp || null, fbc: fbcVal, external_id: inserted?.id,
+          }),
+          custom_data: {
+            content_name: source_cta || 'lead_capture',
+            content_category: 'loan_lead',
+            lead_event_source: 'new_lead',
+          },
+        })
 
         return cors(NextResponse.json({ ok: true, lead_id: inserted?.id, returning: false }))
       } catch (e) {

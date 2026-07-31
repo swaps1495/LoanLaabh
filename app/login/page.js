@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Loader2, Mail, ArrowLeft, ArrowRight, Phone, User, ShieldCheck, BadgeCheck, Brain, HeartHandshake, Sparkles, CheckCircle2 } from 'lucide-react'
 import { getAttribution } from '@/lib/attribution'
+import { newEventId, fireMetaEvent } from '@/lib/meta-events'
 
 export default function LoginPage() {
   return (
@@ -103,6 +104,7 @@ function LoginInner() {
       } catch (_) { /* non-blocking */ }
 
       // Log capture event
+      const eventId = newEventId()
       try {
         await fetch('/api/leads/capture', {
           method: 'POST',
@@ -114,9 +116,16 @@ function LoginInner() {
             consent: true,
             source_cta: redirect,
             attribution: getAttribution(),
+            event_id: eventId,
+            event_source_url: typeof window !== 'undefined' ? window.location.href : undefined,
           }),
         })
       } catch (_) { /* non-blocking */ }
+      // Fire Meta Pixel Lead event with same event_id for CAPI dedupe
+      fireMetaEvent('Lead', {
+        content_name: 'login_lead_capture',
+        content_category: 'loan_lead',
+      }, eventId)
 
       router.replace(redirect)
     } catch (e) {
