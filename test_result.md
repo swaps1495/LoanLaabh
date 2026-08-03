@@ -113,6 +113,15 @@ user_problem_statement: |
   - Supabase (Postgres) for persistence, admin password auth
 
 backend:
+  - task: "Self-healing insert path for /api/leads (missing column auto-fallback)"
+    implemented: true
+    working: "NA"
+    file: "app/api/[[...path]]/route.js"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "User reported HTTP 500 on eligibility form submit: 'Could not find the requested_amount column of leads in the schema cache'. Root cause: /api/leads POST tries to insert requested_amount + full attribution set, but user's Supabase leads table is missing requested_amount column (migration_v4.sql was never applied). Previous fallback only stripped attribution columns, so requested_amount kept failing. FIX: Extended insert flow to 3 attempts — (1) full enriched insert, (2) strip attribution columns and retry, (3) auto-heal loop that parses missing column name from Postgrest error ('could not find X column' or 'column \"X\" does not exist'), removes it from the payload, and retries. Loop runs up to 6 times to handle multiple missing columns. Also created /app/lib/migrations/fix_requested_amount.sql for user to optionally add the column permanently."
   - task: "Meta Pixel + Conversions API (CAPI) integration"
     implemented: true
     working: true

@@ -245,13 +245,15 @@ async function handle(request, { params }) {
         consent_at: (lead.consent_share || lead.consent_terms) ? new Date().toISOString() : null,
       }
 
-      // Try insert with attribution; fall back gracefully if migration not yet applied
+      // Try insert with attribution; fall back gracefully if any column doesn't exist yet
       let row, e1
       {
+        // Attempt 1 — full enriched insert (with attribution)
         const res = await sb.from('leads').insert(enriched).select().single()
         row = res.data; e1 = res.error
+
+        // Attempt 2 — strip all known attribution columns (schema without Phase-1 migration)
         if (e1 && /column .* does not exist|schema cache/i.test(e1.message || '')) {
-          // Fallback — insert without new attribution columns
           const { retry_count, tags, last_activity_at, consent_at,
             original_source_type, original_utm_source, original_utm_medium,
             original_utm_campaign, original_utm_content, original_utm_term,
@@ -264,6 +266,43 @@ async function handle(request, { params }) {
             ...safe } = enriched
           const res2 = await sb.from('leads').insert(safe).select().single()
           row = res2.data; e1 = res2.error
+        }
+
+        // Attempt 3 — generic column-missing auto-heal loop.
+        // Parses the missing column name from the error and retries WITHOUT that column.
+        // Retries up to 6 times to handle multiple missing columns one-by-one.
+        {
+          let current = { ...(row ? {} : enriched) }
+          // Rebuild `current` payload only if attempt 1/2 both failed
+          if (e1 && /column .* does not exist|schema cache/i.test(e1.message || '')) {
+            // Start from the same safe subset used in attempt 2
+            const { retry_count, tags, last_activity_at, consent_at,
+              original_source_type, original_utm_source, original_utm_medium,
+              original_utm_campaign, original_utm_content, original_utm_term,
+              original_fbclid, original_gclid, original_fbp, original_fbc,
+              original_referrer, original_landing_page, original_device_type,
+              original_browser, original_platform, first_visit_at,
+              latest_source_type, latest_utm_source, latest_utm_medium,
+              latest_utm_campaign, latest_utm_content, latest_utm_term,
+              latest_referrer, latest_landing_page,
+              ...safe } = enriched
+            current = { ...safe }
+          }
+          let attempts = 0
+          while (e1 && /column .* does not exist|schema cache/i.test(e1.message || '') && attempts < 6) {
+            const msg = e1.message || ''
+            // Postgrest error messages look like:
+            //   "Could not find the 'requested_amount' column of 'leads' in the schema cache"
+            //   or  "column \"foo\" of relation \"leads\" does not exist"
+            const m1 = msg.match(/'([a-z_][a-z0-9_]*)' column of/i)
+            const m2 = msg.match(/column "([a-z_][a-z0-9_]*)"/i)
+            const col = (m1 && m1[1]) || (m2 && m2[1])
+            if (!col || !(col in current)) break
+            delete current[col]
+            const resN = await sb.from('leads').insert(current).select().single()
+            row = resN.data; e1 = resN.error
+            attempts++
+          }
         }
       }
       if (e1) {
