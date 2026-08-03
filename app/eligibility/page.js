@@ -54,7 +54,8 @@ export default function EligibilityPage() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
   const [form, setForm] = useState({
-    full_name: '', mobile: '', pan: '', city: '', pincode: '', age: '', city_tier: 'Metro',
+    full_name: '', mobile: '', pan: '', city: '', pincode: '', pin_code: '', age: '', city_tier: 'Metro',
+    dob: '', gender: '',
     residence_type: '',
     employment_type: '', company_name: '', designation: '',
     total_experience_years: '', current_company_experience_years: '', salary_account_bank: '',
@@ -90,7 +91,7 @@ export default function EligibilityPage() {
   }, [router])
 
   const stepValid = () => {
-    if (step === 0) return form.full_name.trim().length > 1 && /^\d{10}$/.test(form.mobile) && form.age
+    if (step === 0) return form.full_name.trim().length > 1 && /^\d{10}$/.test(form.mobile) && form.age && form.dob && form.gender && /^\d{6}$/.test(form.pin_code || form.pincode || '')
     if (step === 1) return !!form.residence_type
     if (step === 2) return !!form.employment_type
     if (step === 3) return Number(form.net_monthly_salary) > 0 && form.pf_deducted !== null && form.pt_deducted !== null
@@ -321,8 +322,20 @@ export default function EligibilityPage() {
                 <div className="sm:col-span-2"><Label>Full Name *</Label><Input value={form.full_name} onChange={e => update('full_name', e.target.value)} placeholder="As per PAN" /></div>
                 <div><Label>Mobile *</Label><Input value={form.mobile} onChange={e => update('mobile', e.target.value.replace(/\D/g,'').slice(0,10))} placeholder="10-digit" /></div>
                 <div><Label>PAN</Label><Input value={form.pan} onChange={e => update('pan', e.target.value.toUpperCase().slice(0,10))} placeholder="ABCDE1234F" /></div>
+                <div><Label>Date of Birth *</Label><Input type="date" value={form.dob} onChange={e => update('dob', e.target.value)} max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]} /></div>
+                <div>
+                  <Label>Gender *</Label>
+                  <Select value={form.gender} onValueChange={v => update('gender', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div><Label>City</Label><Input value={form.city} onChange={e => update('city', e.target.value)} placeholder="Mumbai" /></div>
-                <div><Label>Pincode</Label><Input value={form.pincode} onChange={e => update('pincode', e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="400001" /></div>
+                <div><Label>Pin Code *</Label><Input value={form.pin_code || form.pincode} onChange={e => { const v = e.target.value.replace(/\D/g,'').slice(0,6); update('pin_code', v); update('pincode', v) }} placeholder="400001" /></div>
                 <div className="sm:col-span-2">
                   <Label>City Tier</Label>
                   <Select value={form.city_tier} onValueChange={v => update('city_tier', v)}>

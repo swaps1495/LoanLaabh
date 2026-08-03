@@ -133,6 +133,125 @@ async function handle(request, { params }) {
       return cors(NextResponse.json({ has_active: (data || []).length > 0, active: data?.[0] || null }))
     }
 
+    // ============ USER PROFILE (auth required) ============
+    // Merged read from profiles + latest lead so user sees prefilled fields.
+    if (route === '/profile' && method === 'GET') {
+      const user = await getUserFromAuthHeader(request)
+      if (!user) return unauth()
+      const sb = getSupabaseServer(); if (!sb) return noConf()
+      try {
+        const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle()
+        const { data: leadRows } = await sb.from('leads').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1)
+        const latestLead = leadRows && leadRows[0]
+
+        // Merge: profile fields win. Lead used for auto-prefill when profile lacks value.
+        const merged = {
+          id: user.id,
+          email: user.email,
+          created_at: user.created_at || profile?.created_at || null,
+          // Personal
+          full_name: profile?.full_name || latestLead?.full_name || '',
+          phone: profile?.phone || latestLead?.mobile || user.phone || '',
+          dob: profile?.dob || latestLead?.dob || null,
+          gender: profile?.gender || latestLead?.gender || null,
+          pan: profile?.pan || latestLead?.pan || '',
+          address: profile?.address || '',
+          city: profile?.city || latestLead?.city || '',
+          pin_code: profile?.pin_code || latestLead?.pin_code || '',
+          // Work
+          occupation_type: profile?.occupation_type || latestLead?.employment_type || '',
+          employer_name: profile?.employer_name || latestLead?.salary_account_bank || '',
+          work_email: profile?.work_email || '',
+          office_number: profile?.office_number || '',
+          work_address: profile?.work_address || '',
+          total_experience_years: profile?.total_experience_years ?? latestLead?.total_experience_years ?? null,
+          // Notification prefs (default true if never set)
+          notif_sms: profile?.notif_sms ?? true,
+          notif_email: profile?.notif_email ?? true,
+          notif_whatsapp: profile?.notif_whatsapp ?? true,
+          // Deletion status
+          deletion_requested_at: profile?.deletion_requested_at || null,
+        }
+        return cors(NextResponse.json({ profile: merged }))
+      } catch (e) {
+        if (isNetworkError(e)) return supabaseUnreachable()
+        return cors(NextResponse.json({ error: e.message }, { status: 500 }))
+      }
+    }
+
+    if (route === '/profile' && method === 'PATCH') {
+      const user = await getUserFromAuthHeader(request)
+      if (!user) return unauth()
+      const sb = getSupabaseServer(); if (!sb) return noConf()
+
+      const b = await request.json().catch(() => ({}))
+      // Allow-list of editable fields (email is locked)
+      const patch = {}
+      const allowed = ['full_name','phone','dob','gender','pan','address','city','pin_code',
+        'occupation_type','employer_name','work_email','office_number','work_address',
+        'total_experience_years','notif_sms','notif_email','notif_whatsapp']
+      for (const k of allowed) if (k in b) patch[k] = b[k]
+
+      // Light validation / normalization
+      if (patch.phone != null) patch.phone = String(patch.phone).replace(/\D/g, '').slice(0, 10) || null
+      if (patch.pan != null) patch.pan = String(patch.pan).toUpperCase().slice(0, 10) || null
+      if (patch.pin_code != null) patch.pin_code = String(patch.pin_code).replace(/\D/g, '').slice(0, 6) || null
+      if (patch.work_email != null) patch.work_email = String(patch.work_email).toLowerCase().trim() || null
+      if (patch.gender != null) patch.gender = String(patch.gender).toLowerCase().trim() || null
+      if (patch.dob === '') patch.dob = null
+      // Ensure notif_* are booleans if present
+      for (const k of ['notif_sms','notif_email','notif_whatsapp']) {
+        if (k in patch) patch[k] = !!patch[k]
+      }
+      patch.updated_at = new Date().toISOString()
+
+      try {
+        const upsertRow = { id: user.id, email: user.email, ...patch }
+        // Try upsert (creates row if missing)
+        let { data, error } = await sb.from('profiles').upsert(upsertRow, { onConflict: 'id' }).select().maybeSingle()
+
+        // Auto-heal loop for missing columns (same pattern as /leads)
+        let attempts = 0
+        while (error && /column .* does not exist|schema cache/i.test(error.message || '') && attempts < 6) {
+          const m1 = (error.message || '').match(/'([a-z_][a-z0-9_]*)' column of/i)
+          const m2 = (error.message || '').match(/column "([a-z_][a-z0-9_]*)"/i)
+          const col = (m1 && m1[1]) || (m2 && m2[1])
+          if (!col || !(col in upsertRow)) break
+          delete upsertRow[col]
+          const r = await sb.from('profiles').upsert(upsertRow, { onConflict: 'id' }).select().maybeSingle()
+          data = r.data; error = r.error
+          attempts++
+        }
+        if (error) {
+          if (isNetworkError(error)) return supabaseUnreachable()
+          return cors(NextResponse.json({ error: error.message }, { status: 500 }))
+        }
+        return cors(NextResponse.json({ ok: true, profile: data }))
+      } catch (e) {
+        if (isNetworkError(e)) return supabaseUnreachable()
+        return cors(NextResponse.json({ error: e.message }, { status: 500 }))
+      }
+    }
+
+    // Soft account deletion — sets a marker; admin actually deletes later
+    if (route === '/profile/delete-request' && method === 'POST') {
+      const user = await getUserFromAuthHeader(request)
+      if (!user) return unauth()
+      const sb = getSupabaseServer(); if (!sb) return noConf()
+      try {
+        const { error } = await sb.from('profiles')
+          .upsert({ id: user.id, email: user.email, deletion_requested_at: new Date().toISOString() }, { onConflict: 'id' })
+        if (error) {
+          if (isNetworkError(error)) return supabaseUnreachable()
+          return cors(NextResponse.json({ error: error.message }, { status: 500 }))
+        }
+        return cors(NextResponse.json({ ok: true, requested_at: new Date().toISOString() }))
+      } catch (e) {
+        if (isNetworkError(e)) return supabaseUnreachable()
+        return cors(NextResponse.json({ error: e.message }, { status: 500 }))
+      }
+    }
+
     // ============ LEAD SUBMISSION (requires auth) ============
     if (route === '/leads' && method === 'POST') {
       const user = await getUserFromAuthHeader(request)
@@ -187,12 +306,39 @@ async function handle(request, { params }) {
         credit_band: b.credit_band || 'unknown',
         recent_enquiries: b.recent_enquiries || null,
         latest_credit_enquiries_count: b.latest_credit_enquiries_count ? Number(b.latest_credit_enquiries_count) : (b.recent_enquiries === 'yes' ? 3 : 0),
+        // Extended personal fields (new — for profile pre-fill)
+        dob: b.dob || null,
+        gender: b.gender ? String(b.gender).toLowerCase() : null,
+        pin_code: b.pin_code ? String(b.pin_code).replace(/\D/g, '').slice(0, 6) : null,
         consent_share: !!b.consent_share, consent_terms: !!b.consent_terms,
       }
       lead.foir = computeFoir(lead.existing_emi, lead.net_monthly_salary)
 
-      // Update profile with latest info
-      await sb.from('profiles').upsert({ id: user.id, email: user.email, full_name: lead.full_name, phone: lead.mobile, city: lead.city, updated_at: new Date().toISOString() })
+      // Update profile with latest info (safe upsert — auto-heals missing columns)
+      {
+        const profileRow = {
+          id: user.id, email: user.email,
+          full_name: lead.full_name, phone: lead.mobile, city: lead.city,
+          pan: lead.pan, dob: lead.dob, gender: lead.gender, pin_code: lead.pin_code,
+          occupation_type: lead.employment_type,
+          employer_name: lead.salary_account_bank,
+          total_experience_years: lead.total_experience_years,
+          updated_at: new Date().toISOString(),
+        }
+        let { error: pe } = await sb.from('profiles').upsert(profileRow, { onConflict: 'id' })
+        let attempts = 0
+        while (pe && /column .* does not exist|schema cache/i.test(pe.message || '') && attempts < 6) {
+          const m1 = (pe.message || '').match(/'([a-z_][a-z0-9_]*)' column of/i)
+          const m2 = (pe.message || '').match(/column "([a-z_][a-z0-9_]*)"/i)
+          const col = (m1 && m1[1]) || (m2 && m2[1])
+          if (!col || !(col in profileRow)) break
+          delete profileRow[col]
+          const r = await sb.from('profiles').upsert(profileRow, { onConflict: 'id' })
+          pe = r.error
+          attempts++
+        }
+        // Ignore residual error — profile sync is best-effort, never blocks lead flow
+      }
 
       const { data: lenders } = await sb.from('lender_criteria').select('*').eq('active', true)
       const lenderIds = (lenders || []).map(l => l.id)

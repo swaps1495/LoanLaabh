@@ -80,8 +80,11 @@ export default function DashboardPage() {
             <img src="/logo-icon.png" alt="LoanLaabh logo" className="w-9 h-9 object-contain" />
             Loan<span className="text-blue-600">Laabh</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="text-sm text-slate-600 hidden sm:block">{user?.email}</div>
+            <Link href="/dashboard/profile">
+              <Button variant="outline" size="sm"><User className="h-4 w-4 mr-1" /> Profile</Button>
+            </Link>
             <Button variant="ghost" size="sm" onClick={logout}><LogOut className="h-4 w-4 mr-1" /> Logout</Button>
           </div>
         </div>

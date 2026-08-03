@@ -1,340 +1,414 @@
 #!/usr/bin/env python3
 """
-Backend API Test Suite for LoanLaabh
-Bug Fix Verification: /api/leads auto-heal loop for missing columns
+Backend verification for User Profile feature
+Tests all profile endpoints + regression tests + code review
 """
-
 import requests
 import json
 import sys
-from datetime import datetime
 
-# Base URL from .env
-BASE_URL = "https://loan-match-hub-2.preview.emergentagent.com/api"
+BASE_URL = "http://localhost:3000/api"
 ADMIN_PASSWORD = "Sw@ps9409"
 
-def log(msg):
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
-
 def test_health_check():
-    """Test 1: Health check endpoint"""
+    """Test 1: Sanity — health check"""
+    print("\n=== Test 1: Health Check ===")
     try:
-        log("TEST 1: Health check GET /api")
-        resp = requests.get(f"{BASE_URL.replace('/api', '')}/api", timeout=10)
-        log(f"  Status: {resp.status_code}")
-        data = resp.json()
-        log(f"  Response: {json.dumps(data, indent=2)}")
+        r = requests.get(f"{BASE_URL.replace('/api', '')}/api", timeout=10)
+        print(f"Status: {r.status_code}")
+        data = r.json()
+        print(f"Response: {json.dumps(data, indent=2)}")
         
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
+        assert r.status_code == 200, f"Expected 200, got {r.status_code}"
         assert data.get('ok') == True, "Expected ok:true"
         assert data.get('app') == 'LoanLaabh', "Expected app:LoanLaabh"
-        
-        log("  ✅ PASSED - Health check working")
+        print("✅ PASS: Health check working")
         return True
     except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
+        print(f"❌ FAIL: {e}")
         return False
 
 def test_keepalive():
-    """Test 2: Keepalive endpoint (Supabase connectivity)"""
+    """Test 2: Sanity — keepalive"""
+    print("\n=== Test 2: Keepalive ===")
     try:
-        log("TEST 2: Keepalive GET /api/keepalive")
-        resp = requests.get(f"{BASE_URL}/keepalive", timeout=10)
-        log(f"  Status: {resp.status_code}")
-        data = resp.json()
-        log(f"  Response: {json.dumps(data, indent=2)}")
+        r = requests.get(f"{BASE_URL}/keepalive", timeout=10)
+        print(f"Status: {r.status_code}")
+        data = r.json()
+        print(f"Response: {json.dumps(data, indent=2)}")
         
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
+        assert r.status_code == 200, f"Expected 200, got {r.status_code}"
         assert data.get('db') == 'alive', "Expected db:alive"
-        
-        log("  ✅ PASSED - Supabase is alive")
+        print("✅ PASS: Keepalive working, Supabase is alive")
         return True
     except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
+        print(f"❌ FAIL: {e}")
         return False
 
-def test_admin_login():
-    """Test 3: Admin login"""
+def test_profile_get_auth_guard():
+    """Test 3: Auth guard on GET /api/profile"""
+    print("\n=== Test 3: GET /api/profile WITHOUT auth ===")
     try:
-        log("TEST 3: Admin login POST /api/admin/login")
-        resp = requests.post(
-            f"{BASE_URL}/admin/login",
-            json={"password": ADMIN_PASSWORD},
-            timeout=10
-        )
-        log(f"  Status: {resp.status_code}")
-        data = resp.json()
-        log(f"  Response: {json.dumps(data, indent=2)}")
+        r = requests.get(f"{BASE_URL}/profile", timeout=10)
+        print(f"Status: {r.status_code}")
+        data = r.json()
+        print(f"Response: {json.dumps(data, indent=2)}")
         
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
-        assert data.get('success') == True, "Expected success:true"
-        
-        # Extract cookie
-        cookie = resp.cookies.get('loanlaabh_admin')
-        assert cookie, "Expected admin cookie to be set"
-        
-        log(f"  ✅ PASSED - Admin login successful, cookie: {cookie[:20]}...")
-        return cookie
-    except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
-        return None
-
-def test_get_leads(cookie):
-    """Test 4: GET /api/leads (regression check)"""
-    try:
-        log("TEST 4: GET /api/leads (with admin cookie)")
-        resp = requests.get(
-            f"{BASE_URL}/leads",
-            cookies={'loanlaabh_admin': cookie},
-            timeout=10
-        )
-        log(f"  Status: {resp.status_code}")
-        data = resp.json()
-        log(f"  Response keys: {list(data.keys())}")
-        
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
-        assert 'leads' in data, "Expected 'leads' key in response"
-        assert isinstance(data['leads'], list), "Expected leads to be an array"
-        
-        log(f"  ✅ PASSED - GET /api/leads working, {len(data['leads'])} leads returned")
+        assert r.status_code == 401, f"Expected 401, got {r.status_code}"
+        assert data.get('error') == 'Unauthorized', "Expected error:Unauthorized"
+        print("✅ PASS: Auth guard working on GET /api/profile")
         return True
     except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
+        print(f"❌ FAIL: {e}")
         return False
 
-def test_get_lender_criteria(cookie):
-    """Test 5: GET /api/lender-criteria (regression check)"""
+def test_profile_patch_auth_guard():
+    """Test 4: Auth guard on PATCH /api/profile"""
+    print("\n=== Test 4: PATCH /api/profile WITHOUT auth ===")
     try:
-        log("TEST 5: GET /api/lender-criteria (with admin cookie)")
-        resp = requests.get(
-            f"{BASE_URL}/lender-criteria",
-            cookies={'loanlaabh_admin': cookie},
-            timeout=10
-        )
-        log(f"  Status: {resp.status_code}")
-        data = resp.json()
-        log(f"  Response keys: {list(data.keys())}")
+        r = requests.patch(f"{BASE_URL}/profile", json={"full_name": "Test"}, timeout=10)
+        print(f"Status: {r.status_code}")
+        data = r.json()
+        print(f"Response: {json.dumps(data, indent=2)}")
         
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
-        assert 'lenders' in data, "Expected 'lenders' key in response"
-        assert isinstance(data['lenders'], list), "Expected lenders to be an array"
-        
-        log(f"  ✅ PASSED - GET /api/lender-criteria working, {len(data['lenders'])} lenders returned")
+        assert r.status_code == 401, f"Expected 401, got {r.status_code}"
+        assert data.get('error') == 'Unauthorized', "Expected error:Unauthorized"
+        print("✅ PASS: Auth guard working on PATCH /api/profile")
         return True
     except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
+        print(f"❌ FAIL: {e}")
         return False
 
-def test_get_lead_captures(cookie):
-    """Test 6: GET /api/lead-captures (regression check)"""
+def test_profile_delete_request_auth_guard():
+    """Test 5: Auth guard on POST /api/profile/delete-request"""
+    print("\n=== Test 5: POST /api/profile/delete-request WITHOUT auth ===")
     try:
-        log("TEST 6: GET /api/lead-captures (with admin cookie)")
-        resp = requests.get(
-            f"{BASE_URL}/lead-captures",
-            cookies={'loanlaabh_admin': cookie},
-            timeout=10
-        )
-        log(f"  Status: {resp.status_code}")
-        data = resp.json()
-        log(f"  Response keys: {list(data.keys())}")
+        r = requests.post(f"{BASE_URL}/profile/delete-request", timeout=10)
+        print(f"Status: {r.status_code}")
+        data = r.json()
+        print(f"Response: {json.dumps(data, indent=2)}")
         
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
-        assert 'lead_captures' in data, "Expected 'lead_captures' key in response"
-        assert isinstance(data['lead_captures'], list), "Expected lead_captures to be an array"
-        
-        log(f"  ✅ PASSED - GET /api/lead-captures working, {len(data['lead_captures'])} captures returned")
+        assert r.status_code == 401, f"Expected 401, got {r.status_code}"
+        assert data.get('error') == 'Unauthorized', "Expected error:Unauthorized"
+        print("✅ PASS: Auth guard working on POST /api/profile/delete-request")
         return True
     except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
+        print(f"❌ FAIL: {e}")
         return False
 
-def test_lead_capture_basic():
-    """Test 7: POST /api/leads/capture (basic submission)"""
+def test_code_review_merged_profile():
+    """Test 6: Code review of merged profile logic"""
+    print("\n=== Test 6: Code Review — Merged Profile Logic ===")
     try:
-        log("TEST 7: POST /api/leads/capture (basic submission)")
+        with open('/app/app/api/[[...path]]/route.js', 'r') as f:
+            code = f.read()
         
-        # Use realistic data
-        payload = {
-            "full_name": "Rajesh Kumar",
-            "mobile": "9876543210",
-            "email": "rajesh.kumar@example.com",
+        # Find GET /api/profile handler
+        if "route === '/profile' && method === 'GET'" not in code:
+            print("❌ FAIL: GET /api/profile handler not found")
+            return False
+        
+        checks = [
+            ("id: user.id", "Returns id from user session"),
+            ("email: user.email", "Returns email from user session"),
+            ("full_name: profile?.full_name || latestLead?.full_name", "full_name fallback to lead"),
+            ("phone: profile?.phone || latestLead?.mobile", "phone fallback to lead mobile"),
+            ("dob: profile?.dob || latestLead?.dob", "dob fallback to lead"),
+            ("gender: profile?.gender || latestLead?.gender", "gender fallback to lead"),
+            ("pan: profile?.pan || latestLead?.pan", "pan fallback to lead"),
+            ("city: profile?.city || latestLead?.city", "city fallback to lead"),
+            ("pin_code: profile?.pin_code || latestLead?.pin_code", "pin_code fallback to lead"),
+            ("occupation_type: profile?.occupation_type || latestLead?.employment_type", "occupation_type fallback to employment_type"),
+            ("employer_name: profile?.employer_name || latestLead?.salary_account_bank", "employer_name fallback to salary_account_bank"),
+            ("total_experience_years: profile?.total_experience_years ?? latestLead?.total_experience_years", "total_experience_years fallback"),
+            ("notif_sms: profile?.notif_sms ?? true", "notif_sms defaults to true"),
+            ("notif_email: profile?.notif_email ?? true", "notif_email defaults to true"),
+            ("notif_whatsapp: profile?.notif_whatsapp ?? true", "notif_whatsapp defaults to true"),
+            ("deletion_requested_at: profile?.deletion_requested_at", "deletion_requested_at returned"),
+        ]
+        
+        all_passed = True
+        for check_str, desc in checks:
+            if check_str in code:
+                print(f"  ✅ {desc}")
+            else:
+                print(f"  ❌ MISSING: {desc}")
+                all_passed = False
+        
+        if all_passed:
+            print("✅ PASS: Merged profile logic verified")
+            return True
+        else:
+            print("❌ FAIL: Some checks failed")
+            return False
+    except Exception as e:
+        print(f"❌ FAIL: {e}")
+        return False
+
+def test_code_review_patch_normalization():
+    """Test 7: Code review of PATCH /api/profile normalization"""
+    print("\n=== Test 7: Code Review — PATCH Normalization ===")
+    try:
+        with open('/app/app/api/[[...path]]/route.js', 'r') as f:
+            code = f.read()
+        
+        # Find PATCH /api/profile handler
+        if "route === '/profile' && method === 'PATCH'" not in code:
+            print("❌ FAIL: PATCH /api/profile handler not found")
+            return False
+        
+        checks = [
+            ("const allowed = ['full_name','phone','dob','gender','pan','address','city','pin_code',", "Allow-list defined"),
+            ("'occupation_type','employer_name','work_email','office_number','work_address',", "Work fields in allow-list"),
+            ("'total_experience_years','notif_sms','notif_email','notif_whatsapp']", "Notification prefs in allow-list"),
+            ("patch.phone = String(patch.phone).replace(/\\D/g, '').slice(0, 10)", "phone normalized to digits, max 10"),
+            ("patch.pan = String(patch.pan).toUpperCase().slice(0, 10)", "pan uppercased, max 10"),
+            ("patch.pin_code = String(patch.pin_code).replace(/\\D/g, '').slice(0, 6)", "pin_code digits only, max 6"),
+            ("patch.work_email = String(patch.work_email).toLowerCase().trim()", "work_email lowercased + trimmed"),
+            ("patch.gender = String(patch.gender).toLowerCase().trim()", "gender lowercased"),
+            ("if (patch.dob === '') patch.dob = null", "Empty dob becomes null"),
+            ("if (k in patch) patch[k] = !!patch[k]", "notif_* coerced to booleans"),
+            ("upsert(upsertRow, { onConflict: 'id' })", "Uses upsert with onConflict:id"),
+            ("while (error && /column .* does not exist|schema cache/i.test", "Auto-heal loop for missing columns"),
+        ]
+        
+        all_passed = True
+        for check_str, desc in checks:
+            if check_str in code:
+                print(f"  ✅ {desc}")
+            else:
+                print(f"  ❌ MISSING: {desc}")
+                all_passed = False
+        
+        # Check that email is NOT in allowed list
+        if "'email'" not in code[code.find("const allowed = ["):code.find("const allowed = [") + 300]:
+            print(f"  ✅ email NOT in allow-list (locked)")
+        else:
+            print(f"  ❌ email should NOT be in allow-list")
+            all_passed = False
+        
+        if all_passed:
+            print("✅ PASS: PATCH normalization logic verified")
+            return True
+        else:
+            print("❌ FAIL: Some checks failed")
+            return False
+    except Exception as e:
+        print(f"❌ FAIL: {e}")
+        return False
+
+def test_code_review_delete_request():
+    """Test 8: Code review of delete-request"""
+    print("\n=== Test 8: Code Review — Delete Request ===")
+    try:
+        with open('/app/app/api/[[...path]]/route.js', 'r') as f:
+            code = f.read()
+        
+        # Find POST /api/profile/delete-request handler
+        if "route === '/profile/delete-request' && method === 'POST'" not in code:
+            print("❌ FAIL: POST /api/profile/delete-request handler not found")
+            return False
+        
+        checks = [
+            ("deletion_requested_at: new Date().toISOString()", "Sets deletion_requested_at timestamp"),
+            ("upsert({ id: user.id, email: user.email, deletion_requested_at", "Uses upsert (soft delete)"),
+            ("return cors(NextResponse.json({ ok: true, requested_at:", "Returns ok:true with requested_at"),
+        ]
+        
+        all_passed = True
+        for check_str, desc in checks:
+            if check_str in code:
+                print(f"  ✅ {desc}")
+            else:
+                print(f"  ❌ MISSING: {desc}")
+                all_passed = False
+        
+        # Verify it does NOT actually delete
+        delete_section = code[code.find("route === '/profile/delete-request'"):code.find("route === '/profile/delete-request'") + 1000]
+        if ".delete()" not in delete_section:
+            print(f"  ✅ Does NOT actually delete data (soft delete)")
+        else:
+            print(f"  ❌ Should NOT use .delete() — soft delete only")
+            all_passed = False
+        
+        if all_passed:
+            print("✅ PASS: Delete-request logic verified")
+            return True
+        else:
+            print("❌ FAIL: Some checks failed")
+            return False
+    except Exception as e:
+        print(f"❌ FAIL: {e}")
+        return False
+
+def test_regression_existing_endpoints():
+    """Test 9: Regression — existing endpoints unaffected"""
+    print("\n=== Test 9: Regression Tests ===")
+    try:
+        # Admin login
+        print("  Testing admin login...")
+        r = requests.post(f"{BASE_URL}/admin/login", json={"password": ADMIN_PASSWORD}, timeout=10)
+        assert r.status_code == 200, f"Admin login failed: {r.status_code}"
+        cookie = r.cookies.get('loanlaabh_admin')
+        assert cookie == 'ok', "Admin cookie not set"
+        print(f"  ✅ Admin login working")
+        
+        # GET /api/leads
+        print("  Testing GET /api/leads...")
+        r = requests.get(f"{BASE_URL}/leads", cookies={'loanlaabh_admin': 'ok'}, timeout=10)
+        assert r.status_code == 200, f"GET /api/leads failed: {r.status_code}"
+        data = r.json()
+        assert 'leads' in data, "Expected leads array"
+        print(f"  ✅ GET /api/leads working ({len(data['leads'])} leads)")
+        
+        # GET /api/lender-criteria
+        print("  Testing GET /api/lender-criteria...")
+        r = requests.get(f"{BASE_URL}/lender-criteria", cookies={'loanlaabh_admin': 'ok'}, timeout=10)
+        assert r.status_code == 200, f"GET /api/lender-criteria failed: {r.status_code}"
+        data = r.json()
+        assert 'lenders' in data, "Expected lenders array"
+        print(f"  ✅ GET /api/lender-criteria working ({len(data['lenders'])} lenders)")
+        
+        # GET /api/lead-captures
+        print("  Testing GET /api/lead-captures...")
+        r = requests.get(f"{BASE_URL}/lead-captures", cookies={'loanlaabh_admin': 'ok'}, timeout=10)
+        assert r.status_code == 200, f"GET /api/lead-captures failed: {r.status_code}"
+        data = r.json()
+        assert 'lead_captures' in data, "Expected lead_captures array"
+        print(f"  ✅ GET /api/lead-captures working ({len(data['lead_captures'])} captures)")
+        
+        # POST /api/leads/capture (public)
+        print("  Testing POST /api/leads/capture...")
+        r = requests.post(f"{BASE_URL}/leads/capture", json={
+            "full_name": "Test User Profile",
+            "mobile": "9999888877",
+            "email": "testprofile@example.com",
             "consent": True,
-            "source_cta": "test_auto_heal",
-            "attribution": {
-                "first": {
-                    "utm_source": "google",
-                    "utm_medium": "cpc",
-                    "utm_campaign": "test_campaign",
-                    "landing_page": "https://loanlaabh.com/",
-                    "device_type": "desktop",
-                    "browser": "Chrome",
-                    "platform": "Windows",
-                    "captured_at": datetime.now().isoformat()
-                },
-                "latest": {
-                    "utm_source": "google",
-                    "utm_medium": "cpc",
-                    "utm_campaign": "test_campaign",
-                    "captured_at": datetime.now().isoformat()
-                }
-            }
-        }
-        
-        resp = requests.post(
-            f"{BASE_URL}/leads/capture",
-            json=payload,
-            timeout=10
-        )
-        log(f"  Status: {resp.status_code}")
-        data = resp.json()
-        log(f"  Response: {json.dumps(data, indent=2)}")
-        
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
+            "source_cta": "test_profile_regression"
+        }, timeout=10)
+        assert r.status_code == 200, f"POST /api/leads/capture failed: {r.status_code}"
+        data = r.json()
         assert data.get('ok') == True, "Expected ok:true"
-        assert 'lead_id' in data, "Expected lead_id in response"
+        print(f"  ✅ POST /api/leads/capture working (lead_id: {data.get('lead_id')})")
         
-        # Check CORS headers
-        assert 'access-control-allow-origin' in resp.headers, "Expected CORS headers"
-        
-        log(f"  ✅ PASSED - Lead capture working, lead_id: {data.get('lead_id')}")
+        print("✅ PASS: All regression tests passed")
         return True
     except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
+        print(f"❌ FAIL: {e}")
+        return False
+
+def test_code_review_eligibility_form_new_fields():
+    """Test 10: Code review — eligibility form now accepts dob, gender, pin_code"""
+    print("\n=== Test 10: Code Review — Eligibility Form New Fields ===")
+    try:
+        with open('/app/app/api/[[...path]]/route.js', 'r') as f:
+            code = f.read()
+        
+        # Find POST /api/leads handler
+        if "route === '/leads' && method === 'POST'" not in code:
+            print("❌ FAIL: POST /api/leads handler not found")
+            return False
+        
+        checks = [
+            ("dob: b.dob || null", "dob field added to lead object"),
+            ("gender: b.gender ? String(b.gender).toLowerCase() : null", "gender field added with normalization"),
+            ("pin_code: b.pin_code ? String(b.pin_code).replace(/\\D/g, '').slice(0, 6) : null", "pin_code field added with normalization"),
+            ("while (e1 && /column .* does not exist|schema cache/i.test", "Auto-heal loop present (Attempt 3 pattern)"),
+            ("pan: lead.pan, dob: lead.dob, gender: lead.gender, pin_code: lead.pin_code", "Profile upsert includes new fields"),
+            ("occupation_type: lead.employment_type", "Profile upsert includes occupation_type"),
+            ("employer_name: lead.salary_account_bank", "Profile upsert includes employer_name"),
+            ("total_experience_years: lead.total_experience_years", "Profile upsert includes total_experience_years"),
+        ]
+        
+        all_passed = True
+        for check_str, desc in checks:
+            if check_str in code:
+                print(f"  ✅ {desc}")
+            else:
+                print(f"  ❌ MISSING: {desc}")
+                all_passed = False
+        
+        # Check profile upsert has its own auto-heal loop
+        profile_section = code[code.find("const profileRow = {"):code.find("const profileRow = {") + 2000]
+        if "while (pe && /column .* does not exist|schema cache/i.test" in profile_section:
+            print(f"  ✅ Profile upsert has its own auto-heal loop")
+        else:
+            print(f"  ❌ MISSING: Profile upsert auto-heal loop")
+            all_passed = False
+        
+        if all_passed:
+            print("✅ PASS: Eligibility form new fields verified")
+            return True
+        else:
+            print("❌ FAIL: Some checks failed")
+            return False
+    except Exception as e:
+        print(f"❌ FAIL: {e}")
         return False
 
 def test_cors_headers():
-    """Test 8: CORS headers present"""
+    """Test 11: CORS headers on profile endpoints"""
+    print("\n=== Test 11: CORS Headers ===")
     try:
-        log("TEST 8: CORS headers verification")
-        resp = requests.get(f"{BASE_URL.replace('/api', '')}/api", timeout=10)
+        # Test on 401 response (GET /api/profile without auth)
+        r = requests.get(f"{BASE_URL}/profile", timeout=10)
+        cors_header = r.headers.get('access-control-allow-origin')
+        print(f"  GET /api/profile (401): access-control-allow-origin = {cors_header}")
+        assert cors_header == '*', f"Expected *, got {cors_header}"
+        print(f"  ✅ CORS headers present on 401 response")
         
-        assert 'access-control-allow-origin' in resp.headers, "Expected CORS header"
-        log(f"  CORS header: {resp.headers.get('access-control-allow-origin')}")
+        # Test on 200 response (health check)
+        r = requests.get(f"{BASE_URL.replace('/api', '')}/api", timeout=10)
+        cors_header = r.headers.get('access-control-allow-origin')
+        print(f"  GET /api (200): access-control-allow-origin = {cors_header}")
+        assert cors_header == '*', f"Expected *, got {cors_header}"
+        print(f"  ✅ CORS headers present on 200 response")
         
-        log("  ✅ PASSED - CORS headers present")
+        print("✅ PASS: CORS headers verified")
         return True
     except Exception as e:
-        log(f"  ❌ FAILED - {str(e)}")
-        return False
-
-def check_requested_amount_column(cookie):
-    """Informational: Check if requested_amount column exists in DB"""
-    try:
-        log("\nINFORMATIONAL: Checking if requested_amount column exists")
-        log("  (This is informational only, not a pass/fail test)")
-        
-        # We can't directly query the DB schema from here, but we can infer from the API behavior
-        # If the auto-heal loop is working, it should handle missing columns gracefully
-        
-        log("  Note: Cannot directly query Supabase schema from test script")
-        log("  The auto-heal loop will handle missing columns automatically")
-        log("  User can run /app/lib/migrations/fix_requested_amount.sql to add the column permanently")
-        
-        return True
-    except Exception as e:
-        log(f"  Note: {str(e)}")
-        return True
-
-def code_review_auto_heal_loop():
-    """Test 1 (Code Review): Review the auto-heal loop implementation"""
-    try:
-        log("\n" + "="*80)
-        log("CODE REVIEW: Auto-heal loop in /app/app/api/[[...path]]/route.js")
-        log("="*80)
-        
-        with open('/app/app/api/[[...path]]/route.js', 'r') as f:
-            content = f.read()
-        
-        # Check for Attempt 3 auto-heal loop
-        assert 'Attempt 3' in content, "Expected 'Attempt 3' comment in code"
-        assert 'generic column-missing auto-heal loop' in content, "Expected auto-heal loop comment"
-        
-        # Check regex patterns
-        assert "'([a-z_][a-z0-9_]*)' column of" in content, "Expected Postgrest regex pattern"
-        assert 'column "([a-z_][a-z0-9_]*)"' in content, "Expected Postgres regex pattern"
-        
-        # Check loop guard
-        assert 'attempts < 6' in content, "Expected max 6 attempts guard"
-        assert '!(col in current)' in content or 'col in current' in content, "Expected column existence check"
-        
-        # Check that essential columns are not in the strip list
-        # The code strips attribution columns but NOT essential ones like mobile, email
-        assert 'delete current[col]' in content, "Expected dynamic column deletion"
-        
-        log("\n✅ CODE REVIEW PASSED:")
-        log("  ✓ Regex parses both error formats: 'X' column of (Postgrest) and column \"X\" (Postgres)")
-        log("  ✓ Loop bounded to max 6 attempts")
-        log("  ✓ Guard condition prevents infinite loop (col not in payload)")
-        log("  ✓ Essential columns (mobile, email) are safe - they exist in table so won't appear in errors")
-        log("  ✓ Fallback payload built from safe subset (without attribution columns)")
-        log("  ✓ Dynamic column removal based on error message parsing")
-        
-        return True
-    except Exception as e:
-        log(f"\n❌ CODE REVIEW FAILED: {str(e)}")
+        print(f"❌ FAIL: {e}")
         return False
 
 def main():
-    log("\n" + "="*80)
-    log("LoanLaabh Backend Test Suite - Bug Fix Verification")
-    log("Bug: POST /api/leads failed with 'requested_amount column not found'")
-    log("Fix: 3-attempt progressive insert with auto-heal loop")
-    log("="*80 + "\n")
+    print("=" * 80)
+    print("USER PROFILE BACKEND VERIFICATION")
+    print("=" * 80)
     
     results = []
     
-    # Code review first
-    results.append(("Code Review: Auto-heal loop", code_review_auto_heal_loop()))
-    
-    # Basic endpoint tests
+    # Run all tests
     results.append(("Health Check", test_health_check()))
     results.append(("Keepalive", test_keepalive()))
-    
-    # Admin login
-    cookie = test_admin_login()
-    results.append(("Admin Login", cookie is not None))
-    
-    if cookie:
-        # Regression tests
-        results.append(("GET /api/leads", test_get_leads(cookie)))
-        results.append(("GET /api/lender-criteria", test_get_lender_criteria(cookie)))
-        results.append(("GET /api/lead-captures", test_get_lead_captures(cookie)))
-        
-        # Informational check
-        check_requested_amount_column(cookie)
-    
-    # Public endpoint tests
-    results.append(("POST /api/leads/capture", test_lead_capture_basic()))
+    results.append(("GET /api/profile auth guard", test_profile_get_auth_guard()))
+    results.append(("PATCH /api/profile auth guard", test_profile_patch_auth_guard()))
+    results.append(("POST /api/profile/delete-request auth guard", test_profile_delete_request_auth_guard()))
+    results.append(("Code Review: Merged Profile", test_code_review_merged_profile()))
+    results.append(("Code Review: PATCH Normalization", test_code_review_patch_normalization()))
+    results.append(("Code Review: Delete Request", test_code_review_delete_request()))
+    results.append(("Regression Tests", test_regression_existing_endpoints()))
+    results.append(("Code Review: Eligibility Form New Fields", test_code_review_eligibility_form_new_fields()))
     results.append(("CORS Headers", test_cors_headers()))
     
     # Summary
-    log("\n" + "="*80)
-    log("TEST SUMMARY")
-    log("="*80)
-    
+    print("\n" + "=" * 80)
+    print("SUMMARY")
+    print("=" * 80)
     passed = sum(1 for _, result in results if result)
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ PASSED" if result else "❌ FAILED"
-        log(f"  {status} - {test_name}")
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status}: {test_name}")
     
-    log(f"\nTotal: {passed}/{total} tests passed")
+    print(f"\nTotal: {passed}/{total} tests passed")
     
     if passed == total:
-        log("\n🎉 ALL TESTS PASSED - Bug fix verified successfully!")
-        log("\nKEY FINDINGS:")
-        log("  ✅ Auto-heal loop code review PASSED")
-        log("  ✅ No regression on adjacent endpoints")
-        log("  ✅ No HTTP 500 errors")
-        log("  ✅ CORS headers present")
-        log("  ✅ POST /api/leads/capture working correctly")
-        log("\nNOTE: POST /api/leads (eligibility form) not tested - requires Supabase JWT")
-        log("      The auto-heal logic is identical to /api/leads/capture which was tested")
-        return 0
+        print("\n🎉 ALL TESTS PASSED — User Profile feature working correctly")
+        sys.exit(0)
     else:
-        log("\n⚠️  SOME TESTS FAILED - See details above")
-        return 1
+        print(f"\n⚠️  {total - passed} test(s) failed")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

@@ -113,6 +113,15 @@ user_problem_statement: |
   - Supabase (Postgres) for persistence, admin password auth
 
 backend:
+  - task: "User Profile page + GET/PATCH /api/profile + delete-request endpoint"
+    implemented: true
+    working: "NA"
+    file: "app/api/[[...path]]/route.js, app/dashboard/profile/page.js"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Built /dashboard/profile page (matches user's PDF spec — Personal Info, Work Info, Notification Settings, Credit Score CTA, Account Management). Backend: GET /api/profile returns MERGED view from profiles table + latest leads row + Supabase auth (email/created_at) so returning users see ~70% auto-prefilled data. PATCH /api/profile uses upsert with allow-listed editable fields (email is locked, phone/pan/pin_code/work_email normalized, notif_* forced booleans, auto-heal loop for missing columns). POST /api/profile/delete-request sets deletion_requested_at (soft delete — admin processes manually). Also extended eligibility form step 1 with DOB (date picker + 18yr min), Gender select, Pin Code — these now flow into the leads table + are upserted to profiles for future prefill. SQL migration at /app/lib/migrations/user_profile.sql adds all new profile columns + dob/gender/pin_code to leads + RLS policies. Frontend page has auth-guard redirect to /login?redirect=dashboard/profile if no session (confirmed working via screenshot). Dashboard header now has 'Profile' button linking to /dashboard/profile."
   - task: "Self-healing insert path for /api/leads (missing column auto-fallback)"
     implemented: true
     working: "NA"
